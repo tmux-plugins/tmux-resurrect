@@ -112,6 +112,14 @@ restore_active_pane_for_each_window() {
 		done
 }
 
+restore_active_and_alternate_windows() {
+	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $6 ~ /[*-]/ { print $2, $5, $3; }' $(last_session_path) |
+		sort -u |
+		while IFS=$'\t' read session_name active_window window_number; do
+			tmux switch-client -t "${session_name}:${window_number}"
+		done
+}
+
 restore_active_and_alternate_sessions() {
 	while read line; do
 		if is_line_type "state" "$line"; then
@@ -125,6 +133,7 @@ main() {
 		check_saved_session_exists
 		restore_all_sessions
 		restore_active_pane_for_each_window
+		restore_active_and_alternate_windows
 		restore_active_and_alternate_sessions
 		display_message "Restored all Tmux sessions!"
 	fi
