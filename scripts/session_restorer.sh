@@ -39,6 +39,10 @@ tmux_socket() {
 	echo $TMUX | cut -d',' -f1
 }
 
+remove_first_char() {
+	echo "$1" | cut -c2-
+}
+
 new_window() {
 	local session_name="$1"
 	local window_number="$2"
@@ -71,7 +75,8 @@ new_pane() {
 restore_pane() {
 	local pane="$1"
 	echo "$pane" |
-	while IFS=$'\t' read line_type session_name window_number dir window_name; do
+	while IFS=$'\t' read line_type session_name window_number window_name dir; do
+		window_name="$(remove_first_char $window_name)"
 		if window_exists "$session_name" "$window_number"; then
 			new_pane "$session_name" "$window_number" "$window_name" "$dir"
 		elif session_exists "$session_name"; then
