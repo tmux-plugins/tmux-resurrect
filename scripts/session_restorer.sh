@@ -69,7 +69,7 @@ new_pane() {
 	local window_number="$2"
 	local window_name="$3"
 	local dir="$4"
-	tmux split-window -d -t "${session_name}:${window_number}" -c "$dir"
+	tmux split-window -t "${session_name}:${window_number}" -c "$dir"
 }
 
 restore_pane() {
