@@ -57,15 +57,11 @@ restore_pane() {
 	local pane="$1"
 	echo "$pane" |
 	while IFS=$'\t' read session_name window_number window_name dir; do
-		# echo "$session_name - $window_number - $window_name - $dir"
 		if window_exists "$session_name" "$window_number"; then
-			echo "new pane $session_name $window_number"
 			new_pane "$session_name" "$window_number" "$window_name" "$dir"
 		elif session_exists "$session_name"; then
-			echo "new window $session_name $window_number"
 			new_window "$session_name" "$window_number" "$window_name" "$dir"
 		else
-			echo "new session $session_name"
 			new_session "$session_name" "$window_number" "$window_name" "$dir"
 		fi
 	done
