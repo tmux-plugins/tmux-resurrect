@@ -75,6 +75,8 @@ restore_all_sessions() {
 }
 
 main() {
-	restore_all_sessions
+	if supported_tmux_version_ok; then
+		restore_all_sessions
+	fi
 }
 main

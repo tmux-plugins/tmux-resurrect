@@ -2,6 +2,8 @@
 default_sessions_dir="$HOME/.tmux/sessions"
 sessions_dir_option="@sessions-dir"
 
+SUPPORTED_VERSION="1.9"
+
 # helper functions
 get_tmux_option() {
 	local option="$1"
@@ -38,6 +40,13 @@ display_message() {
 	# restores original 'display-time' value
 	tmux set-option -gq display-time "$saved_display_time"
 }
+
+
+supported_tmux_version_ok() {
+	$CURRENT_DIR/check_tmux_version.sh "$SUPPORTED_VERSION"
+}
+
+# path helpers
 
 sessions_dir() {
 	echo $(get_tmux_option "$sessions_dir_option" "$default_sessions_dir")

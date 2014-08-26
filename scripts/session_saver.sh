@@ -30,6 +30,8 @@ save_all_sessions() {
 }
 
 main() {
-	save_all_sessions
+	if supported_tmux_version_ok; then
+		save_all_sessions
+	fi
 }
 main
