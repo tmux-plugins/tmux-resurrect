@@ -3,6 +3,7 @@
 ### master
 - save and restore current and alternate session
 - fix a bug with non-existing window names
+- restore active pane for each window that has multiple panes
 
 ### v0.0.2, 2014-08-26
 - saving a new session does not remove the previous one

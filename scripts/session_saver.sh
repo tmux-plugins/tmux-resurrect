@@ -15,7 +15,15 @@ pane_format() {
 	format+="${delimiter}"
 	format+=":#{window_name}"
 	format+="${delimiter}"
+	format+="#{window_active}"
+	format+="${delimiter}"
+	format+=":#{window_flags}"
+	format+="${delimiter}"
+	format+="#{pane_index}"
+	format+="${delimiter}"
 	format+="#{pane_current_path}"
+	format+="${delimiter}"
+	format+="#{pane_active}"
 	echo "$format"
 }
 

@@ -75,7 +75,7 @@ new_pane() {
 restore_pane() {
 	local pane="$1"
 	echo "$pane" |
-	while IFS=$'\t' read line_type session_name window_number window_name dir; do
+	while IFS=$'\t' read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active; do
 		window_name="$(remove_first_char $window_name)"
 		if window_exists "$session_name" "$window_number"; then
 			new_pane "$session_name" "$window_number" "$window_name" "$dir"
@@ -100,17 +100,33 @@ restore_all_sessions() {
 	while read line; do
 		if is_line_type "pane" "$line"; then
 			restore_pane "$line"
-		elif is_line_type "state" "$line"; then
+		fi
+	done < $(last_session_path)
+}
+
+restore_active_pane_for_each_window() {
+	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $7 != 0 && $9 == 1 { print $2, $3, $7; }' $(last_session_path) |
+		while IFS=$'\t' read session_name window_number active_pane; do
+			tmux switch-client -t "${session_name}:${window_number}"
+			tmux select-pane -t "$active_pane"
+		done
+}
+
+restore_active_and_alternate_sessions() {
+	while read line; do
+		if is_line_type "state" "$line"; then
 			restore_state "$line"
 		fi
 	done < $(last_session_path)
-	display_message "Restored all Tmux sessions!"
 }
 
 main() {
 	if supported_tmux_version_ok; then
 		check_saved_session_exists
 		restore_all_sessions
+		restore_active_pane_for_each_window
+		restore_active_and_alternate_sessions
+		display_message "Restored all Tmux sessions!"
 	fi
 }
 main
