@@ -120,7 +120,7 @@ restore_active_pane_for_each_window() {
 }
 
 restore_active_and_alternate_windows() {
-	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $6 ~ /[*-]/ { print $2, $5, $3; }' $(last_session_path) |
+	awk 'BEGIN { FS="\t"; OFS="\t" } /^window/ && $5 ~ /[*-]/ { print $2, $4, $3; }' $(last_session_path) |
 		sort -u |
 		while IFS=$'\t' read session_name active_window window_number; do
 			tmux switch-client -t "${session_name}:${window_number}"
