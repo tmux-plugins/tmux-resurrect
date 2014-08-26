@@ -4,6 +4,13 @@ CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source "$CURRENT_DIR/helpers.sh"
 
+is_line_type() {
+	local line_type="$1"
+	local line="$2"
+	echo "$line" |
+		\grep -q "^$line_type"
+}
+
 check_saved_session_exists() {
 	local saved_session="$(last_session_path)"
 	if [ ! -f $saved_session ]; then
@@ -64,7 +71,7 @@ new_pane() {
 restore_pane() {
 	local pane="$1"
 	echo "$pane" |
-	while IFS=$'\t' read session_name window_number window_name dir; do
+	while IFS=$'\t' read line_type session_name window_number window_name dir; do
 		if window_exists "$session_name" "$window_number"; then
 			new_pane "$session_name" "$window_number" "$window_name" "$dir"
 		elif session_exists "$session_name"; then
@@ -75,9 +82,22 @@ restore_pane() {
 	done
 }
 
+restore_state() {
+	local state="$1"
+	echo "$state" |
+	while IFS=$'\t' read line_type client_session client_last_session; do
+		tmux switch-client -t "$client_last_session"
+		tmux switch-client -t "$client_session"
+	done
+}
+
 restore_all_sessions() {
 	while read line; do
-		restore_pane "$line"
+		if is_line_type "pane" "$line"; then
+			restore_pane "$line"
+		elif is_line_type "state" "$line"; then
+			restore_state "$line"
+		fi
 	done < $(last_session_path)
 	display_message "Restored all Tmux sessions!"
 }

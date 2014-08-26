@@ -1,6 +1,7 @@
 # Changelog
 
 ### master
+- save and restore current and alternate session
 
 ### v0.0.2, 2014-08-26
 - saving a new session does not remove the previous one
