@@ -23,7 +23,7 @@ dump() {
 
 save_all_sessions() {
 	local session_path="$(session_path)"
-	mkdir -p "$SESSIONS_DIR"
+	mkdir -p "$(sessions_dir)"
 	dump > $session_path
 	ln -fs "$session_path" "$(last_session_path)"
 	display_message "Saved all Tmux sessions!"
