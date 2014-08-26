@@ -1,6 +1,8 @@
 # Changelog
 
 ### master
+
+### v0.0.2, 2014-08-26
 - saving a new session does not remove the previous one
 - make the directory where sessions are stored configurable
 - support only Tmux v1.9 or greater
