@@ -1,3 +1,7 @@
+# constants
+SESSIONS_DIR="$HOME/.tmux/sessions"
+
+# helper functions
 get_tmux_option() {
 	local option="$1"
 	local default_value="$2"
@@ -32,4 +36,13 @@ display_message() {
 
 	# restores original 'display-time' value
 	tmux set-option -gq display-time "$saved_display_time"
+}
+
+session_path() {
+	local timestamp="$(date +"%Y-%m-%dT%H:%M:%S")"
+	echo "${SESSIONS_DIR}/tmux_session_${timestamp}.txt"
+}
+
+last_session_path() {
+	echo "${SESSIONS_DIR}/last"
 }

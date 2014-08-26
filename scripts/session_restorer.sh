@@ -70,7 +70,7 @@ restore_pane() {
 restore_all_sessions() {
 	while read line; do
 		restore_pane "$line"
-	done < $HOME/.tmux/session
+	done < $(last_session_path)
 	display_message "Restored all Tmux sessions!"
 }
 
