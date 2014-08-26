@@ -104,6 +104,13 @@ restore_all_sessions() {
 	done < $(last_session_path)
 }
 
+restore_pane_layout_for_each_window() {
+	\grep '^window' $(last_session_path) |
+		while IFS=$'\t' read line_type session_name window_number window_active window_flags window_layout; do
+			tmux select-layout -t "${session_name}:${window_number}" "$window_layout"
+		done
+}
+
 restore_active_pane_for_each_window() {
 	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $7 != 0 && $9 == 1 { print $2, $3, $7; }' $(last_session_path) |
 		while IFS=$'\t' read session_name window_number active_pane; do
@@ -132,6 +139,7 @@ main() {
 	if supported_tmux_version_ok; then
 		check_saved_session_exists
 		restore_all_sessions
+		restore_pane_layout_for_each_window
 		restore_active_pane_for_each_window
 		restore_active_and_alternate_windows
 		restore_active_and_alternate_sessions

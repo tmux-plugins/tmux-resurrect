@@ -27,6 +27,23 @@ pane_format() {
 	echo "$format"
 }
 
+window_format() {
+	local delimiter=$'\t'
+	local format
+	format+="window"
+	format+="${delimiter}"
+	format+="#{session_name}"
+	format+="${delimiter}"
+	format+="#{window_index}"
+	format+="${delimiter}"
+	format+="#{window_active}"
+	format+="${delimiter}"
+	format+=":#{window_flags}"
+	format+="${delimiter}"
+	format+="#{window_layout}"
+	echo "$format"
+}
+
 state_format() {
 	local delimiter=$'\t'
 	local format
@@ -42,6 +59,10 @@ dump_panes() {
 	tmux list-panes -a -F "$(pane_format)"
 }
 
+dump_windows() {
+	tmux list-windows -a -F "$(window_format)"
+}
+
 dump_state() {
 	tmux display-message -p "$(state_format)"
 }
@@ -49,8 +70,9 @@ dump_state() {
 save_all_sessions() {
 	local session_path="$(session_path)"
 	mkdir -p "$(sessions_dir)"
-	dump_panes >  $session_path
-	dump_state >> $session_path
+	dump_panes   >  $session_path
+	dump_windows >> $session_path
+	dump_state   >> $session_path
 	ln -fs "$session_path" "$(last_session_path)"
 	display_message "Saved all Tmux sessions!"
 }

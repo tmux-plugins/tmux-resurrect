@@ -1,6 +1,7 @@
 # Changelog
 
 ### master
+- restore pane layout for each window
 
 ### v0.0.3, 2014-08-26
 - save and restore current and alternate session
