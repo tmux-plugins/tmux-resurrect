@@ -2,6 +2,10 @@
 
 Enables saving and restoring of tmux sessions.
 
+Requirements / dependencies:
+- `tmux 1.9` or higher
+- `pgrep`
+
 ### Key bindings
 
 - `prefix + M-s` - save

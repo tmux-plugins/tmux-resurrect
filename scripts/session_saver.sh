@@ -24,6 +24,10 @@ pane_format() {
 	format+="#{pane_current_path}"
 	format+="${delimiter}"
 	format+="#{pane_active}"
+	format+="${delimiter}"
+	format+="#{pane_current_command}"
+	format+="${delimiter}"
+	format+="#{pane_pid}"
 	echo "$format"
 }
 
@@ -55,8 +59,25 @@ state_format() {
 	echo "$format"
 }
 
-dump_panes() {
+dump_panes_raw() {
 	tmux list-panes -a -F "$(pane_format)"
+}
+
+pane_full_command() {
+	pane_pid="$1"
+	\pgrep -lf -P "$pane_pid" |
+		cut -d' ' -f2-
+}
+
+# translates pane pid to process command running inside a pane
+dump_panes() {
+	local full_command
+	local d=$'\t' # delimiter
+	dump_panes_raw |
+		while IFS=$'\t' read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid; do
+			full_command="$(pane_full_command $pane_pid)"
+			echo "${line_type}${d}${session_name}${d}${window_number}${d}${window_name}${d}${window_active}${d}${window_flags}${d}${pane_index}${d}${dir}${d}${pane_active}${d}${pane_command}${d}:${full_command}"
+		done
 }
 
 dump_windows() {

@@ -75,8 +75,9 @@ new_pane() {
 restore_pane() {
 	local pane="$1"
 	echo "$pane" |
-	while IFS=$'\t' read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active; do
-		window_name="$(remove_first_char $window_name)"
+	while IFS=$'\t' read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_full_command; do
+		window_name="$(remove_first_char "$window_name")"
+		pane_full_command="$(remove_first_char "$pane_full_command")"
 		if window_exists "$session_name" "$window_number"; then
 			new_pane "$session_name" "$window_number" "$window_name" "$dir"
 		elif session_exists "$session_name"; then
@@ -102,6 +103,16 @@ restore_all_sessions() {
 			restore_pane "$line"
 		fi
 	done < $(last_session_path)
+}
+
+restore_all_pane_processes() {
+	local pane_full_command
+	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $11 !~ "^:$" { print $2, $3, $7, $11; }' $(last_session_path) |
+		while IFS=$'\t' read session_name window_number pane_index pane_full_command; do
+			pane_full_command="$(remove_first_char "$pane_full_command")"
+			tmux switch-client -t "${session_name}:${window_number}"
+			tmux send-keys -t "$pane_index" "$pane_full_command" "C-m"
+		done
 }
 
 restore_pane_layout_for_each_window() {
@@ -139,7 +150,9 @@ main() {
 	if supported_tmux_version_ok; then
 		check_saved_session_exists
 		restore_all_sessions
-		restore_pane_layout_for_each_window
+		restore_all_pane_processes
+		restore_pane_layout_for_each_window >/dev/null 2>&1
+		# below functions restore exact cursor positions
 		restore_active_pane_for_each_window
 		restore_active_and_alternate_windows
 		restore_active_and_alternate_sessions
