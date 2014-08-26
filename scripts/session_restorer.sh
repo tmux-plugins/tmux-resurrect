@@ -4,6 +4,14 @@ CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source "$CURRENT_DIR/helpers.sh"
 
+check_saved_session_exists() {
+	local saved_session="$(last_session_path)"
+	if [ ! -f $saved_session ]; then
+		display_message "Saved session not found!"
+		exit
+	fi
+}
+
 window_exists() {
 	local session_name="$1"
 	local window_number="$2"
@@ -76,6 +84,7 @@ restore_all_sessions() {
 
 main() {
 	if supported_tmux_version_ok; then
+		check_saved_session_exists
 		restore_all_sessions
 	fi
 }
