@@ -3,6 +3,7 @@
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source "$CURRENT_DIR/helpers.sh"
+source "$CURRENT_DIR/process_restore_helpers.sh"
 
 is_line_type() {
 	local line_type="$1"
@@ -103,24 +104,6 @@ restore_all_sessions() {
 			restore_pane "$line"
 		fi
 	done < $(last_session_path)
-}
-
-restore_pane_processes_enabled() {
-	local restore_processes="$(get_tmux_option "$restore_processes_option" "$default_restore_processes")"
-	if [ $restore_processes == "false" ]; then
-		return 1
-	else
-		return 0
-	fi
-}
-
-restore_pane_process() {
-	local pane_full_command="$1"
-	local session_name="$2"
-	local window_number="$3"
-	local pane_index="$4"
-	tmux switch-client -t "${session_name}:${window_number}"
-	tmux send-keys -t "$pane_index" "$pane_full_command" "C-m"
 }
 
 restore_all_pane_processes() {
