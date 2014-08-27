@@ -5,6 +5,7 @@
 - user option for disabling pane process restoring
 - enable whitelisting processes that will be restored
 - expand readme with configuration options
+- enable command strategies; enable restoring vim sessions
 
 ### v0.0.4, 2014-08-26
 - restore pane layout for each window
