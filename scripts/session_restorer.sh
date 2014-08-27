@@ -105,14 +105,33 @@ restore_all_sessions() {
 	done < $(last_session_path)
 }
 
+restore_pane_processes_enabled() {
+	local restore_processes="$(get_tmux_option "$restore_processes_option" "$default_restore_processes")"
+	if [ $restore_processes == "false" ]; then
+		return 1
+	else
+		return 0
+	fi
+}
+
+restore_pane_process() {
+	local pane_full_command="$1"
+	local session_name="$2"
+	local window_number="$3"
+	local pane_index="$4"
+	tmux switch-client -t "${session_name}:${window_number}"
+	tmux send-keys -t "$pane_index" "$pane_full_command" "C-m"
+}
+
 restore_all_pane_processes() {
-	local pane_full_command
-	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $11 !~ "^:$" { print $2, $3, $7, $11; }' $(last_session_path) |
-		while IFS=$'\t' read session_name window_number pane_index pane_full_command; do
-			pane_full_command="$(remove_first_char "$pane_full_command")"
-			tmux switch-client -t "${session_name}:${window_number}"
-			tmux send-keys -t "$pane_index" "$pane_full_command" "C-m"
-		done
+	if restore_pane_processes_enabled; then
+		local pane_full_command
+		awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $11 !~ "^:$" { print $2, $3, $7, $11; }' $(last_session_path) |
+			while IFS=$'\t' read session_name window_number pane_index pane_full_command; do
+				pane_full_command="$(remove_first_char "$pane_full_command")"
+				restore_pane_process "$pane_full_command" "$session_name" "$window_number" "$pane_index"
+			done
+	fi
 }
 
 restore_pane_layout_for_each_window() {

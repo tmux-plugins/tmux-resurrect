@@ -2,6 +2,7 @@
 
 ### master
 - restore pane processes
+- user option for disabling pane process restoring
 
 ### v0.0.4, 2014-08-26
 - restore pane layout for each window

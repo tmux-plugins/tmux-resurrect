@@ -1,6 +1,9 @@
 # configurable constants
 default_sessions_dir="$HOME/.tmux/sessions"
-sessions_dir_option="@sessions-dir"
+sessions_dir_option="@session-saver-dir"
+
+restore_processes_option="@session-saver-restore-processes"
+default_restore_processes="true"
 
 SUPPORTED_VERSION="1.9"
 
