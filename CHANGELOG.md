@@ -1,6 +1,8 @@
 # Changelog
 
 ### master
+
+### v0.0.5, 2014-08-28
 - restore pane processes
 - user option for disabling pane process restoring
 - enable whitelisting processes that will be restored
