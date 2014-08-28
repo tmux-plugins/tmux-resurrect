@@ -5,6 +5,7 @@
   sure vim does not contain `-S` flag
 - enable restoring programs with arguments (e.g. "rails console") and also
   processes that contain program name
+- improve `irb` restore strategy
 
 ### v0.1.0, 2014-08-28
 - refactor checking if saved tmux session exists

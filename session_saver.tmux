@@ -2,13 +2,8 @@
 
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+source "$CURRENT_DIR/scripts/variables.sh"
 source "$CURRENT_DIR/scripts/helpers.sh"
-
-default_save_key="M-s"
-save_option="@session-saver-save"
-
-default_restore_key="M-r"
-restore_option="@session-saver-restore"
 
 set_save_bindings() {
 	local key_bindings=$(get_tmux_option "$save_option" "$default_save_key")
@@ -26,8 +21,13 @@ set_restore_bindings() {
 	done
 }
 
+set_default_strategies() {
+	tmux set-option -g "${restore_process_strategy_option}irb" "default_strategy"
+}
+
 main() {
 	set_save_bindings
 	set_restore_bindings
+	set_default_strategies
 }
 main
