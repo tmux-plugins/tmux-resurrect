@@ -74,7 +74,8 @@ _process_on_the_restore_list() {
 	local restore_list="$(_restore_list)"
 	local proc
 	for proc in $restore_list; do
-		if [[ "$pane_full_command" =~ (^$proc) ]]; then
+		# regex matching the command makes sure process is a "word"
+		if [[ "$pane_full_command" =~ (^${proc} ) ]] || [[ "$pane_full_command" =~ (^${proc}$) ]]; then
 			return 0
 		fi
 	done
