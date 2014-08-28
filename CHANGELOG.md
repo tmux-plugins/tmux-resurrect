@@ -1,6 +1,8 @@
 # Changelog
 
 ### master
+
+### v0.1.0, 2014-08-28
 - refactor checking if saved tmux session exists
 - spinner while tmux sessions are restored
 
