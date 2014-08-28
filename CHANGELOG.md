@@ -1,6 +1,7 @@
 # Changelog
 
 ### master
+- refactor checking if saved tmux session exists
 
 ### v0.0.5, 2014-08-28
 - restore pane processes

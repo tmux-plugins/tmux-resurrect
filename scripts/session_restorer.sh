@@ -15,8 +15,8 @@ is_line_type() {
 check_saved_session_exists() {
 	local saved_session="$(last_session_path)"
 	if [ ! -f $saved_session ]; then
-		display_message "Saved session not found!"
-		exit
+		display_message "Saved tmux session not found!"
+		return 1
 	fi
 }
 
@@ -149,8 +149,7 @@ restore_active_and_alternate_sessions() {
 }
 
 main() {
-	if supported_tmux_version_ok; then
-		check_saved_session_exists
+	if supported_tmux_version_ok && check_saved_session_exists; then
 		restore_all_sessions
 		restore_all_pane_processes
 		restore_pane_layout_for_each_window >/dev/null 2>&1
