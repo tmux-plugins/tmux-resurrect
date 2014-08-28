@@ -67,12 +67,20 @@ You should now be able to use the plugin.
 ### Configuration
 
 Only a conservative list of programs is restored by default:
-`vi vim emacs man less more tail top htop irssi irb pry`.
+`vi vim emacs man less more tail top htop irssi irb pry "~rails console"`.
 Open a github issue if you think some other program should be on the default list.
 
-- Restore additional programs by putting the following in `.tmux.conf`:
+- Restore additional programs with the setting in `.tmux.conf`:
 
         set -g @session-saver-processes 'ssh psql mysql sqlite3'
+
+- Programs with arguments should be double quoted:
+
+        set -g @session-saver-processes 'some_program "git log"'
+
+- Start with tilde to restore a program whose process contains target name:
+
+        set -g @session-saver-processes 'some_program "~rails server"'
 
 - Don't restore any programs:
 

@@ -46,6 +46,10 @@ supported_tmux_version_ok() {
 	$CURRENT_DIR/check_tmux_version.sh "$SUPPORTED_VERSION"
 }
 
+remove_first_char() {
+	echo "$1" | cut -c2-
+}
+
 # path helpers
 
 sessions_dir() {

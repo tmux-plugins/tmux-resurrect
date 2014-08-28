@@ -1,6 +1,6 @@
 # default processes that are restored
 default_proc_list_option="@session-saver-default-processes"
-default_proc_list="vi vim emacs man less more tail top htop irssi irb pry"
+default_proc_list='vi vim emacs man less more tail top htop irssi irb pry "~rails console"'
 
 # User defined processes that are restored
 #  'false' - nothing is restored
@@ -71,12 +71,21 @@ _restore_all_processes() {
 
 _process_on_the_restore_list() {
 	local pane_full_command="$1"
-	local restore_list="$(_restore_list)"
+	# TODO: make this work without eval
+	eval set $(_restore_list)
 	local proc
-	for proc in $restore_list; do
-		# regex matching the command makes sure process is a "word"
-		if [[ "$pane_full_command" =~ (^${proc} ) ]] || [[ "$pane_full_command" =~ (^${proc}$) ]]; then
-			return 0
+	for proc in "$@"; do
+		if _proc_starts_with_tildae "$proc"; then
+			proc="$(remove_first_char "$proc")"
+			# regex matching the command makes sure `$proc` string is somewhere the command string
+			if [[ "$pane_full_command" =~ ($proc) ]]; then
+				return 0
+			fi
+		else
+			# regex matching the command makes sure process is a "word"
+			if [[ "$pane_full_command" =~ (^${proc} ) ]] || [[ "$pane_full_command" =~ (^${proc}$) ]]; then
+				return 0
+			fi
 		fi
 	done
 	return 1
@@ -91,6 +100,10 @@ _restore_list() {
 	else
 		echo "$default_processes $user_processes"
 	fi
+}
+
+_proc_starts_with_tildae() {
+	[[ "$1" =~ (^~) ]]
 }
 
 _strategy_exists() {

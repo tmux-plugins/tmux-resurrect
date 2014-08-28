@@ -41,10 +41,6 @@ tmux_socket() {
 	echo $TMUX | cut -d',' -f1
 }
 
-remove_first_char() {
-	echo "$1" | cut -c2-
-}
-
 new_window() {
 	local session_name="$1"
 	local window_number="$2"
