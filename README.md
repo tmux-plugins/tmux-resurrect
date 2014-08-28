@@ -66,13 +66,13 @@ You should now be able to use the plugin.
 
 ### Configuration
 
-By default, only a conservative list of programs is restored:
-`vim emacs man less more tail top htop irssi`.
+Only a conservative list of programs is restored by default:
+`vi vim emacs man less more tail top htop irssi irb pry`.
 Open a github issue if you think some other program should be on the default list.
 
 - Restore additional programs by putting the following in `.tmux.conf`:
 
-        set -g @session-saver-processes 'ssh telnet myprogram'
+        set -g @session-saver-processes 'ssh psql mysql sqlite3'
 
 - Don't restore any programs:
 

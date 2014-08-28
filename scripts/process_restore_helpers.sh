@@ -1,6 +1,6 @@
 # default processes that are restored
 default_proc_list_option="@session-saver-default-processes"
-default_proc_list="vim emacs man less more tail top htop irssi"
+default_proc_list="vi vim emacs man less more tail top htop irssi irb pry"
 
 # User defined processes that are restored
 #  'false' - nothing is restored
