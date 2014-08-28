@@ -1,6 +1,8 @@
 # Changelog
 
 ### master
+
+### v0.2.0, 2014-08-29
 - bugfix: with vim 'session' strategy, if the session file does not exist - make
   sure vim does not contain `-S` flag
 - enable restoring programs with arguments (e.g. "rails console") and also
