@@ -75,6 +75,7 @@ restore_pane() {
 	local pane="$1"
 	echo "$pane" |
 	while IFS=$'\t' read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_full_command; do
+		dir="$(remove_first_char "$dir")"
 		window_name="$(remove_first_char "$window_name")"
 		pane_full_command="$(remove_first_char "$pane_full_command")"
 		if window_exists "$session_name" "$window_number"; then
@@ -109,6 +110,7 @@ restore_all_pane_processes() {
 		local pane_full_command
 		awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $11 !~ "^:$" { print $2, $3, $7, $8, $11; }' $(last_session_path) |
 			while IFS=$'\t' read session_name window_number pane_index dir pane_full_command; do
+				dir="$(remove_first_char "$dir")"
 				pane_full_command="$(remove_first_char "$pane_full_command")"
 				restore_pane_process "$pane_full_command" "$session_name" "$window_number" "$pane_index" "$dir"
 			done

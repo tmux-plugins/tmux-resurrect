@@ -21,7 +21,7 @@ pane_format() {
 	format+="${delimiter}"
 	format+="#{pane_index}"
 	format+="${delimiter}"
-	format+="#{pane_current_path}"
+	format+=":#{pane_current_path}"
 	format+="${delimiter}"
 	format+="#{pane_active}"
 	format+="${delimiter}"
