@@ -1,6 +1,8 @@
 # Changelog
 
 ### master
+- bugfix: with vim 'session' strategy, if the session file does not exist - make
+  sure wim does not contain `-S` flag
 
 ### v0.1.0, 2014-08-28
 - refactor checking if saved tmux session exists
