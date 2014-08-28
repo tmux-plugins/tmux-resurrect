@@ -2,6 +2,7 @@
 
 ### master
 - refactor checking if saved tmux session exists
+- spinner while tmux sessions are restored
 
 ### v0.0.5, 2014-08-28
 - restore pane processes

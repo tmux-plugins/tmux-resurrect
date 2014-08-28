@@ -4,6 +4,7 @@ CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source "$CURRENT_DIR/helpers.sh"
 source "$CURRENT_DIR/process_restore_helpers.sh"
+source "$CURRENT_DIR/spinner_helpers.sh"
 
 is_line_type() {
 	local line_type="$1"
@@ -150,6 +151,7 @@ restore_active_and_alternate_sessions() {
 
 main() {
 	if supported_tmux_version_ok && check_saved_session_exists; then
+		start_spinner
 		restore_all_sessions
 		restore_all_pane_processes
 		restore_pane_layout_for_each_window >/dev/null 2>&1
@@ -157,6 +159,7 @@ main() {
 		restore_active_pane_for_each_window
 		restore_active_and_alternate_windows
 		restore_active_and_alternate_sessions
+		stop_spinner
 		display_message "Restored all Tmux sessions!"
 	fi
 }
