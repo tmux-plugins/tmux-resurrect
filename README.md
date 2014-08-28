@@ -2,16 +2,16 @@
 
 Persists `tmux` environment across system restarts.
 
-Tmux is great, except when you have to restart your computer. You loose all the
+Tmux is great, except when you have to restart the computer. You loose all the
 running programs, working directories, pane layouts etc.
 There are helpful management tools out there, but they require initial
 configuration and continuous updates as your workflow evolves or you start new
 projects.
 
-Enter `tmux-session-saver`: tmux persistence without configuration so there are
-no interruptions in your workflow.
+`tmux-session-saver` saves all the little details from tmux environment so it
+can be easily restored after system restart. No configuration is required.
 
-It will even (optionally) [restore vim sessions](#restoring-vim-sessions)!
+It even (optionally) [restores vim sessions](#restoring-vim-sessions)!
 
 ### Key bindings
 
@@ -29,7 +29,8 @@ This plugin goes to great lengths to save and restore all the details from your
 - active and alternative session
 - active and alternative window for each session
 - active pane for each window
-- programs running within a pane! More details in the [configuration section](#configuration).
+- programs running within a pane! More details in the
+  [configuration section](#configuration).
 - restoring vim sessions (optional). More details in
   [restoring vim sessions](#restoring-vim-sessions).
 
@@ -66,7 +67,9 @@ You should now be able to use the plugin.
 
 ### Configuration
 
-Only a conservative list of programs is restored by default:
+Configuration is not required - but it enables extra features.
+
+Only a conservative list of programs is restored by default:<br/>
 `vi vim emacs man less more tail top htop irssi irb pry "~rails console"`.
 Open a github issue if you think some other program should be on the default list.
 
