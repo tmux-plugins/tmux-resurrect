@@ -72,7 +72,7 @@ You should now be able to use the plugin.
 Configuration is not required - but it enables extra features.
 
 Only a conservative list of programs is restored by default:<br/>
-`vi vim emacs man less more tail top htop irssi irb pry "~rails console"`.
+`vi vim emacs man less more tail top htop irssi`.
 Open a github issue if you think some other program should be on the default list.
 
 - Restore additional programs with the setting in `.tmux.conf`:
@@ -85,7 +85,7 @@ Open a github issue if you think some other program should be on the default lis
 
 - Start with tilde to restore a program whose process contains target name:
 
-        set -g @resurrect-processes 'some_program "~rails server"'
+        set -g @resurrect-processes 'irb pry "~rails server" "~rails console"'
 
 - Don't restore any programs:
 
