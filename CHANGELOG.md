@@ -3,6 +3,8 @@
 ### master
 - bugfix: when top is running the pane `$PWD` can't be saved. This was causing
   issues during the restore and is now fixed.
+- restoring sessions multiple times messes up the whole environment - new panes
+  are all around. This is now fixed - pane restorations are now idempotent.
 
 ### v0.2.0, 2014-08-29
 - bugfix: with vim 'session' strategy, if the session file does not exist - make

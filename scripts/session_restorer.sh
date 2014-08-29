@@ -22,6 +22,14 @@ check_saved_session_exists() {
 	fi
 }
 
+pane_exists() {
+	local session_name="$1"
+	local window_number="$2"
+	local pane_index="$3"
+	tmux list-panes -t "${session_name}:${window_number}" -F "#{pane_index}" 2>/dev/null |
+		\grep -q "^$pane_index$"
+}
+
 window_exists() {
 	local session_name="$1"
 	local window_number="$2"
@@ -78,7 +86,9 @@ restore_pane() {
 		dir="$(remove_first_char "$dir")"
 		window_name="$(remove_first_char "$window_name")"
 		pane_full_command="$(remove_first_char "$pane_full_command")"
-		if window_exists "$session_name" "$window_number"; then
+		if pane_exists "$session_name" "$window_number" "$pane_index"; then
+			true  # pane exists, no need to create it!
+		elif window_exists "$session_name" "$window_number"; then
 			new_pane "$session_name" "$window_number" "$window_name" "$dir"
 		elif session_exists "$session_name"; then
 			new_window "$session_name" "$window_number" "$window_name" "$dir"
@@ -97,7 +107,7 @@ restore_state() {
 	done
 }
 
-restore_all_sessions() {
+restore_all_panes() {
 	while read line; do
 		if is_line_type "pane" "$line"; then
 			restore_pane "$line"
@@ -151,7 +161,7 @@ restore_active_and_alternate_sessions() {
 main() {
 	if supported_tmux_version_ok && check_saved_session_exists; then
 		start_spinner
-		restore_all_sessions
+		restore_all_panes
 		restore_all_pane_processes
 		restore_pane_layout_for_each_window >/dev/null 2>&1
 		# below functions restore exact cursor positions
