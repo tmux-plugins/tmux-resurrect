@@ -8,7 +8,7 @@ source "$CURRENT_DIR/process_restore_helpers.sh"
 source "$CURRENT_DIR/spinner_helpers.sh"
 
 # Global variable.
-# Used during the restoration: if a pane already exists from before, it is
+# Used during the restore: if a pane already exists from before, it is
 # saved in the array in this variable. Later, process running in existing pane
 # is also not restored. That makes the restoration process more idempotent.
 EXISTING_PANES_VAR=""
@@ -21,9 +21,9 @@ is_line_type() {
 }
 
 check_saved_session_exists() {
-	local saved_session="$(last_session_path)"
-	if [ ! -f $saved_session ]; then
-		display_message "Saved tmux session not found!"
+	local resurrect_file="$(last_resurrect_file)"
+	if [ ! -f $resurrect_file ]; then
+		display_message "Tmux resurrect file not found!"
 		return 1
 	fi
 }
@@ -137,13 +137,13 @@ restore_all_panes() {
 		if is_line_type "pane" "$line"; then
 			restore_pane "$line"
 		fi
-	done < $(last_session_path)
+	done < $(last_resurrect_file)
 }
 
 restore_all_pane_processes() {
 	if restore_pane_processes_enabled; then
 		local pane_full_command
-		awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $11 !~ "^:$" { print $2, $3, $7, $8, $11; }' $(last_session_path) |
+		awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $11 !~ "^:$" { print $2, $3, $7, $8, $11; }' $(last_resurrect_file) |
 			while IFS=$'\t' read session_name window_number pane_index dir pane_full_command; do
 				dir="$(remove_first_char "$dir")"
 				pane_full_command="$(remove_first_char "$pane_full_command")"
@@ -153,14 +153,14 @@ restore_all_pane_processes() {
 }
 
 restore_pane_layout_for_each_window() {
-	\grep '^window' $(last_session_path) |
+	\grep '^window' $(last_resurrect_file) |
 		while IFS=$'\t' read line_type session_name window_number window_active window_flags window_layout; do
 			tmux select-layout -t "${session_name}:${window_number}" "$window_layout"
 		done
 }
 
 restore_active_pane_for_each_window() {
-	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $9 == 1 { print $2, $3, $7; }' $(last_session_path) |
+	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $9 == 1 { print $2, $3, $7; }' $(last_resurrect_file) |
 		while IFS=$'\t' read session_name window_number active_pane; do
 			tmux switch-client -t "${session_name}:${window_number}"
 			tmux select-pane -t "$active_pane"
@@ -168,14 +168,14 @@ restore_active_pane_for_each_window() {
 }
 
 restore_zoomed_windows() {
-	awk 'BEGIN { FS="\t"; OFS="\t" } /^window/ && $5 ~ /Z/ { print $2, $3; }' $(last_session_path) |
+	awk 'BEGIN { FS="\t"; OFS="\t" } /^window/ && $5 ~ /Z/ { print $2, $3; }' $(last_resurrect_file) |
 		while IFS=$'\t' read session_name window_number; do
 			tmux resize-pane -t "${session_name}:${window_number}" -Z
 		done
 }
 
 restore_active_and_alternate_windows() {
-	awk 'BEGIN { FS="\t"; OFS="\t" } /^window/ && $5 ~ /[*-]/ { print $2, $4, $3; }' $(last_session_path) |
+	awk 'BEGIN { FS="\t"; OFS="\t" } /^window/ && $5 ~ /[*-]/ { print $2, $4, $3; }' $(last_resurrect_file) |
 		sort -u |
 		while IFS=$'\t' read session_name active_window window_number; do
 			tmux switch-client -t "${session_name}:${window_number}"
@@ -187,7 +187,7 @@ restore_active_and_alternate_sessions() {
 		if is_line_type "state" "$line"; then
 			restore_state "$line"
 		fi
-	done < $(last_session_path)
+	done < $(last_resurrect_file)
 }
 
 main() {
@@ -202,7 +202,7 @@ main() {
 		restore_active_and_alternate_windows
 		restore_active_and_alternate_sessions
 		stop_spinner
-		display_message "Restored all Tmux sessions!"
+		display_message "Tmux restore complete!"
 	fi
 }
 main

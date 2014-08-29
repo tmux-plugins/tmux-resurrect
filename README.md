@@ -1,6 +1,6 @@
-# Tmux Session Saver
+# Tmux Resurrect
 
-Persists `tmux` environment across system restarts.
+Restore `tmux` environment after a system restart.
 
 Tmux is great, except when you have to restart the computer. You loose all the
 running programs, working directories, pane layouts etc.
@@ -8,8 +8,9 @@ There are helpful management tools out there, but they require initial
 configuration and continuous updates as your workflow evolves or you start new
 projects.
 
-`tmux-session-saver` saves all the little details from tmux environment so it
-can be easily restored after system restart. No configuration is required.
+`tmux-resurrect` saves all the little details from tmux environment so it
+can be completely restored after a system restart. No configuration is required.
+You should feel like you never quit tmux.
 
 It even (optionally) [restores vim sessions](#restoring-vim-sessions)!
 
@@ -41,9 +42,9 @@ Requirements / dependencies: `tmux 1.9` or higher, `pgrep`
 
 Add plugin to the list of TPM plugins in `.tmux.conf`:
 
-    set -g @tpm_plugins "              \
-      tmux-plugins/tpm                 \
-      tmux-plugins/tmux-session-saver  \
+    set -g @tpm_plugins "           \
+      tmux-plugins/tpm              \
+      tmux-plugins/tmux-resurrect   \
     "
 
 Hit `prefix + I` to fetch the plugin and source it. You should now be able to
@@ -53,11 +54,11 @@ use the plugin.
 
 Clone the repo:
 
-    $ git clone https://github.com/tmux-plugins/tmux-session-saver ~/clone/path
+    $ git clone https://github.com/tmux-plugins/tmux-resurrect ~/clone/path
 
 Add this line to the bottom of `.tmux.conf`:
 
-    run-shell ~/clone/path/session_saver.tmux
+    run-shell ~/clone/path/resurrect.tmux
 
 Reload TMUX environment:
 
@@ -76,32 +77,32 @@ Open a github issue if you think some other program should be on the default lis
 
 - Restore additional programs with the setting in `.tmux.conf`:
 
-        set -g @session-saver-processes 'ssh psql mysql sqlite3'
+        set -g @resurrect-processes 'ssh psql mysql sqlite3'
 
 - Programs with arguments should be double quoted:
 
-        set -g @session-saver-processes 'some_program "git log"'
+        set -g @resurrect-processes 'some_program "git log"'
 
 - Start with tilde to restore a program whose process contains target name:
 
-        set -g @session-saver-processes 'some_program "~rails server"'
+        set -g @resurrect-processes 'some_program "~rails server"'
 
 - Don't restore any programs:
 
-        set -g @session-saver-processes 'false'
+        set -g @resurrect-processes 'false'
 
 - Restore **all** programs (be careful with this!):
 
-        set -g @session-saver-processes ':all:'
+        set -g @resurrect-processes ':all:'
 
 #### Restoring vim sessions
 
-- save vim sessions - I recommend [tpope/vim-obsession](tpope/vim-obsession)
+- save vim sessions. I recommend [tpope/vim-obsession](tpope/vim-obsession).
 - in `.tmux.conf`:
 
-        set -g @session-saver-strategy-vim "session"
+        set -g @resurrect-strategy-vim "session"
 
-`tmux-session-saver` will now restore vim sessions if `Sessions.vim` file is
+`tmux-resurrect` will now restore vim sessions if `Sessions.vim` file is
 present.
 
 ### Reporting bugs and contributing

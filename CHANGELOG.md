@@ -1,6 +1,7 @@
 # Changelog
 
 ### master
+- change plugin name to `tmux-resurrect`. Change all the variable names.
 
 ### v0.3.0, 2014-08-29
 - bugfix: when top is running the pane `$PWD` can't be saved. This was causing

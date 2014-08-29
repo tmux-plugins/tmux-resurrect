@@ -2,6 +2,7 @@
 
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+source "$CURRENT_DIR/scripts/variables.sh"
 source "$CURRENT_DIR/helpers.sh"
 
 pane_format() {
@@ -88,19 +89,19 @@ dump_state() {
 	tmux display-message -p "$(state_format)"
 }
 
-save_all_sessions() {
-	local session_path="$(session_path)"
-	mkdir -p "$(sessions_dir)"
-	dump_panes   >  $session_path
-	dump_windows >> $session_path
-	dump_state   >> $session_path
-	ln -fs "$session_path" "$(last_session_path)"
-	display_message "Saved all Tmux sessions!"
+save_all() {
+	local resurrect_file_path="$(resurrect_file_path)"
+	mkdir -p "$(resurrect_dir)"
+	dump_panes   >  $resurrect_file_path
+	dump_windows >> $resurrect_file_path
+	dump_state   >> $resurrect_file_path
+	ln -fs "$resurrect_file_path" "$(last_resurrect_file)"
+	display_message "Tmux environment saved!"
 }
 
 main() {
 	if supported_tmux_version_ok; then
-		save_all_sessions
+		save_all
 	fi
 }
 main

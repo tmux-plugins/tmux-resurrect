@@ -9,7 +9,7 @@ set_save_bindings() {
 	local key_bindings=$(get_tmux_option "$save_option" "$default_save_key")
 	local key
 	for key in $key_bindings; do
-		tmux bind-key "$key" run-shell "$CURRENT_DIR/scripts/session_saver.sh"
+		tmux bind-key "$key" run-shell "$CURRENT_DIR/scripts/save.sh"
 	done
 }
 
@@ -17,7 +17,7 @@ set_restore_bindings() {
 	local key_bindings=$(get_tmux_option "$restore_option" "$default_restore_key")
 	local key
 	for key in $key_bindings; do
-		tmux bind-key "$key" run-shell "$CURRENT_DIR/scripts/session_restorer.sh"
+		tmux bind-key "$key" run-shell "$CURRENT_DIR/scripts/restore.sh"
 	done
 }
 

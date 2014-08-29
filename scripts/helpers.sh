@@ -1,6 +1,5 @@
-# configurable constants
-default_sessions_dir="$HOME/.tmux/sessions"
-sessions_dir_option="@session-saver-dir"
+default_resurrect_dir="$HOME/.tmux/resurrect"
+resurrect_dir_option="@resurrect-dir"
 
 SUPPORTED_VERSION="1.9"
 
@@ -52,15 +51,15 @@ remove_first_char() {
 
 # path helpers
 
-sessions_dir() {
-	echo $(get_tmux_option "$sessions_dir_option" "$default_sessions_dir")
+resurrect_dir() {
+	echo $(get_tmux_option "$resurrect_dir_option" "$default_resurrect_dir")
 }
 
-session_path() {
+resurrect_file_path() {
 	local timestamp="$(date +"%Y-%m-%dT%H:%M:%S")"
-	echo "$(sessions_dir)/tmux_session_${timestamp}.txt"
+	echo "$(resurrect_dir)/tmux_resurrect_${timestamp}.txt"
 }
 
-last_session_path() {
-	echo "$(sessions_dir)/last"
+last_resurrect_file() {
+	echo "$(resurrect_dir)/last"
 }
