@@ -1,6 +1,8 @@
 # Changelog
 
 ### master
+
+### v0.4.0, 2014-08-29
 - change plugin name to `tmux-resurrect`. Change all the variable names.
 
 ### v0.3.0, 2014-08-29
