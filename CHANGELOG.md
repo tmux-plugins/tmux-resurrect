@@ -2,6 +2,7 @@
 
 ### master
 - show spinner during the save process
+- add screencast script
 
 ### v0.4.0, 2014-08-29
 - change plugin name to `tmux-resurrect`. Change all the variable names.
