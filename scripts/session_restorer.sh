@@ -99,7 +99,8 @@ new_pane() {
 	local window_number="$2"
 	local window_name="$3"
 	local dir="$4"
-	tmux split-window -t "${session_name}:${window_number}" -c "$dir"
+	tmux split-window -t "${session_name}:${window_number}" -c "$dir" -h
+	tmux resize-pane  -t "${session_name}:${window_number}" -L "999"
 }
 
 restore_pane() {
@@ -186,8 +187,8 @@ main() {
 	if supported_tmux_version_ok && check_saved_session_exists; then
 		start_spinner
 		restore_all_panes
-		restore_all_pane_processes
 		restore_pane_layout_for_each_window >/dev/null 2>&1
+		restore_all_pane_processes
 		# below functions restore exact cursor positions
 		restore_active_pane_for_each_window
 		restore_active_and_alternate_windows
