@@ -7,6 +7,12 @@ source "$CURRENT_DIR/helpers.sh"
 source "$CURRENT_DIR/process_restore_helpers.sh"
 source "$CURRENT_DIR/spinner_helpers.sh"
 
+# Global variable.
+# Used during the restoration: if a pane already exists from before, it is
+# saved in the array in this variable. Later, process running in existing pane
+# is also not restored. That makes the restoration process more idempotent.
+EXISTING_PANES_VAR=""
+
 is_line_type() {
 	local line_type="$1"
 	local line="$2"
@@ -28,6 +34,23 @@ pane_exists() {
 	local pane_index="$3"
 	tmux list-panes -t "${session_name}:${window_number}" -F "#{pane_index}" 2>/dev/null |
 		\grep -q "^$pane_index$"
+}
+
+register_existing_pane() {
+	local session_name="$1"
+	local window_number="$2"
+	local pane_index="$3"
+	local pane_custom_id="${session_name}:${window_number}:${pane_index}"
+	local delimiter=$'\t'
+	EXISTING_PANES_VAR="${EXISTING_PANES_VAR}${delimiter}${pane_custom_id}"
+}
+
+is_pane_registered_as_existing() {
+	local session_name="$1"
+	local window_number="$2"
+	local pane_index="$3"
+	local pane_custom_id="${session_name}:${window_number}:${pane_index}"
+	[[ "$EXISTING_PANES_VAR" =~ "$pane_custom_id" ]]
 }
 
 window_exists() {
@@ -81,13 +104,14 @@ new_pane() {
 
 restore_pane() {
 	local pane="$1"
-	echo "$pane" |
 	while IFS=$'\t' read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_full_command; do
 		dir="$(remove_first_char "$dir")"
 		window_name="$(remove_first_char "$window_name")"
 		pane_full_command="$(remove_first_char "$pane_full_command")"
 		if pane_exists "$session_name" "$window_number" "$pane_index"; then
-			true  # pane exists, no need to create it!
+			# Pane exists, no need to create it!
+			# Pane existence is registered. Later, it's process also isn't restored.
+			register_existing_pane "$session_name" "$window_number" "$pane_index"
 		elif window_exists "$session_name" "$window_number"; then
 			new_pane "$session_name" "$window_number" "$window_name" "$dir"
 		elif session_exists "$session_name"; then
@@ -95,7 +119,7 @@ restore_pane() {
 		else
 			new_session "$session_name" "$window_number" "$window_name" "$dir"
 		fi
-	done
+	done < <(echo "$pane")
 }
 
 restore_state() {

@@ -13,7 +13,7 @@ restore_pane_process() {
 	local window_number="$3"
 	local pane_index="$4"
 	local dir="$5"
-	if _process_should_be_restored "$pane_full_command"; then
+	if _process_should_be_restored "$pane_full_command" "$session_name" "$window_number" "$pane_index"; then
 		tmux switch-client -t "${session_name}:${window_number}"
 		tmux select-pane -t "$pane_index"
 
@@ -32,7 +32,14 @@ restore_pane_process() {
 
 _process_should_be_restored() {
 	local pane_full_command="$1"
-	if _restore_all_processes; then
+	local session_name="$2"
+	local window_number="$3"
+	local pane_index="$4"
+	if is_pane_registered_as_existing "$session_name" "$window_number" "$pane_index"; then
+		# Scenario where pane existed before restoration, so we're not
+		# restoring the proces either.
+		return 1
+	elif _restore_all_processes; then
 		return 0
 	elif _process_on_the_restore_list "$pane_full_command"; then
 		return 0
