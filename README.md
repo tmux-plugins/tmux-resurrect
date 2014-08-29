@@ -9,8 +9,8 @@ configuration and continuous updates as your workflow evolves or you start new
 projects.
 
 `tmux-resurrect` saves all the little details from tmux environment so it
-can be completely restored after a system restart. No configuration is required.
-You should feel like you never quit tmux.
+can be completely restored after a system restart (or when you feel like it).
+No configuration is required. You should feel like you never quit tmux.
 
 It even (optionally) [restores vim sessions](#restoring-vim-sessions)!
 
