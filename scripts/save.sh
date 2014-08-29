@@ -4,6 +4,7 @@ CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source "$CURRENT_DIR/scripts/variables.sh"
 source "$CURRENT_DIR/helpers.sh"
+source "$CURRENT_DIR/spinner_helpers.sh"
 
 pane_format() {
 	local delimiter=$'\t'
@@ -96,12 +97,14 @@ save_all() {
 	dump_windows >> $resurrect_file_path
 	dump_state   >> $resurrect_file_path
 	ln -fs "$resurrect_file_path" "$(last_resurrect_file)"
-	display_message "Tmux environment saved!"
 }
 
 main() {
 	if supported_tmux_version_ok; then
+		start_spinner "Saving..." "Tmux environment saved!"
 		save_all
+		stop_spinner
+		display_message "Tmux environment saved!"
 	fi
 }
 main
