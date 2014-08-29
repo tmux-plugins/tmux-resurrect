@@ -28,6 +28,7 @@ This plugin goes to great lengths to save and restore all the details from your
 - **exact pane layouts** within windows
 - active and alternative session
 - active and alternative window for each session
+- windows with focus
 - active pane for each window
 - programs running within a pane! More details in the
   [configuration section](#configuration).

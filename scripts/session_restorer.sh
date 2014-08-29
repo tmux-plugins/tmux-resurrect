@@ -160,10 +160,17 @@ restore_pane_layout_for_each_window() {
 }
 
 restore_active_pane_for_each_window() {
-	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $7 != 0 && $9 == 1 { print $2, $3, $7; }' $(last_session_path) |
+	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $9 == 1 { print $2, $3, $7; }' $(last_session_path) |
 		while IFS=$'\t' read session_name window_number active_pane; do
 			tmux switch-client -t "${session_name}:${window_number}"
 			tmux select-pane -t "$active_pane"
+		done
+}
+
+restore_zoomed_windows() {
+	awk 'BEGIN { FS="\t"; OFS="\t" } /^window/ && $5 ~ /Z/ { print $2, $3; }' $(last_session_path) |
+		while IFS=$'\t' read session_name window_number; do
+			tmux resize-pane -t "${session_name}:${window_number}" -Z
 		done
 }
 
@@ -191,6 +198,7 @@ main() {
 		restore_all_pane_processes
 		# below functions restore exact cursor positions
 		restore_active_pane_for_each_window
+		restore_zoomed_windows
 		restore_active_and_alternate_windows
 		restore_active_and_alternate_sessions
 		stop_spinner

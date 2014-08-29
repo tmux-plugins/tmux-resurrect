@@ -8,6 +8,7 @@
 - if pane exists from before session restore - do not restore the process within
   it. This makes the restoration process even more idempotent.
 - more panes within a window can now be restored
+- restore window zoom state
 
 ### v0.2.0, 2014-08-29
 - bugfix: with vim 'session' strategy, if the session file does not exist - make
