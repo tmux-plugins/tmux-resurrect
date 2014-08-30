@@ -2,13 +2,13 @@
 
 Restore `tmux` environment after a system restart.
 
-Tmux is great, except when you have to restart the computer. You loose all the
+Tmux is great, except when you have to restart the computer. You lose all the
 running programs, working directories, pane layouts etc.
 There are helpful management tools out there, but they require initial
 configuration and continuous updates as your workflow evolves or you start new
 projects.
 
-`tmux-resurrect` saves all the little details from tmux environment so it
+`tmux-resurrect` saves all the little details from your tmux environment so it
 can be completely restored after a system restart (or when you feel like it).
 No configuration is required. You should feel like you never quit tmux.
 
@@ -73,11 +73,11 @@ You should now be able to use the plugin.
 
 ### Configuration
 
-Configuration is not required - but it enables extra features.
+Configuration is not required, but it enables extra features.
 
 Only a conservative list of programs is restored by default:<br/>
 `vi vim emacs man less more tail top htop irssi`.
-Open a github issue if you think some other program should be on the default list.
+Open a GitHub issue if you think some other program should be on the default list.
 
 - Restore additional programs with the setting in `.tmux.conf`:
 
