@@ -1,6 +1,7 @@
 # Changelog
 
 ### master
+- bugfix: sourcing `variables.sh` file in save script
 
 ### v1.0.0, 2014-08-30
 - show spinner during the save process
