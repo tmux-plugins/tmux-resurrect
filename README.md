@@ -109,6 +109,15 @@ Open a GitHub issue if you think some other program should be on the default lis
 `tmux-resurrect` will now restore vim sessions if `Sessions.vim` file is
 present.
 
+### Other goodies
+
+- [tmux-copycat](https://github.com/tmux-plugins/tmux-copycat) - a plugin for
+  regex searches in tmux and fast match selection
+- [tmux-yank](https://github.com/tmux-plugins/tmux-yank) - enables copying
+  highlighted text to system clipboard
+- [tmux-open](https://github.com/tmux-plugins/tmux-open) - a plugin for quickly
+  opening highlighted file or a url
+
 ### Reporting bugs and contributing
 
 Both contributing and bug reports are welcome. Please check out
