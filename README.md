@@ -14,6 +14,10 @@ No configuration is required. You should feel like you never quit tmux.
 
 It even (optionally) [restores vim sessions](#restoring-vim-sessions)!
 
+### Screencast
+
+[![screencast screenshot](/video/screencast_img.png)](https://vimeo.com/104763018)
+
 ### Key bindings
 
 - `prefix + Alt-s` - save
