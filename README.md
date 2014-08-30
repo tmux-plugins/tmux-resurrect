@@ -101,7 +101,7 @@ Open a GitHub issue if you think some other program should be on the default lis
 
 #### Restoring vim sessions
 
-- save vim sessions. I recommend [tpope/vim-obsession](tpope/vim-obsession).
+- save vim sessions. I recommend [tpope/vim-obsession](https://github.com/tpope/vim-obsession).
 - in `.tmux.conf`:
 
         set -g @resurrect-strategy-vim "session"
