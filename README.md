@@ -119,5 +119,12 @@ Both contributing and bug reports are welcome. Please check out
 [Mislav Marohnić](https://github.com/mislav) - the idea for the plugin came from his
 [tmux-session script](https://github.com/mislav/dotfiles/blob/master/bin/tmux-session).
 
+### Other
+
+Here's another script that tries to solve the same problem:
+[link](http://brainscraps.wikia.com/wiki/Resurrecting_tmux_Sessions_After_Reboot).
+It even has the same name, even though I discovered it after pushing `v1.0` of
+this plugin.
+
 ### License
 [MIT](LICENSE.md)
