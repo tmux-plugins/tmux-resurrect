@@ -1,6 +1,8 @@
 # Changelog
 
 ### master
+
+### v1.0.0, 2014-08-30
 - show spinner during the save process
 - add screencast script
 - make default program running list even more conservative
