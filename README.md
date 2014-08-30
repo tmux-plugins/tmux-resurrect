@@ -123,8 +123,8 @@ Both contributing and bug reports are welcome. Please check out
 
 Here's another script that tries to solve the same problem:
 [link](http://brainscraps.wikia.com/wiki/Resurrecting_tmux_Sessions_After_Reboot).
-It even has the same name, even though I discovered it after pushing `v1.0` of
-this plugin.
+It even has the same name, even though I discovered it only after pushing `v1.0`
+of this plugin.
 
 ### License
 [MIT](LICENSE.md)
