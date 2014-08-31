@@ -2,6 +2,7 @@
 
 ### master
 - bugfix: sourcing `variables.sh` file in save script
+- add `Ctrl` key mappings, deprecate `Alt` keys mappings.
 
 ### v1.0.0, 2014-08-30
 - show spinner during the save process

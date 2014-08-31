@@ -1,8 +1,8 @@
 # key bindings
-default_save_key="M-s"
+default_save_key="M-s C-s"
 save_option="@resurrect-save"
 
-default_restore_key="M-r"
+default_restore_key="M-r C-r"
 restore_option="@resurrect-restore"
 
 # default processes that are restored

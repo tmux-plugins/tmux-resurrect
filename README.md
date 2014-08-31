@@ -20,8 +20,15 @@ It even (optionally) [restores vim sessions](#restoring-vim-sessions)!
 
 ### Key bindings
 
-- `prefix + Alt-s` - save
-- `prefix + Alt-r` - restore
+- `prefix + Ctrl-s` or `prefix + Alt-s` - save
+- `prefix + Ctrl-r` or `prefix + Alt-r` - restore
+
+Some people can't get `Alt` key mappings to work so they are deprecated.
+
+For custom key bindings, add to `.tmux.conf`:
+
+    set -g @resurrect-save "S"
+    set -g @resurrect-restore "R"
 
 ### About
 
