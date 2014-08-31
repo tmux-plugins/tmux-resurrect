@@ -1,6 +1,8 @@
 # Changelog
 
 ### master
+
+### v1.1.0, 2014-08-31
 - bugfix: sourcing `variables.sh` file in save script
 - add `Ctrl` key mappings, deprecate `Alt` keys mappings.
 
