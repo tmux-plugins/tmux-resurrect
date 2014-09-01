@@ -17,7 +17,11 @@ restore_pane_process() {
 		tmux switch-client -t "${session_name}:${window_number}"
 		tmux select-pane -t "$pane_index"
 
-		if _strategy_exists "$pane_full_command"; then
+		local inline_strategy="$(_get_inline_strategy "$pane_full_command")" # might not be defined
+		if [ -n "$inline_strategy" ]; then
+			# inline strategy exists
+			tmux send-keys "$inline_strategy" "C-m"
+		elif _strategy_exists "$pane_full_command"; then
 			local strategy_file="$(_get_strategy_file "$pane_full_command")"
 			local strategy_command="$($strategy_file "$pane_full_command" "$dir")"
 			tmux send-keys "$strategy_command" "C-m"
@@ -62,21 +66,40 @@ _process_on_the_restore_list() {
 	# TODO: make this work without eval
 	eval set $(_restore_list)
 	local proc
+	local match
 	for proc in "$@"; do
-		if _proc_starts_with_tildae "$proc"; then
-			proc="$(remove_first_char "$proc")"
-			# regex matching the command makes sure `$proc` string is somewhere the command string
-			if [[ "$pane_full_command" =~ ($proc) ]]; then
-				return 0
-			fi
-		else
-			# regex matching the command makes sure process is a "word"
-			if [[ "$pane_full_command" =~ (^${proc} ) ]] || [[ "$pane_full_command" =~ (^${proc}$) ]]; then
-				return 0
-			fi
+		match="$(_get_proc_match_element "$proc")"
+		if _proc_matches_full_command "$pane_full_command" "$match"; then
+			return 0
 		fi
 	done
 	return 1
+}
+
+_proc_matches_full_command() {
+	local pane_full_command="$1"
+	local match="$2"
+	if _proc_starts_with_tildae "$match"; then
+		match="$(remove_first_char "$match")"
+		# regex matching the command makes sure `$match` string is somewhere in the command string
+		if [[ "$pane_full_command" =~ ($match) ]]; then
+			return 0
+		fi
+	else
+		# regex matching the command makes sure process is a "word"
+		if [[ "$pane_full_command" =~ (^${match} ) ]] || [[ "$pane_full_command" =~ (^${match}$) ]]; then
+			return 0
+		fi
+	fi
+	return 1
+}
+
+_get_proc_match_element() {
+	echo "$1" | sed "s/${inline_strategy_token}.*//"
+}
+
+_get_proc_restore_element() {
+	echo "$1" | sed "s/.*${inline_strategy_token}//"
 }
 
 _restore_list() {
@@ -92,6 +115,22 @@ _restore_list() {
 
 _proc_starts_with_tildae() {
 	[[ "$1" =~ (^~) ]]
+}
+
+_get_inline_strategy() {
+	local pane_full_command="$1"
+	# TODO: make this work without eval
+	eval set $(_restore_list)
+	local proc
+	local match
+	for proc in "$@"; do
+		if [[ "$proc" =~ "$inline_strategy_token" ]]; then
+			match="$(_get_proc_match_element "$proc")"
+			if _proc_matches_full_command "$pane_full_command" "$match"; then
+				echo "$(_get_proc_restore_element "$proc")"
+			fi
+		fi
+	done
 }
 
 _strategy_exists() {

@@ -1,6 +1,7 @@
 # Changelog
 
 ### master
+- new feature: inline strategies when restoring a program
 
 ### v1.1.0, 2014-08-31
 - bugfix: sourcing `variables.sh` file in save script
