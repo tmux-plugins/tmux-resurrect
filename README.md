@@ -98,8 +98,8 @@ Open a GitHub issue if you think some other program should be on the default lis
 
         set -g @resurrect-processes 'irb pry "~rails server" "~rails console"'
 
-- If the wrong command is restored, try specifying inline strategy for the
-  program with `->`:
+- Use `->` to specify a command to be used when restoring a program (useful if
+  the default restore command fails ):
 
         set -g @resurrect-processes 'some_program "grunt->grunt development"'
 
