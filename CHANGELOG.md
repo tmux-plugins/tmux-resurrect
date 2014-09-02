@@ -1,6 +1,8 @@
 # Changelog
 
 ### master
+
+### v1.2.1, 2014-09-02
 - tweak 'new_pane' creation strategy to fix #36
 - when running multiple tmux server and for a large number of panes (120 +) when
   doing a restore, some panes might not be created. When that is the case also
