@@ -1,6 +1,7 @@
 # Changelog
 
 ### master
+- tweak 'new_pane' creation strategy to fix #36
 
 ### v1.2.0, 2014-09-01
 - new feature: inline strategies when restoring a program

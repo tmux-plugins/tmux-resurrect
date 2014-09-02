@@ -99,8 +99,9 @@ new_pane() {
 	local window_number="$2"
 	local window_name="$3"
 	local dir="$4"
-	tmux split-window -t "${session_name}:${window_number}" -c "$dir" -h
-	tmux resize-pane  -t "${session_name}:${window_number}" -L "999"
+	tmux split-window -t "${session_name}:${window_number}" -c "$dir"
+	# minimize window so more panes can fit
+	tmux resize-pane  -t "${session_name}:${window_number}" -U "999"
 }
 
 restore_pane() {
