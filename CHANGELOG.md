@@ -2,6 +2,9 @@
 
 ### master
 - tweak 'new_pane' creation strategy to fix #36
+- when running multiple tmux server and for a large number of panes (120 +) when
+  doing a restore, some panes might not be created. When that is the case also
+  don't restore programs for those panes.
 
 ### v1.2.0, 2014-09-01
 - new feature: inline strategies when restoring a program

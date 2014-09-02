@@ -43,6 +43,9 @@ _process_should_be_restored() {
 		# Scenario where pane existed before restoration, so we're not
 		# restoring the proces either.
 		return 1
+	elif ! pane_exists "$session_name" "$window_number" "$pane_index"; then
+		# pane number limit exceeded, pane does not exist
+		return 1
 	elif _restore_all_processes; then
 		return 0
 	elif _process_on_the_restore_list "$pane_full_command"; then
