@@ -84,7 +84,6 @@ Configuration is not required, but it enables extra features.
 
 Only a conservative list of programs is restored by default:<br/>
 `vi vim emacs man less more tail top htop irssi`.
-Open a GitHub issue if you think some other program should be on the default list.
 
 - Restore additional programs with the setting in `.tmux.conf`:
 
