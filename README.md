@@ -47,7 +47,7 @@ This plugin goes to great lengths to save and restore all the details from your
 - restoring vim sessions (optional). More details in
   [restoring vim sessions](#restoring-vim-sessions).
 
-Requirements / dependencies: `tmux 1.9` or higher, `pgrep`
+Requirements / dependencies: `tmux 1.9` or higher, `pgrep`, `bash`.
 
 ### Installation with [Tmux Plugin Manager](https://github.com/tmux-plugins/tpm) (recommended)
 
