@@ -27,8 +27,8 @@ Some people can't get `Alt` key mappings to work so they are deprecated.
 
 For custom key bindings, add to `.tmux.conf`:
 
-    set -g @resurrect-save "S"
-    set -g @resurrect-restore "R"
+    set -g @resurrect-save 'S'
+    set -g @resurrect-restore 'R'
 
 ### About
 
@@ -115,7 +115,7 @@ Only a conservative list of programs is restored by default:<br/>
 - save vim sessions. I recommend [tpope/vim-obsession](https://github.com/tpope/vim-obsession).
 - in `.tmux.conf`:
 
-        set -g @resurrect-strategy-vim "session"
+        set -g @resurrect-strategy-vim 'session'
 
 `tmux-resurrect` will now restore vim sessions if `Sessions.vim` file is
 present.
