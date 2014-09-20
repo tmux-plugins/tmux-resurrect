@@ -1,6 +1,7 @@
 # Changelog
 
 ### master
+- remove dependency on `pgrep` command. Use `ps` for fetching process names.
 
 ### v1.2.1, 2014-09-02
 - tweak 'new_pane' creation strategy to fix #36

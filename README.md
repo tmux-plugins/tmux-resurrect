@@ -47,7 +47,7 @@ This plugin goes to great lengths to save and restore all the details from your
 - restoring vim sessions (optional). More details in
   [restoring vim sessions](#restoring-vim-sessions).
 
-Requirements / dependencies: `tmux 1.9` or higher, `pgrep`, `bash`.
+Requirements / dependencies: `tmux 1.9` or higher, `bash`.
 
 `tmux-resurrect` is idempotent! It will not try to restore panes or windows that
 already exist.

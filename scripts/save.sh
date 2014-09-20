@@ -66,8 +66,9 @@ dump_panes_raw() {
 }
 
 pane_full_command() {
-	pane_pid="$1"
-	\pgrep -lf -P "$pane_pid" |
+	local pane_pid="$1"
+	ps -eo "ppid command" |
+		grep "^${pane_pid}" |
 		cut -d' ' -f2-
 }
 
