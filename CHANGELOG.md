@@ -3,6 +3,7 @@
 ### master
 - plugin now uses strategies when fetching pane full command. Implemented
   'default' strategy.
+- save command strategy: 'pgrep'. It's here only if fallback is needed.
 
 ### v1.3.0, 2014-09-20
 - remove dependency on `pgrep` command. Use `ps` for fetching process names.
