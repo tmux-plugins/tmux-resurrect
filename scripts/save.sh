@@ -65,11 +65,22 @@ dump_panes_raw() {
 	tmux list-panes -a -F "$(pane_format)"
 }
 
+_save_command_strategy_file() {
+	local save_command_strategy="$(get_tmux_option "$save_command_strategy_option" "default")"
+	local strategy_file="$CURRENT_DIR/../save_command_strategies/${save_command_strategy}.sh"
+	local default_strategy_file="$CURRENT_DIR/../save_command_strategies/default.sh"
+	if [ -e "$strategy_file" ]; then # strategy file exists?
+		echo "$strategy_file"
+	else
+		echo "$default_strategy_file"
+	fi
+}
+
 pane_full_command() {
 	local pane_pid="$1"
-	ps -eo "ppid command" |
-		grep "^${pane_pid}" |
-		cut -d' ' -f2-
+	local strategy_file="$(_save_command_strategy_file)"
+	# execute strategy script to get pane full command
+	$strategy_file "$pane_pid"
 }
 
 # translates pane pid to process command running inside a pane

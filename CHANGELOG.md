@@ -1,6 +1,8 @@
 # Changelog
 
 ### master
+- plugin now uses strategies when fetching pane full command. Implemented
+  'default' strategy.
 
 ### v1.3.0, 2014-09-20
 - remove dependency on `pgrep` command. Use `ps` for fetching process names.
