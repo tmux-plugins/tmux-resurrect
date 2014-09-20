@@ -1,6 +1,8 @@
 # Changelog
 
 ### master
+
+### v1.3.0, 2014-09-20
 - remove dependency on `pgrep` command. Use `ps` for fetching process names.
 
 ### v1.2.1, 2014-09-02
