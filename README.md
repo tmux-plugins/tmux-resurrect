@@ -20,10 +20,10 @@ It even (optionally) [restores vim sessions](#restoring-vim-sessions)!
 
 ### Key bindings
 
-- `prefix + Ctrl-s` or `prefix + Alt-s` - save
-- `prefix + Ctrl-r` or `prefix + Alt-r` - restore
+- `prefix + Ctrl-s` - save
+- `prefix + Ctrl-r` - restore
 
-Some people can't get `Alt` key mappings to work so they are deprecated.
+`prefix + Alt-s` and `prefix + Alt-r` key bindings are now deprecated.
 
 For custom key bindings, add to `.tmux.conf`:
 
