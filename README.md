@@ -49,6 +49,9 @@ This plugin goes to great lengths to save and restore all the details from your
 
 Requirements / dependencies: `tmux 1.9` or higher, `pgrep`, `bash`.
 
+`tmux-resurrect` is idempotent! It will not try to restore panes or windows that
+already exist.
+
 ### Installation with [Tmux Plugin Manager](https://github.com/tmux-plugins/tpm) (recommended)
 
 Add plugin to the list of TPM plugins in `.tmux.conf`:
