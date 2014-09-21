@@ -5,6 +5,7 @@
   'default' strategy.
 - save command strategy: 'pgrep'. It's here only if fallback is needed.
 - save command strategy: 'gdb'
+- rename default strategy name to 'ps'
 
 ### v1.3.0, 2014-09-20
 - remove dependency on `pgrep` command. Use `ps` for fetching process names.

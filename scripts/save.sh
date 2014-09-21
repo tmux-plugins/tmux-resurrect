@@ -66,9 +66,9 @@ dump_panes_raw() {
 }
 
 _save_command_strategy_file() {
-	local save_command_strategy="$(get_tmux_option "$save_command_strategy_option" "default")"
+	local save_command_strategy="$(get_tmux_option "$save_command_strategy_option" "$default_save_command_strategy")"
 	local strategy_file="$CURRENT_DIR/../save_command_strategies/${save_command_strategy}.sh"
-	local default_strategy_file="$CURRENT_DIR/../save_command_strategies/default.sh"
+	local default_strategy_file="$CURRENT_DIR/../save_command_strategies/${default_save_command_strategy}.sh"
 	if [ -e "$strategy_file" ]; then # strategy file exists?
 		echo "$strategy_file"
 	else

@@ -25,3 +25,4 @@ restore_process_strategy_option="@resurrect-strategy-"
 inline_strategy_token="->"
 
 save_command_strategy_option="@resurrect-save-command-strategy"
+default_save_command_strategy="ps"
