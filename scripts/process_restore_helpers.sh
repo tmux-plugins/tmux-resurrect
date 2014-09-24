@@ -57,7 +57,7 @@ _process_should_be_restored() {
 
 _restore_all_processes() {
 	local restore_processes="$(get_tmux_option "$restore_processes_option" "$restore_processes")"
-	if [ $restore_processes == ":all:" ]; then
+	if [ "$restore_processes" == ":all:" ]; then
 		return 0
 	else
 		return 1
@@ -108,7 +108,7 @@ _get_proc_restore_element() {
 _restore_list() {
 	local user_processes="$(get_tmux_option "$restore_processes_option" "$restore_processes")"
 	local default_processes="$(get_tmux_option "$default_proc_list_option" "$default_proc_list")"
-	if [ -z $user_processes ]; then
+	if [ -z "$user_processes" ]; then
 		# user didn't define any processes
 		echo "$default_processes"
 	else
