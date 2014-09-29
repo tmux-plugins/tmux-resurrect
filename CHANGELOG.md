@@ -7,6 +7,8 @@
 - save command strategy: 'gdb'
 - rename default strategy name to 'ps'
 - create `expect` script that can fully restore tmux environment
+- fix default save command strategy `ps` command flags. Flags are different for
+  FreeBSD.
 
 ### v1.3.0, 2014-09-20
 - remove dependency on `pgrep` command. Use `ps` for fetching process names.

@@ -10,8 +10,15 @@ exit_safely_if_empty_ppid() {
 	fi
 }
 
+ps_command_flags() {
+	case $(uname -s) in
+		FreeBSD) echo "-ao" ;;
+		*) echo "-eo" ;;
+	esac
+}
+
 full_command() {
-	ps -eo "ppid command" |
+	ps "$(ps_command_flags)" "ppid command" |
 		sed "s/^ *//" |
 		grep "^${PANE_PID}" |
 		cut -d' ' -f2-
