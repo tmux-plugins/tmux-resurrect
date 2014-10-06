@@ -123,6 +123,13 @@ Only a conservative list of programs is restored by default:<br/>
 `tmux-resurrect` will now restore vim sessions if `Sessions.vim` file is
 present.
 
+#### Resurrect save dir
+
+By default Tmux environment is saved to a file in `~/.tmux/resurrect` dir.
+Change this with:
+
+    set -g @resurrect-dir '/some/path'
+
 ### Other goodies
 
 - [tmux-copycat](https://github.com/tmux-plugins/tmux-copycat) - a plugin for
