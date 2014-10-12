@@ -83,6 +83,19 @@ pane_full_command() {
 	$strategy_file "$pane_pid"
 }
 
+save_shell_history() {
+	local pane_id="$1"
+	local pane_command="$2"
+	if [ "$pane_command" = "bash" ]; then
+		# leading space prevents the command from being saved to history
+		# (assuming default HISTCONTROL settings)
+		local write_command=" history -w '$(resurrect_history_file "$pane_id")'"
+		# C-e C-u is a Bash shortcut sequence to clear whole line. It is necessary to
+		# delete any pending input so it does not interfere with our history command.
+		tmux send-keys -t "$pane_id" C-e C-u "$write_command" C-m
+	fi
+}
+
 # translates pane pid to process command running inside a pane
 dump_panes() {
 	local full_command
@@ -91,6 +104,7 @@ dump_panes() {
 		while IFS=$'\t' read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid; do
 			full_command="$(pane_full_command $pane_pid)"
 			echo "${line_type}${d}${session_name}${d}${window_number}${d}${window_name}${d}${window_active}${d}${window_flags}${d}${pane_index}${d}${dir}${d}${pane_active}${d}${pane_command}${d}:${full_command}"
+			save_shell_history "$session_name:$window_number.$pane_index" "$pane_command"
 		done
 }
 

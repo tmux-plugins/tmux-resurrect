@@ -63,3 +63,8 @@ resurrect_file_path() {
 last_resurrect_file() {
 	echo "$(resurrect_dir)/last"
 }
+
+resurrect_history_file() {
+	local pane_id="$1"
+	echo "$(resurrect_dir)/bash_history-${pane_id}"
+}
