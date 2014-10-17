@@ -104,7 +104,6 @@ dump_panes() {
 		while IFS=$'\t' read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid; do
 			full_command="$(pane_full_command $pane_pid)"
 			echo "${line_type}${d}${session_name}${d}${window_number}${d}${window_name}${d}${window_active}${d}${window_flags}${d}${pane_index}${d}${dir}${d}${pane_active}${d}${pane_command}${d}:${full_command}"
-			save_shell_history "$session_name:$window_number.$pane_index" "$pane_command"
 		done
 }
 
@@ -116,6 +115,13 @@ dump_state() {
 	tmux display-message -p "$(state_format)"
 }
 
+dump_bash_history() {
+	dump_panes_raw |
+		while IFS=$'\t' read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid; do
+			save_shell_history "$session_name:$window_number.$pane_index" "$pane_command"
+		done
+}
+
 save_all() {
 	local resurrect_file_path="$(resurrect_file_path)"
 	mkdir -p "$(resurrect_dir)"
@@ -123,6 +129,7 @@ save_all() {
 	dump_windows >> $resurrect_file_path
 	dump_state   >> $resurrect_file_path
 	ln -fs "$resurrect_file_path" "$(last_resurrect_file)"
+	dump_bash_history
 }
 
 main() {
