@@ -49,6 +49,11 @@ remove_first_char() {
 	echo "$1" | cut -c2-
 }
 
+save_bash_history_option_on() {
+	local option="$(get_tmux_option "$bash_history_option" "off")"
+	[ "$option" == "on" ]
+}
+
 # path helpers
 
 resurrect_dir() {

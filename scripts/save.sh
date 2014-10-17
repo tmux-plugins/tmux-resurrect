@@ -129,7 +129,9 @@ save_all() {
 	dump_windows >> $resurrect_file_path
 	dump_state   >> $resurrect_file_path
 	ln -fs "$resurrect_file_path" "$(last_resurrect_file)"
-	dump_bash_history
+	if save_bash_history_option_on; then
+		dump_bash_history
+	fi
 }
 
 main() {
