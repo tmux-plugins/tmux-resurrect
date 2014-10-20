@@ -49,6 +49,11 @@ remove_first_char() {
 	echo "$1" | cut -c2-
 }
 
+save_bash_history_option_on() {
+	local option="$(get_tmux_option "$bash_history_option" "off")"
+	[ "$option" == "on" ]
+}
+
 # path helpers
 
 resurrect_dir() {
@@ -62,4 +67,9 @@ resurrect_file_path() {
 
 last_resurrect_file() {
 	echo "$(resurrect_dir)/last"
+}
+
+resurrect_history_file() {
+	local pane_id="$1"
+	echo "$(resurrect_dir)/bash_history-${pane_id}"
 }

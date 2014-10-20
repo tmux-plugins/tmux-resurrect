@@ -46,6 +46,8 @@ This plugin goes to great lengths to save and restore all the details from your
   [configuration section](#configuration).
 - restoring vim sessions (optional). More details in
   [restoring vim sessions](#restoring-vim-sessions).
+- restoring bash history (optional, *experimental*). More details in
+  [restoring bash history](#restoring-bash-history-experimental).
 
 Requirements / dependencies: `tmux 1.9` or higher, `bash`.
 
@@ -129,6 +131,16 @@ By default Tmux environment is saved to a file in `~/.tmux/resurrect` dir.
 Change this with:
 
     set -g @resurrect-dir '/some/path'
+
+#### Restoring bash history (experimental)
+
+In `.tmux.conf`:
+
+        set -g @resurrect-save-bash-history 'on'
+
+Bash `history` for individual panes will now be saved and restored. Due to
+technical limitations, this only works for panes which have Bash running in
+foreground (as opposed to e.g. vi or top) when saving.
 
 ### Other goodies
 
