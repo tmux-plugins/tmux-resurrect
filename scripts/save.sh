@@ -100,15 +100,12 @@ save_shell_history() {
 dump_panes() {
 	local full_command
 	local d=$'\t' # delimiter
-	local last_resized="none-resized"
 	dump_panes_raw |
 		while IFS=$'\t' read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid; do
-			# check if current pane is part of a maximized window and if we haven't maximized it already
-			if [[ "${window_flags}" == *Z* ]] && [[ "${last_resized}" != ${window_number} ]]; then
+			# check if current pane is part of a maximized window and if the pane is active
+			if [[ "${window_flags}" == *Z* ]] && [[ ${pane_active} == 1 ]]; then
 				# unmaximize the pane
 				tmux resize-pane -Z -t "${session_name}:${window_number}"
-				# set last resized window to current number in order to avoid maximizing again
-				last_resized=${window_number}
 			fi
 			full_command="$(pane_full_command $pane_pid)"
 			echo "${line_type}${d}${session_name}${d}${window_number}${d}${window_name}${d}${window_active}${d}${window_flags}${d}${pane_index}${d}${dir}${d}${pane_active}${d}${pane_command}${d}:${full_command}"
