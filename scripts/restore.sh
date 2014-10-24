@@ -183,13 +183,6 @@ restore_active_pane_for_each_window() {
 		done
 }
 
-restore_zoomed_windows() {
-	awk 'BEGIN { FS="\t"; OFS="\t" } /^window/ && $5 ~ /Z/ { print $2, $3; }' $(last_resurrect_file) |
-		while IFS=$'\t' read session_name window_number; do
-			tmux resize-pane -t "${session_name}:${window_number}" -Z
-		done
-}
-
 restore_active_and_alternate_windows() {
 	awk 'BEGIN { FS="\t"; OFS="\t" } /^window/ && $5 ~ /[*-]/ { print $2, $4, $3; }' $(last_resurrect_file) |
 		sort -u |
