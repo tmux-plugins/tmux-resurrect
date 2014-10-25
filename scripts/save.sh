@@ -86,7 +86,8 @@ pane_full_command() {
 save_shell_history() {
 	local pane_id="$1"
 	local pane_command="$2"
-	if [ "$pane_command" = "bash" ]; then
+	local full_command="$3"
+	if [ "$pane_command" = "bash" ] && [ "$full_command" = ":" ]; then
 		# leading space prevents the command from being saved to history
 		# (assuming default HISTCONTROL settings)
 		local write_command=" history -w '$(resurrect_history_file "$pane_id")'"
@@ -116,9 +117,9 @@ dump_state() {
 }
 
 dump_bash_history() {
-	dump_panes_raw |
-		while IFS=$'\t' read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid; do
-			save_shell_history "$session_name:$window_number.$pane_index" "$pane_command"
+	dump_panes |
+		while IFS=$'\t' read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command full_command; do
+			save_shell_history "$session_name:$window_number.$pane_index" "$pane_command" "$full_command"
 		done
 }
 
