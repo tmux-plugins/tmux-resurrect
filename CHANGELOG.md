@@ -1,6 +1,8 @@
 # Changelog
 
 ### master
+
+### v1.4.0, 2014-10-25
 - plugin now uses strategies when fetching pane full command. Implemented
   'default' strategy.
 - save command strategy: 'pgrep'. It's here only if fallback is needed.
