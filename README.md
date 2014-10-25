@@ -37,7 +37,7 @@ This plugin goes to great lengths to save and restore all the details from your
 
 - all sessions, windows, panes and their order
 - current working directory for each pane
-- **exact pane layouts** within windows
+- **exact pane layouts** within windows (even when zoomed)
 - active and alternative session
 - active and alternative window for each session
 - windows with focus
@@ -58,10 +58,10 @@ already exist.
 
 Add plugin to the list of TPM plugins in `.tmux.conf`:
 
-    set -g @tpm_plugins "           \
+    set -g @tpm_plugins '           \
       tmux-plugins/tpm              \
       tmux-plugins/tmux-resurrect   \
-    "
+    '
 
 Hit `prefix + I` to fetch the plugin and source it. You should now be able to
 use the plugin.

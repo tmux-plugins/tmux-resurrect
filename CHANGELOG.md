@@ -10,6 +10,7 @@
 - fix default save command strategy `ps` command flags. Flags are different for
   FreeBSD.
 - add bash history saving and restoring (@rburny)
+- preserving layout of zoomed windows across restores (@Azrael3000)
 
 ### v1.3.0, 2014-09-20
 - remove dependency on `pgrep` command. Use `ps` for fetching process names.
