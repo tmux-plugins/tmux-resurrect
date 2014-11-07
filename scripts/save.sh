@@ -131,10 +131,10 @@ dump_bash_history() {
 save_all() {
 	local resurrect_file_path="$(resurrect_file_path)"
 	mkdir -p "$(resurrect_dir)"
-	dump_panes   >  $resurrect_file_path
-	dump_windows >> $resurrect_file_path
-	dump_state   >> $resurrect_file_path
-	ln -fs "$resurrect_file_path" "$(last_resurrect_file)"
+	dump_panes   >  "$resurrect_file_path"
+	dump_windows >> "$resurrect_file_path"
+	dump_state   >> "$resurrect_file_path"
+	ln -fs "$(basename "$resurrect_file_path")" "$(last_resurrect_file)"
 	if save_bash_history_option_on; then
 		dump_bash_history
 	fi
