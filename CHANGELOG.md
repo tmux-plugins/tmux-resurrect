@@ -1,6 +1,7 @@
 # Changelog
 
 ### master
+- add support for restoring neovim sessions
 
 ### v1.4.0, 2014-10-25
 - plugin now uses strategies when fetching pane full command. Implemented

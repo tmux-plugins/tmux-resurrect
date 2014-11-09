@@ -12,7 +12,7 @@ projects.
 can be completely restored after a system restart (or when you feel like it).
 No configuration is required. You should feel like you never quit tmux.
 
-It even (optionally) [restores vim sessions](#restoring-vim-sessions)!
+It even (optionally) [restores vim and neovim sessions](#restoring-vim-and-neovim-sessions)!
 
 ### Screencast
 
@@ -44,8 +44,8 @@ This plugin goes to great lengths to save and restore all the details from your
 - active pane for each window
 - programs running within a pane! More details in the
   [configuration section](#configuration).
-- restoring vim sessions (optional). More details in
-  [restoring vim sessions](#restoring-vim-sessions).
+- restoring vim/neovim sessions (optional). More details in
+  [restoring vim and neovim sessions](#restoring-vim-and-neovim-sessions).
 - restoring bash history (optional, *experimental*). More details in
   [restoring bash history](#restoring-bash-history-experimental).
 
@@ -88,7 +88,7 @@ You should now be able to use the plugin.
 Configuration is not required, but it enables extra features.
 
 Only a conservative list of programs is restored by default:<br/>
-`vi vim emacs man less more tail top htop irssi`.
+`vi vim nvim emacs man less more tail top htop irssi`.
 
 - Restore additional programs with the setting in `.tmux.conf`:
 
@@ -115,15 +115,20 @@ Only a conservative list of programs is restored by default:<br/>
 
         set -g @resurrect-processes ':all:'
 
-#### Restoring vim sessions
+#### Restoring vim and neovim sessions
 
-- save vim sessions. I recommend [tpope/vim-obsession](https://github.com/tpope/vim-obsession).
+- save vim/neovim sessions. I recommend
+  [tpope/vim-obsession](https://github.com/tpope/vim-obsession) (as almost every
+  plugin, it works for both vim and neovim).
 - in `.tmux.conf`:
 
+        # for vim
         set -g @resurrect-strategy-vim 'session'
+        # for neovim
+        set -g @resurrect-strategy-nvim 'session'
 
-`tmux-resurrect` will now restore vim sessions if `Sessions.vim` file is
-present.
+`tmux-resurrect` will now restore vim and neovim sessions if `Sessions.vim` file
+is present.
 
 #### Resurrect save dir
 

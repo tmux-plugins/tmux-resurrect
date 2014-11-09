@@ -7,7 +7,7 @@ restore_option="@resurrect-restore"
 
 # default processes that are restored
 default_proc_list_option="@resurrect-default-processes"
-default_proc_list='vi vim emacs man less more tail top htop irssi'
+default_proc_list='vi vim nvim emacs man less more tail top htop irssi'
 
 # User defined processes that are restored
 #  'false' - nothing is restored
