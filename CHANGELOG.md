@@ -1,6 +1,8 @@
 # Changelog
 
 ### master
+
+### v1.5.0, 2014-11-09
 - add support for restoring neovim sessions
 
 ### v1.4.0, 2014-10-25
