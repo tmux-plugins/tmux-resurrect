@@ -46,13 +46,21 @@ This plugin goes to great lengths to save and restore all the details from your
   [configuration section](#configuration).
 - restoring vim/neovim sessions (optional). More details in
   [restoring vim and neovim sessions](#restoring-vim-and-neovim-sessions).
-- restoring bash history (optional, *experimental*). More details in
+- restoring bash history (optional, \*experimental*). More details in
   [restoring bash history](#restoring-bash-history-experimental).
 
 Requirements / dependencies: `tmux 1.9` or higher, `bash`.
 
 `tmux-resurrect` is idempotent! It will not try to restore panes or windows that
 already exist.
+
+### FAQ
+
+> I have a problem: first pane/window is not restoring!
+
+Check out
+[this wiki page](https://github.com/tmux-plugins/tmux-resurrect/wiki/Help:-issues-with-the-first-window)
+for the explanation and problem solution.
 
 ### Installation with [Tmux Plugin Manager](https://github.com/tmux-plugins/tpm) (recommended)
 
@@ -141,7 +149,7 @@ Change this with:
 
 In `.tmux.conf`:
 
-        set -g @resurrect-save-bash-history 'on'
+    set -g @resurrect-save-bash-history 'on'
 
 Bash `history` for individual panes will now be saved and restored. Due to
 technical limitations, this only works for panes which have no program running in
@@ -166,7 +174,7 @@ Both contributing and bug reports are welcome. Please check out
 ### Credits
 
 [Mislav Marohnić](https://github.com/mislav) - the idea for the plugin came from his
-[tmux-session script](https://github.com/mislav/dotfiles/blob/master/bin/tmux-session).
+[tmux-session script](https://github.com/mislav/dotfiles/blob/2036b5e03fb430bbcbc340689d63328abaa28876/bin/tmux-session).
 
 ### Other
 
