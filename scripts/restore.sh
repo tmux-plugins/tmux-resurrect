@@ -162,12 +162,19 @@ restore_tmux_buffers() {
 			if ! is_pane_registered_as_existing "$session_name" "$window_number" "$pane_index"; then
 				if [ "$pane_command" = "bash" ]; then
 					local pane_id="$session_name:$window_number.$pane_index"
-					local buffer_file="$(resurrect_buffer_file "${pane_id}")"
+					local buffer_file="$(resurrect_buffer_file "$pane_id")"
 					# space before 'cat' is intentional and prevents the command from
 					# being added to history (provided HISTCONTROL=ignorespace/ignoreboth
 					# has been set in bashrc.
-					tmux send-keys -t "${pane_id}" "clear && tmux clear-history" C-m
-					tmux send-keys -t "${pane_id}" " cat ${buffer_file}" C-m
+					tmux send-keys -t "$pane_id" " clear && tmux clear-history" C-m
+					local pane_tty="$(get_pane_tty "$pane_id")"
+					if [ -n "$pane_tty" ]; then
+						# append directly to tty (avoids cat command output)
+					  cat "$buffer_file" >> "$pane_tty"
+					else
+						# fall back to cat'ing in terminal if not tty found
+						tmux send-keys -t "$pane_id" " cat \"$buffer_file\"" C-m
+					fi
 				fi
 			fi
 		done

@@ -15,6 +15,18 @@ get_tmux_option() {
 	fi
 }
 
+get_pane_id() {
+	tmux display-message -p "#S:#I.#P"
+}
+
+get_pane_tty() {
+	local pane_id="$1"
+	[[ -z "$1" ]] && pane_id="$(get_pane_id)"
+
+	# display tty for pane_id
+	tmux display-message -t "$pane_id" -p "#{pane_tty}"
+}
+
 # Ensures a message is displayed for 5 seconds in tmux prompt.
 # Does not override the 'display-time' tmux option.
 display_message() {
