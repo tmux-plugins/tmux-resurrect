@@ -28,3 +28,5 @@ save_command_strategy_option="@resurrect-save-command-strategy"
 default_save_command_strategy="ps"
 
 bash_history_option="@resurrect-save-bash-history"
+
+save_tmux_buffers_option="@resurrect-save-tmux-buffers"

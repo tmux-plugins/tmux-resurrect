@@ -54,6 +54,11 @@ save_bash_history_option_on() {
 	[ "$option" == "on" ]
 }
 
+save_tmux_buffers_option_on() {
+	local option="$(get_tmux_option "$save_tmux_buffers_option" "off")"
+	[ "$option" == "on" ]
+}
+
 # path helpers
 
 resurrect_dir() {
@@ -72,6 +77,11 @@ last_resurrect_file() {
 resurrect_history_file() {
 	local pane_id="$1"
 	echo "$(resurrect_dir)/bash_history-${pane_id}"
+}
+
+resurrect_buffer_file() {
+	local pane_id="$1"
+	echo "$(resurrect_dir)/tmux_buffer-${pane_id}"
 }
 
 restore_zoomed_windows() {

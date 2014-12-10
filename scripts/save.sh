@@ -97,6 +97,21 @@ save_shell_history() {
 	fi
 }
 
+save_tmux_buffer() {
+	local pane_id="$1"
+	local pane_command="$2"
+	local full_command="$3"
+	local mode_keys=$(tmux show-window-options -g | awk '/^mode-keys/ {print $2}')
+	local save_command=""
+	local buffer_file="$(resurrect_buffer_file "${pane_id}")"
+	if [ "$pane_command" = "bash" ] && [ "$full_command" = ":" ]; then
+	  tmux capture-pane -S -32768 \; save-buffer -b 0 "${buffer_file}" \; delete-buffer -b 0
+		if [ ! -s "${buffer_file}" ] ;then
+	    rm "${buffer_file}"
+	  fi
+	fi
+}
+
 # translates pane pid to process command running inside a pane
 dump_panes() {
 	local full_command
@@ -128,6 +143,13 @@ dump_bash_history() {
 		done
 }
 
+dump_tmux_buffers() {
+	dump_panes |
+		while IFS=$'\t' read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command full_command; do
+			save_tmux_buffer "$session_name:$window_number.$pane_index" "$pane_command" "$full_command"
+		done
+}
+
 save_all() {
 	local resurrect_file_path="$(resurrect_file_path)"
 	mkdir -p "$(resurrect_dir)"
@@ -137,6 +159,9 @@ save_all() {
 	ln -fs "$(basename "$resurrect_file_path")" "$(last_resurrect_file)"
 	if save_bash_history_option_on; then
 		dump_bash_history
+	fi
+	if save_tmux_buffers_option_on; then
+		dump_tmux_buffers
 	fi
 	restore_zoomed_windows
 }

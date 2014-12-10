@@ -156,6 +156,23 @@ restore_shell_history() {
 		done
 }
 
+restore_tmux_buffers() {
+	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ { print $2, $3, $7, $10; }' $(last_resurrect_file) |
+		while IFS=$'\t' read session_name window_number pane_index pane_command; do
+			if ! is_pane_registered_as_existing "$session_name" "$window_number" "$pane_index"; then
+				if [ "$pane_command" = "bash" ]; then
+					local pane_id="$session_name:$window_number.$pane_index"
+					local buffer_file="$(resurrect_buffer_file "${pane_id}")"
+					# space before 'cat' is intentional and prevents the command from
+					# being added to history (provided HISTCONTROL=ignorespace/ignoreboth
+					# has been set in bashrc.
+					tmux send-keys -t "${pane_id}" "clear && tmux clear-history" C-m
+					tmux send-keys -t "${pane_id}" " cat ${buffer_file}" C-m
+				fi
+			fi
+		done
+}
+
 restore_all_pane_processes() {
 	if restore_pane_processes_enabled; then
 		local pane_full_command
@@ -206,6 +223,9 @@ main() {
 		restore_pane_layout_for_each_window >/dev/null 2>&1
 		if save_bash_history_option_on; then
 			restore_shell_history
+		fi
+		if save_tmux_buffers_option_on; then
+			restore_tmux_buffers
 		fi
 		restore_all_pane_processes
 		# below functions restore exact cursor positions
