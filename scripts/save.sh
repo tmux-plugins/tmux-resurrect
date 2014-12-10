@@ -105,8 +105,8 @@ save_tmux_buffer() {
 	local save_command=""
 	local buffer_file="$(resurrect_buffer_file "${pane_id}")"
 	if [ "$pane_command" = "bash" ] && [ "$full_command" = ":" ]; then
-	  tmux capture-pane -S -32768 \; save-buffer -b 0 "${buffer_file}" \; delete-buffer -b 0
-		if [ ! -s "${buffer_file}" ] ;then
+	  tmux capture-pane -t "${pane_id}" -S -32768 \; save-buffer -b 0 "${buffer_file}" \; delete-buffer -b 0
+		if [ ! -s "${buffer_file}" ]; then
 	    rm "${buffer_file}"
 	  fi
 	fi
