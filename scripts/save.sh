@@ -101,13 +101,15 @@ save_tmux_buffer() {
 	local pane_id="$1"
 	local pane_command="$2"
 	local full_command="$3"
-	local mode_keys=$(tmux show-window-options -g | awk '/^mode-keys/ {print $2}')
 	local save_command=""
 	local buffer_file="$(resurrect_buffer_file "${pane_id}")"
 	if [ "$pane_command" = "bash" ] && [ "$full_command" = ":" ]; then
 	  tmux capture-pane -t "${pane_id}" -S -32768 \; save-buffer -b 0 "${buffer_file}" \; delete-buffer -b 0
-		if [ ! -s "${buffer_file}" ]; then
-	    rm "${buffer_file}"
+	  # strip trailing empty lines from saved buffer
+		sed -i.bak -e :a -e '/^\n*$/{$d;N;};/\n$/ba' "${buffer_file}" &>/dev/null
+		rm "${buffer_file}.bak" &> /dev/null
+		if [ ! -s "$buffer_file" ]; then
+	    rm "$buffer_file"
 	  fi
 	fi
 }
