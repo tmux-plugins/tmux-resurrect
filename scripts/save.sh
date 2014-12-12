@@ -101,16 +101,37 @@ save_tmux_buffer() {
 	local pane_id="$1"
 	local pane_command="$2"
 	local full_command="$3"
-	local save_command=""
 	local buffer_file="$(resurrect_buffer_file "${pane_id}")"
+	local prompt1 prompt2
+	local prompt_len=0
+	local sed_pattern=""
 	if [ "$pane_command" = "bash" ] && [ "$full_command" = ":" ]; then
-	  tmux capture-pane -t "${pane_id}" -S -32768 \; save-buffer -b 0 "${buffer_file}" \; delete-buffer -b 0
-	  # strip trailing empty lines from saved buffer
-		sed -i.bak -e :a -e '/^\n*$/{$d;N;};/\n$/ba' "${buffer_file}" &>/dev/null
+		[[ -f "${buffer_file}" ]] && rm "${buffer_file}" &> /dev/null
+		tmux capture-pane -t "${pane_id}" -S -32768 \; save-buffer -b 0 "${buffer_file}" \; delete-buffer -b 0
+		# calculate line span of bash prompt
+		#
+		# We use an interactive bash shell to grab a baseline count, then run the
+		# process again with a carriage return. The difference is the prompt span.
+		#
+		# NOTE: We do not rely on PS1 here because it could involve expansions.
+		#
+		prompt1=$( (echo '';) | bash -i 2>&1 | sed -n '$=')
+		prompt2=$( (echo $'\n') | bash -i 2>&1 | sed -n '$=')
+		(( prompt_len=prompt2-prompt1 ))
+
+		#  add another prompt_len to account for the "history" command execution
+		(( prompt_len+=prompt_len ))
+
+		# strip trailing empty lines from saved buffer
+		sed_pattern=':a;/^\n*$/{$d;N;};/\n$/ba'
+		sed -i.bak -e "${sed_pattern}" "${buffer_file}" &>/dev/null
+
+		# strip history command and next trailing prompt
+		if [ $prompt_len -gt 0 ]; then
+			sed_pattern=':a;1,'${prompt_len}'!{P;N;D;};N;ba'
+			sed -i.bak -n -e "${sed_pattern}" "${buffer_file}" &>/dev/null
+		fi
 		rm "${buffer_file}.bak" &> /dev/null
-		if [ ! -s "$buffer_file" ]; then
-	    rm "$buffer_file"
-	  fi
 	fi
 }
 
