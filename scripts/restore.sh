@@ -170,7 +170,7 @@ restore_tmux_buffers() {
 					local pane_tty="$(get_pane_tty "$pane_id")"
 					if [ -n "$pane_tty" ]; then
 						# append directly to tty (avoids cat command output)
-					  cat "$buffer_file" >> "$pane_tty"
+						cat "$buffer_file" >> "$pane_tty"
 					else
 						# fall back to cat'ing in terminal if not tty found
 						tmux send-keys -t "$pane_id" " cat \"$buffer_file\"" C-m
