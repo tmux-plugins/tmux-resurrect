@@ -107,7 +107,11 @@ save_pane_buffer() {
 	local sed_pattern=""
 	if [ "$pane_command" = "bash" ] && [ "$full_command" = ":" ]; then
 		[[ -f "${buffer_file}" ]] && rm "${buffer_file}" &> /dev/null
-		tmux capture-pane -t "${pane_id}" -S -32768 \; save-buffer -b 0 "${buffer_file}" \; delete-buffer -b 0
+		local capture_color_opt=""
+		if enable_ansi_buffers_on; then
+			capture_color_opt="-e "
+		fi
+		tmux capture-pane ${capture_color_opt} -t "${pane_id}" -S -32768 \; save-buffer -b 0 "${buffer_file}" \; delete-buffer -b 0
 		# calculate line span of bash prompt
 		#
 		# We use an interactive bash shell to grab a baseline count, then run the

@@ -71,6 +71,11 @@ save_pane_buffers_option_on() {
 	[ "$option" == "on" ]
 }
 
+enable_ansi_buffers_on() {
+	local option="$(get_tmux_option "$enable_ansi_buffers" "off")"
+	[ "$option" == "on" ]
+}
+
 # path helpers
 
 resurrect_dir() {
