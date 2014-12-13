@@ -232,6 +232,8 @@ main() {
 			restore_shell_history
 		fi
 		if save_tmux_buffers_option_on; then
+			# ttys need to settle after getting cleared
+			sleep 2
 			restore_tmux_buffers
 		fi
 		restore_all_pane_processes
