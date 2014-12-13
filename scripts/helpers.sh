@@ -66,8 +66,8 @@ save_bash_history_option_on() {
 	[ "$option" == "on" ]
 }
 
-save_tmux_buffers_option_on() {
-	local option="$(get_tmux_option "$save_tmux_buffers_option" "off")"
+save_pane_buffers_option_on() {
+	local option="$(get_tmux_option "$save_pane_buffers_option" "off")"
 	[ "$option" == "on" ]
 }
 

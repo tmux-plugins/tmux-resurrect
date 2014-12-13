@@ -156,7 +156,7 @@ restore_shell_history() {
 		done
 }
 
-restore_tmux_buffers() {
+restore_pane_buffers() {
 	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ { print $2, $3, $7, $10; }' $(last_resurrect_file) |
 		while IFS=$'\t' read session_name window_number pane_index pane_command; do
 			if ! is_pane_registered_as_existing "$session_name" "$window_number" "$pane_index"; then
@@ -231,10 +231,10 @@ main() {
 		if save_bash_history_option_on; then
 			restore_shell_history
 		fi
-		if save_tmux_buffers_option_on; then
+		if save_pane_buffers_option_on; then
 			# ttys need to settle after getting cleared
 			sleep 2
-			restore_tmux_buffers
+			restore_pane_buffers
 		fi
 		restore_all_pane_processes
 		# below functions restore exact cursor positions

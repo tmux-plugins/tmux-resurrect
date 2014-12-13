@@ -97,7 +97,7 @@ save_shell_history() {
 	fi
 }
 
-save_tmux_buffer() {
+save_pane_buffer() {
 	local pane_id="$1"
 	local pane_command="$2"
 	local full_command="$3"
@@ -166,10 +166,10 @@ dump_bash_history() {
 		done
 }
 
-dump_tmux_buffers() {
+dump_pane_buffers() {
 	dump_panes |
 		while IFS=$'\t' read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command full_command; do
-			save_tmux_buffer "$session_name:$window_number.$pane_index" "$pane_command" "$full_command"
+			save_pane_buffer "$session_name:$window_number.$pane_index" "$pane_command" "$full_command"
 		done
 }
 
@@ -183,8 +183,8 @@ save_all() {
 	if save_bash_history_option_on; then
 		dump_bash_history
 	fi
-	if save_tmux_buffers_option_on; then
-		dump_tmux_buffers
+	if save_pane_buffers_option_on; then
+		dump_pane_buffers
 	fi
 	restore_zoomed_windows
 }
