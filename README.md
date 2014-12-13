@@ -157,14 +157,23 @@ foreground when saving. `tmux-resurrect` will send history write command
 to each such pane. To prevent these commands from being added to history themselves,
 add `HISTCONTROL=ignoreboth` to your `.bashrc` (this is set by default in Ubuntu).
 
-#### Restoring tmux buffers (experimental)
+#### Restoring pane buffers (experimental)
 
 In `.tmux.conf`:
 
-    set -g @resurrect-save-tmux-buffers 'on'
+    set -g @resurrect-save-pane-buffers 'on'
 
 Scrollback buffers for individual panes will now be saved and restored. Due to
-technical limitations, this only works for panes which have no program running in foreground when saving. On save, `tmux-resurrect` will capture and save the scrollback buffer from each pane; on restore, `tmux-resurrect` will `cat` each buffer file back to its restored pane. To prevent the latter command from being added to history, add `HISTCONTROL=ignoreboth` to your `.bashrc` (this is set by default in Ubuntu).
+technical limitations, this only works for panes which have no program running in foreground when saving. On save, `tmux-resurrect` will capture and save the scrollback buffer from each pane; on restore, `tmux-resurrect` will write each buffer file back to its restored pane. Normally, write back will be accomplished by direct copy to the tty device, if that's not possible write back will be a `cat` to the terminal; to prevent the latter command from being added to history, add `HISTCONTROL=ignoreboth` to your `.bashrc` (this is set by default in Ubuntu).
+
+##### Restore ansi color pane buffers (also, experimental)
+
+In `.tmux.conf`:
+
+    set -g @resurrect-enable-ansi-buffers 'on'
+
+Support for saving and restoring pane buffers with ansi color codes is available by enabling the above option. When not enabled, pane buffers will be saved and restored without color.
+ 
 
 ### Other goodies
 
