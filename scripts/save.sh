@@ -127,13 +127,13 @@ save_pane_buffer() {
 		(( prompt_len+=prompt_len ))
 
 		# strip trailing empty lines from saved buffer
-		sed_pattern=':a;/^\n*$/{$d;N;};/\n$/ba'
-		sed -i.bak -e "${sed_pattern}" "${buffer_file}" &>/dev/null
+		sed_pattern='/^\n*$/{$d;N;};/\n$/ba'
+		sed -i.bak -e ':a' -e "${sed_pattern}" "${buffer_file}" &>/dev/null
 
 		# strip history command and next trailing prompt
 		if [ $prompt_len -gt 0 ]; then
-			sed_pattern=':a;1,'${prompt_len}'!{P;N;D;};N;ba'
-			sed -i.bak -n -e "${sed_pattern}" "${buffer_file}" &>/dev/null
+			sed_pattern='1,'${prompt_len}'!{P;N;D;};N;ba'
+			sed -i.bak -n -e ':a' -e "${sed_pattern}" "${buffer_file}" &>/dev/null
 		fi
 		rm "${buffer_file}.bak" &> /dev/null
 	fi
