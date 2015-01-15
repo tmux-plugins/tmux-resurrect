@@ -13,6 +13,7 @@ exit_safely_if_empty_ppid() {
 ps_command_flags() {
 	case $(uname -s) in
 		FreeBSD) echo "-ao" ;;
+		OpenBSD) echo "-ao" ;;
 		*) echo "-eo" ;;
 	esac
 }
