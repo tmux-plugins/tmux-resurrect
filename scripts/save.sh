@@ -97,6 +97,48 @@ save_shell_history() {
 	fi
 }
 
+save_pane_buffer() {
+	local pane_id="$1"
+	local pane_command="$2"
+	local full_command="$3"
+	local buffer_file="$(resurrect_buffer_file "${pane_id}")"
+	local prompt1 prompt2
+	local prompt_len=0
+	local sed_pattern=""
+	if [ "$pane_command" = "bash" ] && [ "$full_command" = ":" ]; then
+		[[ -f "${buffer_file}" ]] && rm "${buffer_file}" &> /dev/null
+		local capture_color_opt=""
+		if enable_ansi_buffers_on; then
+			capture_color_opt="-e "
+		fi
+		tmux capture-pane ${capture_color_opt} -t "${pane_id}" -S -32768 \; save-buffer -b 0 "${buffer_file}" \; delete-buffer -b 0
+		# calculate line span of bash prompt
+		#
+		# We use an interactive bash shell to grab a baseline count, then run the
+		# process again with a carriage return. The difference is the prompt span.
+		#
+		# NOTE: We do not rely on PS1 here because it could involve expansions.
+		#
+		prompt1=$( (echo '';) | bash -i 2>&1 | sed -n '$=')
+		prompt2=$( (echo $'\n') | bash -i 2>&1 | sed -n '$=')
+		(( prompt_len=prompt2-prompt1 ))
+
+		#  add another prompt_len to account for the "history" command execution
+		(( prompt_len+=prompt_len ))
+
+		# strip trailing empty lines from saved buffer
+		sed_pattern='/^\n*$/{$d;N;};/\n$/ba'
+		sed -i.bak -e ':a' -e "${sed_pattern}" "${buffer_file}" &>/dev/null
+
+		# strip history command and next trailing prompt
+		if [ $prompt_len -gt 0 ]; then
+			sed_pattern='1,'${prompt_len}'!{P;N;D;};N;ba'
+			sed -i.bak -n -e ':a' -e "${sed_pattern}" "${buffer_file}" &>/dev/null
+		fi
+		rm "${buffer_file}.bak" &> /dev/null
+	fi
+}
+
 # translates pane pid to process command running inside a pane
 dump_panes() {
 	local full_command
@@ -128,6 +170,13 @@ dump_bash_history() {
 		done
 }
 
+dump_pane_buffers() {
+	dump_panes |
+		while IFS=$'\t' read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command full_command; do
+			save_pane_buffer "$session_name:$window_number.$pane_index" "$pane_command" "$full_command"
+		done
+}
+
 save_all() {
 	local resurrect_file_path="$(resurrect_file_path)"
 	mkdir -p "$(resurrect_dir)"
@@ -137,6 +186,9 @@ save_all() {
 	ln -fs "$(basename "$resurrect_file_path")" "$(last_resurrect_file)"
 	if save_bash_history_option_on; then
 		dump_bash_history
+	fi
+	if save_pane_buffers_option_on; then
+		dump_pane_buffers
 	fi
 	restore_zoomed_windows
 }

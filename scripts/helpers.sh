@@ -15,6 +15,18 @@ get_tmux_option() {
 	fi
 }
 
+get_pane_id() {
+	tmux display-message -p "#S:#I.#P"
+}
+
+get_pane_tty() {
+	local pane_id="$1"
+	[[ -z "$1" ]] && pane_id="$(get_pane_id)"
+
+	# display tty for pane_id
+	tmux display-message -t "$pane_id" -p "#{pane_tty}"
+}
+
 # Ensures a message is displayed for 5 seconds in tmux prompt.
 # Does not override the 'display-time' tmux option.
 display_message() {
@@ -54,6 +66,16 @@ save_bash_history_option_on() {
 	[ "$option" == "on" ]
 }
 
+save_pane_buffers_option_on() {
+	local option="$(get_tmux_option "$save_pane_buffers_option" "off")"
+	[ "$option" == "on" ]
+}
+
+enable_ansi_buffers_on() {
+	local option="$(get_tmux_option "$enable_ansi_buffers" "off")"
+	[ "$option" == "on" ]
+}
+
 # path helpers
 
 resurrect_dir() {
@@ -72,6 +94,11 @@ last_resurrect_file() {
 resurrect_history_file() {
 	local pane_id="$1"
 	echo "$(resurrect_dir)/bash_history-${pane_id}"
+}
+
+resurrect_buffer_file() {
+	local pane_id="$1"
+	echo "$(resurrect_dir)/tmux_buffer-${pane_id}"
 }
 
 restore_zoomed_windows() {

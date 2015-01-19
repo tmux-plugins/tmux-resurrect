@@ -28,3 +28,6 @@ save_command_strategy_option="@resurrect-save-command-strategy"
 default_save_command_strategy="ps"
 
 bash_history_option="@resurrect-save-bash-history"
+
+save_pane_buffers_option="@resurrect-save-pane-buffers"
+enable_ansi_buffers="@resurrect-enable-ansi-buffers"
