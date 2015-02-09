@@ -114,6 +114,18 @@ save_shell_history() {
 	fi
 }
 
+get_active_window_index() {
+	local session_name="$1"
+	tmux list-windows -t "$session_name" -F "#{window_flags} #{window_index}" |
+		awk '$1 ~ /\*/ { print $2; }'
+}
+
+get_alternate_window_index() {
+	local session_name="$1"
+	tmux list-windows -t "$session_name" -F "#{window_flags} #{window_index}" |
+		awk '$1 ~ /-/ { print $2; }'
+}
+
 dump_grouped_sessions() {
 	local current_session_group=""
 	local original_session
@@ -128,7 +140,9 @@ dump_grouped_sessions() {
 				current_session_group="$session_group"
 			else
 				# this session "points" to the original session
-				echo "grouped_session${d}${session_name}${d}${original_session}"
+				active_window_index="$(get_active_window_index "$session_name")"
+				alternate_window_index="$(get_alternate_window_index "$session_name")"
+				echo "grouped_session${d}${session_name}${d}${original_session}${d}${alternate_window_index}${d}${active_window_index}"
 			fi
 		done
 }

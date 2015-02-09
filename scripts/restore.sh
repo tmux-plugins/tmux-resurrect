@@ -186,8 +186,17 @@ restore_active_pane_for_each_window() {
 restore_grouped_session() {
 	local grouped_session="$1"
 	echo "$grouped_session" |
-	while IFS=$'\t' read line_type grouped_session original_session; do
+	while IFS=$'\t' read line_type grouped_session original_session alternate_window active_window; do
 		TMUX="" tmux -S "$(tmux_socket)" new-session -d -s "$grouped_session" -t "$original_session"
+	done
+}
+
+restore_active_and_alternate_windows_for_grouped_sessions() {
+	local grouped_session="$1"
+	echo "$grouped_session" |
+	while IFS=$'\t' read line_type grouped_session original_session alternate_window_index active_window_index; do
+		tmux switch-client -t "${grouped_session}:${alternate_window_index}"
+		tmux switch-client -t "${grouped_session}:${active_window_index}"
 	done
 }
 
@@ -195,6 +204,7 @@ restore_grouped_sessions() {
 	while read line; do
 		if is_line_type "grouped_session" "$line"; then
 			restore_grouped_session "$line"
+			restore_active_and_alternate_windows_for_grouped_sessions "$line"
 		fi
 	done < $(last_resurrect_file)
 }
@@ -227,7 +237,7 @@ main() {
 		# below functions restore exact cursor positions
 		restore_active_pane_for_each_window
 		restore_zoomed_windows
-		restore_grouped_sessions
+		restore_grouped_sessions  # also restores active and alt windows for grouped sessions
 		restore_active_and_alternate_windows
 		restore_active_and_alternate_sessions
 		stop_spinner
