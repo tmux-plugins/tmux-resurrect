@@ -3,6 +3,7 @@
 ### master
 - add link to the wiki page for "first pane/window issue" to the README as well
   as other tweaks
+- save and restore grouped sessions (used with multi-monitor workflow)
 
 ### v1.5.0, 2014-11-09
 - add support for restoring neovim sessions
