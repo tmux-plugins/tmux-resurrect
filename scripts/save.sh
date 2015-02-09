@@ -133,7 +133,7 @@ dump_grouped_sessions() {
 		grep "^1" |
 		cut -c 3- |
 		sort |
-		while IFS=$'\t' read session_group session_id session_name; do
+		while IFS=$d read session_group session_id session_name; do
 			if [ "$session_group" != "$current_session_group" ]; then
 				# this session is the original/first session in the group
 				original_session="$session_name"
@@ -159,7 +159,7 @@ fetch_and_dump_grouped_sessions(){
 dump_panes() {
 	local full_command
 	dump_panes_raw |
-		while IFS=$'\t' read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid; do
+		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid; do
 			# not saving panes from grouped sessions
 			if is_session_grouped "$session_name"; then
 				continue
@@ -176,7 +176,7 @@ dump_panes() {
 
 dump_windows() {
 	dump_windows_raw |
-		while IFS=$'\t' read line_type session_name window_index window_active window_flags window_layout; do
+		while IFS=$d read line_type session_name window_index window_active window_flags window_layout; do
 			# not saving windows from grouped sessions
 			if is_session_grouped "$session_name"; then
 				continue
@@ -191,7 +191,7 @@ dump_state() {
 
 dump_bash_history() {
 	dump_panes |
-		while IFS=$'\t' read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command full_command; do
+		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command full_command; do
 			save_shell_history "$session_name:$window_number.$pane_index" "$pane_command" "$full_command"
 		done
 }

@@ -58,7 +58,7 @@ save_bash_history_option_on() {
 
 get_grouped_sessions() {
 	local grouped_sessions_dump="$1"
-	export GROUPED_SESSIONS="${d}$(echo "$grouped_sessions_dump" | cut -f2 -d"${d}" | tr "\\n" "${d}")"
+	export GROUPED_SESSIONS="${d}$(echo "$grouped_sessions_dump" | cut -f2 -d"$d" | tr "\\n" "$d")"
 }
 
 is_session_grouped() {
@@ -88,7 +88,7 @@ resurrect_history_file() {
 
 restore_zoomed_windows() {
 	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $6 ~ /Z/ && $9 == 1 { print $2, $3; }' $(last_resurrect_file) |
-		while IFS=$'\t' read session_name window_number; do
+		while IFS=$d read session_name window_number; do
 			tmux resize-pane -t "${session_name}:${window_number}" -Z
 		done
 }

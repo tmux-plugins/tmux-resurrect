@@ -7,6 +7,9 @@ source "$CURRENT_DIR/helpers.sh"
 source "$CURRENT_DIR/process_restore_helpers.sh"
 source "$CURRENT_DIR/spinner_helpers.sh"
 
+# delimiter
+d=$'\t'
+
 # Global variable.
 # Used during the restore: if a pane already exists from before, it is
 # saved in the array in this variable. Later, process running in existing pane
@@ -106,7 +109,7 @@ new_pane() {
 
 restore_pane() {
 	local pane="$1"
-	while IFS=$'\t' read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_full_command; do
+	while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_full_command; do
 		dir="$(remove_first_char "$dir")"
 		window_name="$(remove_first_char "$window_name")"
 		pane_full_command="$(remove_first_char "$pane_full_command")"
@@ -127,7 +130,7 @@ restore_pane() {
 restore_state() {
 	local state="$1"
 	echo "$state" |
-	while IFS=$'\t' read line_type client_session client_last_session; do
+	while IFS=$d read line_type client_session client_last_session; do
 		tmux switch-client -t "$client_last_session"
 		tmux switch-client -t "$client_session"
 	done
@@ -143,7 +146,7 @@ restore_all_panes() {
 
 restore_shell_history() {
 	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ { print $2, $3, $7, $10; }' $(last_resurrect_file) |
-		while IFS=$'\t' read session_name window_number pane_index pane_command; do
+		while IFS=$d read session_name window_number pane_index pane_command; do
 		 if ! is_pane_registered_as_existing "$session_name" "$window_number" "$pane_index"; then
 				if [ "$pane_command" = "bash" ]; then
 					local pane_id="$session_name:$window_number.$pane_index"
@@ -160,7 +163,7 @@ restore_all_pane_processes() {
 	if restore_pane_processes_enabled; then
 		local pane_full_command
 		awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $11 !~ "^:$" { print $2, $3, $7, $8, $11; }' $(last_resurrect_file) |
-			while IFS=$'\t' read session_name window_number pane_index dir pane_full_command; do
+			while IFS=$d read session_name window_number pane_index dir pane_full_command; do
 				dir="$(remove_first_char "$dir")"
 				pane_full_command="$(remove_first_char "$pane_full_command")"
 				restore_pane_process "$pane_full_command" "$session_name" "$window_number" "$pane_index" "$dir"
@@ -170,14 +173,14 @@ restore_all_pane_processes() {
 
 restore_pane_layout_for_each_window() {
 	\grep '^window' $(last_resurrect_file) |
-		while IFS=$'\t' read line_type session_name window_number window_active window_flags window_layout; do
+		while IFS=$d read line_type session_name window_number window_active window_flags window_layout; do
 			tmux select-layout -t "${session_name}:${window_number}" "$window_layout"
 		done
 }
 
 restore_active_pane_for_each_window() {
 	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $9 == 1 { print $2, $3, $7; }' $(last_resurrect_file) |
-		while IFS=$'\t' read session_name window_number active_pane; do
+		while IFS=$d read session_name window_number active_pane; do
 			tmux switch-client -t "${session_name}:${window_number}"
 			tmux select-pane -t "$active_pane"
 		done
@@ -186,7 +189,7 @@ restore_active_pane_for_each_window() {
 restore_grouped_session() {
 	local grouped_session="$1"
 	echo "$grouped_session" |
-	while IFS=$'\t' read line_type grouped_session original_session alternate_window active_window; do
+	while IFS=$d read line_type grouped_session original_session alternate_window active_window; do
 		TMUX="" tmux -S "$(tmux_socket)" new-session -d -s "$grouped_session" -t "$original_session"
 	done
 }
@@ -194,7 +197,7 @@ restore_grouped_session() {
 restore_active_and_alternate_windows_for_grouped_sessions() {
 	local grouped_session="$1"
 	echo "$grouped_session" |
-	while IFS=$'\t' read line_type grouped_session original_session alternate_window_index active_window_index; do
+	while IFS=$d read line_type grouped_session original_session alternate_window_index active_window_index; do
 		alternate_window_index="$(remove_first_char "$alternate_window_index")"
 		active_window_index="$(remove_first_char "$active_window_index")"
 		if [ -n "$alternate_window_index" ]; then
@@ -218,7 +221,7 @@ restore_grouped_sessions() {
 restore_active_and_alternate_windows() {
 	awk 'BEGIN { FS="\t"; OFS="\t" } /^window/ && $5 ~ /[*-]/ { print $2, $4, $3; }' $(last_resurrect_file) |
 		sort -u |
-		while IFS=$'\t' read session_name active_window window_number; do
+		while IFS=$d read session_name active_window window_number; do
 			tmux switch-client -t "${session_name}:${window_number}"
 		done
 }
