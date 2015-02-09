@@ -5,6 +5,7 @@
   as other tweaks
 - save and restore grouped sessions (used with multi-monitor workflow)
 - save and restore active and alternate windows in grouped sessions
+- if there are no grouped sessions, do not output empty line to "last" file
 
 ### v1.5.0, 2014-11-09
 - add support for restoring neovim sessions

@@ -150,7 +150,9 @@ dump_grouped_sessions() {
 fetch_and_dump_grouped_sessions(){
 	local grouped_sessions_dump="$(dump_grouped_sessions)"
 	get_grouped_sessions "$grouped_sessions_dump"
-	echo "$grouped_sessions_dump"
+	if [ -n "$grouped_sessions_dump" ]; then
+		echo "$grouped_sessions_dump"
+	fi
 }
 
 # translates pane pid to process command running inside a pane
