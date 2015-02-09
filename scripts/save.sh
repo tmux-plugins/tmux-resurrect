@@ -6,8 +6,23 @@ source "$CURRENT_DIR/variables.sh"
 source "$CURRENT_DIR/helpers.sh"
 source "$CURRENT_DIR/spinner_helpers.sh"
 
+# delimiters
+d=$'\t'
+delimiter=$'\t'
+
+grouped_sessions_format() {
+	local format
+	format+="#{session_grouped}"
+	format+="${delimiter}"
+	format+="#{session_group}"
+	format+="${delimiter}"
+	format+="#{session_id}"
+	format+="${delimiter}"
+	format+="#{session_name}"
+	echo "$format"
+}
+
 pane_format() {
-	local delimiter=$'\t'
 	local format
 	format+="pane"
 	format+="${delimiter}"
@@ -34,7 +49,6 @@ pane_format() {
 }
 
 window_format() {
-	local delimiter=$'\t'
 	local format
 	format+="window"
 	format+="${delimiter}"
@@ -51,7 +65,6 @@ window_format() {
 }
 
 state_format() {
-	local delimiter=$'\t'
 	local format
 	format+="state"
 	format+="${delimiter}"
@@ -63,6 +76,10 @@ state_format() {
 
 dump_panes_raw() {
 	tmux list-panes -a -F "$(pane_format)"
+}
+
+dump_windows_raw(){
+	tmux list-windows -a -F "$(window_format)"
 }
 
 _save_command_strategy_file() {
@@ -97,12 +114,40 @@ save_shell_history() {
 	fi
 }
 
+dump_grouped_sessions() {
+	local current_session_group=""
+	local original_session
+	tmux list-sessions -F "$(grouped_sessions_format)" |
+		grep "^1" |
+		cut -c 3- |
+		sort |
+		while IFS=$'\t' read session_group session_id session_name; do
+			if [ "$session_group" != "$current_session_group" ]; then
+				# this session is the original/first session in the group
+				original_session="$session_name"
+				current_session_group="$session_group"
+			else
+				# this session "points" to the original session
+				echo "grouped_session${d}${session_name}${d}${original_session}"
+			fi
+		done
+}
+
+fetch_and_dump_grouped_sessions(){
+	local grouped_sessions_dump="$(dump_grouped_sessions)"
+	get_grouped_sessions "$grouped_sessions_dump"
+	echo "$grouped_sessions_dump"
+}
+
 # translates pane pid to process command running inside a pane
 dump_panes() {
 	local full_command
-	local d=$'\t' # delimiter
 	dump_panes_raw |
 		while IFS=$'\t' read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid; do
+			# not saving panes from grouped sessions
+			if is_session_grouped "$session_name"; then
+				continue
+			fi
 			# check if current pane is part of a maximized window and if the pane is active
 			if [[ "${window_flags}" == *Z* ]] && [[ ${pane_active} == 1 ]]; then
 				# unmaximize the pane
@@ -114,7 +159,14 @@ dump_panes() {
 }
 
 dump_windows() {
-	tmux list-windows -a -F "$(window_format)"
+	dump_windows_raw |
+		while IFS=$'\t' read line_type session_name window_index window_active window_flags window_layout; do
+			# not saving windows from grouped sessions
+			if is_session_grouped "$session_name"; then
+				continue
+			fi
+			echo "${line_type}${d}${session_name}${d}${window_index}${d}${window_active}${d}${window_flags}${d}${window_layout}"
+		done
 }
 
 dump_state() {
@@ -131,7 +183,8 @@ dump_bash_history() {
 save_all() {
 	local resurrect_file_path="$(resurrect_file_path)"
 	mkdir -p "$(resurrect_dir)"
-	dump_panes   >  "$resurrect_file_path"
+	fetch_and_dump_grouped_sessions > "$resurrect_file_path"
+	dump_panes   >> "$resurrect_file_path"
 	dump_windows >> "$resurrect_file_path"
 	dump_state   >> "$resurrect_file_path"
 	ln -fs "$(basename "$resurrect_file_path")" "$(last_resurrect_file)"

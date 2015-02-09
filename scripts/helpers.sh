@@ -3,6 +3,8 @@ resurrect_dir_option="@resurrect-dir"
 
 SUPPORTED_VERSION="1.9"
 
+d=$'\t'
+
 # helper functions
 get_tmux_option() {
 	local option="$1"
@@ -52,6 +54,16 @@ remove_first_char() {
 save_bash_history_option_on() {
 	local option="$(get_tmux_option "$bash_history_option" "off")"
 	[ "$option" == "on" ]
+}
+
+get_grouped_sessions() {
+	local grouped_sessions_dump="$1"
+	export GROUPED_SESSIONS="${d}$(echo "$grouped_sessions_dump" | cut -f2 -d"${d}" | tr "\\n" "${d}")"
+}
+
+is_session_grouped() {
+	local session_name="$1"
+	[[ "$GROUPED_SESSIONS" == *"${d}${session_name}${d}"* ]]
 }
 
 # path helpers
