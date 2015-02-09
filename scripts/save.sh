@@ -142,7 +142,7 @@ dump_grouped_sessions() {
 				# this session "points" to the original session
 				active_window_index="$(get_active_window_index "$session_name")"
 				alternate_window_index="$(get_alternate_window_index "$session_name")"
-				echo "grouped_session${d}${session_name}${d}${original_session}${d}${alternate_window_index}${d}${active_window_index}"
+				echo "grouped_session${d}${session_name}${d}${original_session}${d}:${alternate_window_index}${d}:${active_window_index}"
 			fi
 		done
 }

@@ -195,8 +195,14 @@ restore_active_and_alternate_windows_for_grouped_sessions() {
 	local grouped_session="$1"
 	echo "$grouped_session" |
 	while IFS=$'\t' read line_type grouped_session original_session alternate_window_index active_window_index; do
-		tmux switch-client -t "${grouped_session}:${alternate_window_index}"
-		tmux switch-client -t "${grouped_session}:${active_window_index}"
+		alternate_window_index="$(remove_first_char "$alternate_window_index")"
+		active_window_index="$(remove_first_char "$active_window_index")"
+		if [ -n "$alternate_window_index" ]; then
+			tmux switch-client -t "${grouped_session}:${alternate_window_index}"
+		fi
+		if [ -n "$active_window_index" ]; then
+			tmux switch-client -t "${grouped_session}:${active_window_index}"
+		fi
 	done
 }
 
