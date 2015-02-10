@@ -23,8 +23,6 @@ It even (optionally) [restores vim and neovim sessions](#restoring-vim-and-neovi
 - `prefix + Ctrl-s` - save
 - `prefix + Ctrl-r` - restore
 
-`prefix + Alt-s` and `prefix + Alt-r` key bindings are now deprecated.
-
 For custom key bindings, add to `.tmux.conf`:
 
     set -g @resurrect-save 'S'

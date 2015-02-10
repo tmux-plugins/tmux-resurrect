@@ -8,6 +8,7 @@
 - if there are no grouped sessions, do not output empty line to "last" file
 - restore active and alternate windows only if they are present in the "last" file
 - refactoring: prefer using variable with tab character
+- remove deprecated `M-s` and `M-r` key bindings (breaking change)
 
 ### v1.5.0, 2014-11-09
 - add support for restoring neovim sessions
