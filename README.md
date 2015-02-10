@@ -51,15 +51,10 @@ This plugin goes to great lengths to save and restore all the details from your
 Requirements / dependencies: `tmux 1.9` or higher, `bash`.
 
 `tmux-resurrect` is idempotent! It will not try to restore panes or windows that
-already exist.
-
-### FAQ
-
-> I have a problem: first pane/window is not restoring!
-
-Check out
-[this wiki page](https://github.com/tmux-plugins/tmux-resurrect/wiki/Help:-issues-with-the-first-window)
-for the explanation and problem solution.
+already exist.<br/>
+The single exception to this is when tmux is started with only 1 pane in order
+to restore previous tmux env. In this case only will this single pane be
+overwritten.
 
 ### Installation with [Tmux Plugin Manager](https://github.com/tmux-plugins/tpm) (recommended)
 

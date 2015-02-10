@@ -16,6 +16,8 @@ d=$'\t'
 # is also not restored. That makes the restoration process more idempotent.
 EXISTING_PANES_VAR=""
 
+RESTORING_FROM_SCRATCH="false"
+
 is_line_type() {
 	local line_type="$1"
 	local line="$2"
@@ -54,6 +56,14 @@ is_pane_registered_as_existing() {
 	local pane_index="$3"
 	local pane_custom_id="${session_name}:${window_number}:${pane_index}"
 	[[ "$EXISTING_PANES_VAR" =~ "$pane_custom_id" ]]
+}
+
+restore_from_scratch_true() {
+	RESTORING_FROM_SCRATCH="true"
+}
+
+is_restoring_from_scratch() {
+	[ "$RESTORING_FROM_SCRATCH" == "true" ]
 }
 
 window_exists() {
@@ -114,9 +124,17 @@ restore_pane() {
 		window_name="$(remove_first_char "$window_name")"
 		pane_full_command="$(remove_first_char "$pane_full_command")"
 		if pane_exists "$session_name" "$window_number" "$pane_index"; then
-			# Pane exists, no need to create it!
-			# Pane existence is registered. Later, it's process also isn't restored.
-			register_existing_pane "$session_name" "$window_number" "$pane_index"
+			if is_restoring_from_scratch; then
+				# overwrite the pane
+				# happens only for the first pane if it's the only registered pane for the whole tmux server
+				local pane_id="$(tmux display-message -p -F "#{pane_id}" -t "$session_name:$window_number")"
+				new_pane "$session_name" "$window_number" "$window_name" "$dir"
+				tmux kill-pane -t "$pane_id"
+			else
+				# Pane exists, no need to create it!
+				# Pane existence is registered. Later, its process also won't be restored.
+				register_existing_pane "$session_name" "$window_number" "$pane_index"
+			fi
 		elif window_exists "$session_name" "$window_number"; then
 			new_pane "$session_name" "$window_number" "$window_name" "$dir"
 		elif session_exists "$session_name"; then
@@ -159,9 +177,25 @@ restore_active_and_alternate_windows_for_grouped_sessions() {
 	done
 }
 
+never_ever_overwrite() {
+	local overwrite_option_value="$(get_tmux_option "$overwrite_option" "")"
+	[ -n "$overwrite_option_value" ]
+}
+
+detect_if_restoring_from_scratch() {
+	if never_ever_overwrite; then
+		return
+	fi
+	local total_number_of_panes="$(tmux list-panes -a | wc -l | sed 's/ //g')"
+	if [ "$total_number_of_panes" -eq 1 ]; then
+		restore_from_scratch_true
+	fi
+}
+
 # functions called from main (ordered)
 
 restore_all_panes() {
+	detect_if_restoring_from_scratch
 	while read line; do
 		if is_line_type "pane" "$line"; then
 			restore_pane "$line"

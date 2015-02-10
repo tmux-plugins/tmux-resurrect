@@ -1,6 +1,8 @@
 # Changelog
 
 ### master
+- if restore is started when there's only **1 pane in the whole tmux server**,
+  assume the users wants the "full restore" and overrwrite that pane.
 
 ### v2.0.0, 2015-02-10
 - add link to the wiki page for "first pane/window issue" to the README as well

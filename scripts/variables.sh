@@ -28,3 +28,6 @@ save_command_strategy_option="@resurrect-save-command-strategy"
 default_save_command_strategy="ps"
 
 bash_history_option="@resurrect-save-bash-history"
+
+# set to 'on' to ensure panes are never ever overwritten
+overwrite_option="@resurrect-never-overwrite"
