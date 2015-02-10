@@ -42,6 +42,7 @@ This plugin goes to great lengths to save and restore all the details from your
 - active and alternative window for each session
 - windows with focus
 - active pane for each window
+- "grouped sessions" (useful feature when using tmux with multiple monitors)
 - programs running within a pane! More details in the
   [configuration section](#configuration).
 - restoring vim/neovim sessions (optional). More details in
