@@ -136,12 +136,44 @@ restore_state() {
 	done
 }
 
+restore_grouped_session() {
+	local grouped_session="$1"
+	echo "$grouped_session" |
+	while IFS=$d read line_type grouped_session original_session alternate_window active_window; do
+		TMUX="" tmux -S "$(tmux_socket)" new-session -d -s "$grouped_session" -t "$original_session"
+	done
+}
+
+restore_active_and_alternate_windows_for_grouped_sessions() {
+	local grouped_session="$1"
+	echo "$grouped_session" |
+	while IFS=$d read line_type grouped_session original_session alternate_window_index active_window_index; do
+		alternate_window_index="$(remove_first_char "$alternate_window_index")"
+		active_window_index="$(remove_first_char "$active_window_index")"
+		if [ -n "$alternate_window_index" ]; then
+			tmux switch-client -t "${grouped_session}:${alternate_window_index}"
+		fi
+		if [ -n "$active_window_index" ]; then
+			tmux switch-client -t "${grouped_session}:${active_window_index}"
+		fi
+	done
+}
+
+# functions called from main (ordered)
+
 restore_all_panes() {
 	while read line; do
 		if is_line_type "pane" "$line"; then
 			restore_pane "$line"
 		fi
 	done < $(last_resurrect_file)
+}
+
+restore_pane_layout_for_each_window() {
+	\grep '^window' $(last_resurrect_file) |
+		while IFS=$d read line_type session_name window_number window_active window_flags window_layout; do
+			tmux select-layout -t "${session_name}:${window_number}" "$window_layout"
+		done
 }
 
 restore_shell_history() {
@@ -171,13 +203,6 @@ restore_all_pane_processes() {
 	fi
 }
 
-restore_pane_layout_for_each_window() {
-	\grep '^window' $(last_resurrect_file) |
-		while IFS=$d read line_type session_name window_number window_active window_flags window_layout; do
-			tmux select-layout -t "${session_name}:${window_number}" "$window_layout"
-		done
-}
-
 restore_active_pane_for_each_window() {
 	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $9 == 1 { print $2, $3, $7; }' $(last_resurrect_file) |
 		while IFS=$d read session_name window_number active_pane; do
@@ -186,27 +211,11 @@ restore_active_pane_for_each_window() {
 		done
 }
 
-restore_grouped_session() {
-	local grouped_session="$1"
-	echo "$grouped_session" |
-	while IFS=$d read line_type grouped_session original_session alternate_window active_window; do
-		TMUX="" tmux -S "$(tmux_socket)" new-session -d -s "$grouped_session" -t "$original_session"
-	done
-}
-
-restore_active_and_alternate_windows_for_grouped_sessions() {
-	local grouped_session="$1"
-	echo "$grouped_session" |
-	while IFS=$d read line_type grouped_session original_session alternate_window_index active_window_index; do
-		alternate_window_index="$(remove_first_char "$alternate_window_index")"
-		active_window_index="$(remove_first_char "$active_window_index")"
-		if [ -n "$alternate_window_index" ]; then
-			tmux switch-client -t "${grouped_session}:${alternate_window_index}"
-		fi
-		if [ -n "$active_window_index" ]; then
-			tmux switch-client -t "${grouped_session}:${active_window_index}"
-		fi
-	done
+restore_zoomed_windows() {
+	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $6 ~ /Z/ && $9 == 1 { print $2, $3; }' $(last_resurrect_file) |
+		while IFS=$d read session_name window_number; do
+			tmux resize-pane -t "${session_name}:${window_number}" -Z
+		done
 }
 
 restore_grouped_sessions() {

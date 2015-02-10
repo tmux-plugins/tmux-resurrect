@@ -85,10 +85,3 @@ resurrect_history_file() {
 	local pane_id="$1"
 	echo "$(resurrect_dir)/bash_history-${pane_id}"
 }
-
-restore_zoomed_windows() {
-	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $6 ~ /Z/ && $9 == 1 { print $2, $3; }' $(last_resurrect_file) |
-		while IFS=$d read session_name window_number; do
-			tmux resize-pane -t "${session_name}:${window_number}" -Z
-		done
-}
