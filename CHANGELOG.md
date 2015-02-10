@@ -1,6 +1,8 @@
 # Changelog
 
 ### master
+
+### v2.0.0, 2015-02-10
 - add link to the wiki page for "first pane/window issue" to the README as well
   as other tweaks
 - save and restore grouped sessions (used with multi-monitor workflow)
