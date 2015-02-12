@@ -1,6 +1,8 @@
 # Changelog
 
 ### master
+
+### v2.2.0, 2015-02-12
 - bugfix: zoomed windows related regression
 - export save and restore script paths so that 'tmux-resurrect-save' plugin can
   use them
