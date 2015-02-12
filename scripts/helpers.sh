@@ -66,6 +66,13 @@ is_session_grouped() {
 	[[ "$GROUPED_SESSIONS" == *"${d}${session_name}${d}"* ]]
 }
 
+restore_zoomed_windows() {
+	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $6 ~ /Z/ && $9 == 1 { print $2, $3; }' $(last_resurrect_file) |
+		while IFS=$d read session_name window_number; do
+			tmux resize-pane -t "${session_name}:${window_number}" -Z
+		done
+}
+
 # path helpers
 
 resurrect_dir() {
