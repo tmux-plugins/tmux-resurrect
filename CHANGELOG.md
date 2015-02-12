@@ -2,6 +2,8 @@
 
 ### master
 - bugfix: zoomed windows related regression
+- export save and restore script paths so that 'tmux-resurrect-save' plugin can
+  use them
 
 ### v2.1.0, 2015-02-12
 - if restore is started when there's only **1 pane in the whole tmux server**,
