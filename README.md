@@ -14,6 +14,10 @@ No configuration is required. You should feel like you never quit tmux.
 
 It even (optionally) [restores vim and neovim sessions](#restoring-vim-and-neovim-sessions)!
 
+If you want continuous saving of tmux env, check out
+[tmux-resurrect-auto](https://github.com/tmux-plugins/tmux-resurrect-auto)
+plugin.
+
 ### Screencast
 
 [![screencast screenshot](/video/screencast_img.png)](https://vimeo.com/104763018)
@@ -159,6 +163,8 @@ add `HISTCONTROL=ignoreboth` to your `.bashrc` (this is set by default in Ubuntu
   highlighted text to system clipboard
 - [tmux-open](https://github.com/tmux-plugins/tmux-open) - a plugin for quickly
   opening highlighted file or a url
+- [tmux-resurrect-auto](https://github.com/tmux-plugins/tmux-resurrect-auto) -
+  continuous saving of tmux environment
 
 ### Reporting bugs and contributing
 
