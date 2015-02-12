@@ -10,6 +10,9 @@ source "$CURRENT_DIR/spinner_helpers.sh"
 d=$'\t'
 delimiter=$'\t'
 
+# if "quiet" script produces no output
+SCRIPT_OUTPUT="$1"
+
 grouped_sessions_format() {
 	local format
 	format+="#{session_grouped}"
@@ -210,12 +213,20 @@ save_all() {
 	restore_zoomed_windows
 }
 
+show_output() {
+	[ "$SCRIPT_OUTPUT" != "quiet" ]
+}
+
 main() {
 	if supported_tmux_version_ok; then
-		start_spinner "Saving..." "Tmux environment saved!"
+		if show_output; then
+			start_spinner "Saving..." "Tmux environment saved!"
+		fi
 		save_all
-		stop_spinner
-		display_message "Tmux environment saved!"
+		if show_output; then
+			stop_spinner
+			display_message "Tmux environment saved!"
+		fi
 	fi
 }
 main
