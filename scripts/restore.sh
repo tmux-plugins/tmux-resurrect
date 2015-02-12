@@ -245,6 +245,13 @@ restore_active_pane_for_each_window() {
 		done
 }
 
+restore_zoomed_windows() {
+	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $6 ~ /Z/ && $9 == 1 { print $2, $3; }' $(last_resurrect_file) |
+		while IFS=$d read session_name window_number; do
+			tmux resize-pane -t "${session_name}:${window_number}" -Z
+		done
+}
+
 restore_grouped_sessions() {
 	while read line; do
 		if is_line_type "grouped_session" "$line"; then

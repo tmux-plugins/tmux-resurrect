@@ -1,6 +1,9 @@
 # Changelog
 
 ### master
+- Improve fetching proper window_layout for zoomed windows. In order to fetch
+  proper value, window has to get unzoomed. This is now done faster so that
+  "unzoom,fetch value,zoom" cycle is almost unnoticable to the user.
 
 ### v2.2.0, 2015-02-12
 - bugfix: zoomed windows related regression

@@ -85,6 +85,11 @@ dump_windows_raw(){
 	tmux list-windows -a -F "$(window_format)"
 }
 
+toggle_window_zoom() {
+	local target="$1"
+	tmux resize-pane -Z -t "$target"
+}
+
 _save_command_strategy_file() {
 	local save_command_strategy="$(get_tmux_option "$save_command_strategy_option" "$default_save_command_strategy")"
 	local strategy_file="$CURRENT_DIR/../save_command_strategies/${save_command_strategy}.sh"
@@ -167,11 +172,6 @@ dump_panes() {
 			if is_session_grouped "$session_name"; then
 				continue
 			fi
-			# check if current pane is part of a maximized window and if the pane is active
-			if [[ "${window_flags}" == *Z* ]] && [[ ${pane_active} == 1 ]]; then
-				# unmaximize the pane
-				tmux resize-pane -Z -t "${session_name}:${window_number}"
-			fi
 			full_command="$(pane_full_command $pane_pid)"
 			echo "${line_type}${d}${session_name}${d}${window_number}${d}${window_name}${d}${window_active}${d}${window_flags}${d}${pane_index}${d}${dir}${d}${pane_active}${d}${pane_command}${d}:${full_command}"
 		done
@@ -183,6 +183,15 @@ dump_windows() {
 			# not saving windows from grouped sessions
 			if is_session_grouped "$session_name"; then
 				continue
+			fi
+			# window_layout is not correct for zoomed windows
+			if [[ "$window_flags" == *Z* ]]; then
+				# unmaximize the window
+				toggle_window_zoom "${session_name}:${window_index}"
+				# get correct window layout
+				window_layout="$(tmux display-message -p -t "${session_name}:${window_index}" -F "#{window_layout}")"
+				# maximize window again
+				toggle_window_zoom "${session_name}:${window_index}"
 			fi
 			echo "${line_type}${d}${session_name}${d}${window_index}${d}${window_active}${d}${window_flags}${d}${window_layout}"
 		done
@@ -210,7 +219,6 @@ save_all() {
 	if save_bash_history_option_on; then
 		dump_bash_history
 	fi
-	restore_zoomed_windows
 }
 
 show_output() {
