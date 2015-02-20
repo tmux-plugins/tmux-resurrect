@@ -14,9 +14,8 @@ No configuration is required. You should feel like you never quit tmux.
 
 It even (optionally) [restores vim and neovim sessions](#restoring-vim-and-neovim-sessions)!
 
-Continuous saving of tmux env is also possible with
-[tmux-resurrect-auto](https://github.com/tmux-plugins/tmux-resurrect-auto)
-plugin.
+Automatic restoring and continuous saving of tmux env is also possible with
+[tmux-continuum](https://github.com/tmux-plugins/tmux-continuum) plugin.
 
 ### Screencast
 
