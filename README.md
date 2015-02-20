@@ -162,8 +162,8 @@ add `HISTCONTROL=ignoreboth` to your `.bashrc` (this is set by default in Ubuntu
   highlighted text to system clipboard
 - [tmux-open](https://github.com/tmux-plugins/tmux-open) - a plugin for quickly
   opening highlighted file or a url
-- [tmux-resurrect-auto](https://github.com/tmux-plugins/tmux-resurrect-auto) -
-  continuous saving of tmux environment
+- [tmux-continuum](https://github.com/tmux-plugins/tmux-continuum) - automatic
+  restoring and continuous saving of tmux env
 
 You might want to follow [@brunosutic](https://twitter.com/brunosutic) on
 twitter if you want to hear about new tmux plugins or feature updates.
