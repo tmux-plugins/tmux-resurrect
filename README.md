@@ -165,6 +165,9 @@ add `HISTCONTROL=ignoreboth` to your `.bashrc` (this is set by default in Ubuntu
 - [tmux-resurrect-auto](https://github.com/tmux-plugins/tmux-resurrect-auto) -
   continuous saving of tmux environment
 
+You might want to follow [@brunosutic](https://twitter.com/brunosutic) on
+twitter if you want to hear about new tmux plugins or feature updates.
+
 ### Reporting bugs and contributing
 
 Both contributing and bug reports are welcome. Please check out
