@@ -1,0 +1,55 @@
+# a set of expect helpers
+
+# basic setup for each script
+proc expect_setup {} {
+  # disables script output
+  log_user 0
+  # standard timeout
+  set timeout 5
+}
+
+proc new_tmux_window {} {
+  send "c"
+  send "cd /tmp\r"
+  sleep 0.2
+}
+
+proc rename_current_session {name} {
+  send "$"
+  # delete existing name with ctrl-u
+  send ""
+  send "$name\r"
+  sleep 0.2
+}
+
+proc new_tmux_session {name} {
+  send "TMUX='' tmux new -d -s $name\r"
+  sleep 1
+  send "tmux switch-client -t $name\r"
+  send "cd /tmp\r"
+  sleep 0.5
+}
+
+proc horizontal_split {} {
+  send "\""
+  sleep 0.2
+  send "cd /tmp\r"
+  sleep 0.1
+}
+
+proc vertical_split {} {
+  send "%"
+  sleep 0.2
+  send "cd /tmp\r"
+  sleep 0.1
+}
+
+proc run_shell_command {command} {
+  send "$command\r"
+  sleep 1
+}
+
+proc start_resurrect_save {} {
+  send ""
+  sleep 5
+}

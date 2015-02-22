@@ -1,0 +1,42 @@
+#!/usr/bin/env expect
+
+source "./tests/helpers/expect_helpers.exp"
+
+expect_setup
+
+spawn tmux
+# delay with sleep to compensate for tmux starting time
+sleep 1
+
+run_shell_command "cd /tmp"
+
+# session red
+rename_current_session "red"
+
+new_tmux_window
+horizontal_split
+vertical_split
+
+new_tmux_window
+horizontal_split
+
+# session blue
+new_tmux_session "blue"
+
+run_shell_command "touch foo.txt"
+run_shell_command "vim foo.txt"
+
+new_tmux_window
+vertical_split
+run_shell_command "man echo"
+
+new_tmux_window
+
+# session yellow
+new_tmux_session "yellow"
+run_shell_command "mkdir bar"
+run_shell_command "cd bar"
+
+start_resurrect_save
+
+run_shell_command "tmux kill-server"
