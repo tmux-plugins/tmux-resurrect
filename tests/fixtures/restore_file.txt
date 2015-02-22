@@ -1,0 +1,21 @@
+pane	0	0	:bash	1	:*	0	:/tmp	1	bash	:
+pane	blue	0	:vim	0	: 	0	:/tmp	1	vim	:vim foo.txt
+pane	blue	1	:man	0	:-	0	:/tmp	0	bash	:
+pane	blue	1	:man	0	:-	1	:/usr/share/man	1	man	:man echo
+pane	blue	2	:bash	1	:*	0	:/tmp	1	bash	:
+pane	red	0	:bash	0	: 	0	:/tmp	1	bash	:
+pane	red	1	:bash	0	:-	0	:/tmp	0	bash	:
+pane	red	1	:bash	0	:-	1	:/tmp	0	bash	:
+pane	red	1	:bash	0	:-	2	:/tmp	1	bash	:
+pane	red	2	:bash	1	:*	0	:/tmp	0	bash	:
+pane	red	2	:bash	1	:*	1	:/tmp	1	bash	:
+pane	yellow	0	:bash	1	:*	0	:/tmp/bar	1	bash	:
+window	0	0	1	:*	ce9e,200x49,0,0,1
+window	blue	0	0	: 	ce9f,200x49,0,0,2
+window	blue	1	0	:-	178b,200x49,0,0{100x49,0,0,3,99x49,101,0,4}
+window	blue	2	1	:*	cea2,200x49,0,0,5
+window	red	0	0	: 	cea3,200x49,0,0,6
+window	red	1	0	:-	135b,200x49,0,0[200x24,0,0,7,200x24,0,25{100x24,0,25,8,99x24,101,25,9}]
+window	red	2	1	:*	db81,200x49,0,0[200x24,0,0,10,200x24,0,25,11]
+window	yellow	0	1	:*	6781,200x49,0,0,12
+state	yellow	blue

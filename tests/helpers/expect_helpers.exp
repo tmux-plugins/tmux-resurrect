@@ -53,3 +53,13 @@ proc start_resurrect_save {} {
   send ""
   sleep 5
 }
+
+proc start_resurrect_restore {} {
+  send ""
+  sleep 10
+}
+
+proc clear_screen_for_window {target} {
+  send "tmux send-keys -t $target C-l\r"
+  sleep 0.2
+}

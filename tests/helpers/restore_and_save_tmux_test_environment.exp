@@ -1,0 +1,18 @@
+#!/usr/bin/env expect
+
+source "./tests/helpers/expect_helpers.exp"
+
+expect_setup
+
+spawn tmux
+# delay with sleep to compensate for tmux starting time
+sleep 1
+
+start_resurrect_restore
+
+# delete all existing resurrect save files
+run_shell_command "rm ~/.tmux/resurrect/*"
+
+start_resurrect_save
+
+run_shell_command "tmux kill-server"
