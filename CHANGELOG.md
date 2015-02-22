@@ -1,6 +1,9 @@
 # Changelog
 
 ### master
+- add "tmux-test"
+- add test for "resurrect save" feature
+- add test for "resurrect restore" feature
 
 ### v2.3.0, 2015-02-12
 - Improve fetching proper window_layout for zoomed windows. In order to fetch
