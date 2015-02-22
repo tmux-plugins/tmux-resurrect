@@ -11,7 +11,7 @@ sleep 1
 run_shell_command "cd /tmp"
 
 # session red
-rename_current_session "red"
+new_tmux_session "red"
 
 new_tmux_window
 horizontal_split
