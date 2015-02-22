@@ -5,10 +5,14 @@ CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $CURRENT_DIR/helpers/helpers.sh
 source $CURRENT_DIR/helpers/resurrect_helpers.sh
 
-setup_file_for_restore() {
+setup_before_restore() {
+	# setup restore file
 	mkdir -p ~/.tmux/resurrect/
 	cp tests/fixtures/restore_file.txt "${HOME}/.tmux/resurrect/restore_file.txt"
 	ln -sf restore_file.txt "${HOME}/.tmux/resurrect/last"
+
+	# directory used in restored tmux session
+	mkdir -p /tmp/bar
 }
 
 restore_tmux_environment_and_save_again() {
@@ -21,7 +25,7 @@ restore_tmux_environment_and_save_again() {
 
 main() {
 	install_tmux_resurrect_helper
-	setup_file_for_restore
+	setup_before_restore
 	restore_tmux_environment_and_save_again
 
 	if last_save_file_differs_helper "tests/fixtures/restore_file.txt"; then

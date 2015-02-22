@@ -34,8 +34,7 @@ new_tmux_window
 
 # session yellow
 new_tmux_session "yellow"
-run_shell_command "mkdir bar"
-run_shell_command "cd bar"
+run_shell_command "cd /tmp/bar"
 
 start_resurrect_save
 
