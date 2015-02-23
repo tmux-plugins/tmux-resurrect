@@ -12,7 +12,6 @@ create_tmux_test_environment_and_save() {
 
 main() {
 	install_tmux_plugin_under_test_helper
-	install_tmux_plugin_under_test_helper
 	mkdir -p /tmp/bar # setup required dirs
 	create_tmux_test_environment_and_save
 
