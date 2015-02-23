@@ -5,6 +5,7 @@
 - add test for "resurrect save" feature
 - add test for "resurrect restore" feature
 - make the tests work and pass on travis
+- add travis badge to the readme
 
 ### v2.3.0, 2015-02-12
 - Improve fetching proper window_layout for zoomed windows. In order to fetch

@@ -1,5 +1,7 @@
 # Tmux Resurrect
 
+[![Build Status](https://travis-ci.org/tmux-plugins/tmux-resurrect.png?branch=master)](https://travis-ci.org/tmux-plugins/tmux-resurrect)
+
 Restore `tmux` environment after a system restart.
 
 Tmux is great, except when you have to restart the computer. You lose all the
