@@ -1,6 +1,8 @@
 # Changelog
 
 ### master
+
+### v2.4.0, 2015-02-23
 - add "tmux-test"
 - add test for "resurrect save" feature
 - add test for "resurrect restore" feature
