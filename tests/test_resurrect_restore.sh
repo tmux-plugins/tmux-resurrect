@@ -16,15 +16,12 @@ setup_before_restore() {
 }
 
 restore_tmux_environment_and_save_again() {
-	set_tmux_conf_helper<<-HERE
-	run-shell '~/.tmux/plugins/tmux-resurrect/resurrect.tmux'
-	HERE
 	set_screen_dimensions_helper
 	$CURRENT_DIR/helpers/restore_and_save_tmux_test_environment.exp
 }
 
 main() {
-	install_tmux_resurrect_helper
+	install_tmux_plugin_under_test_helper
 	setup_before_restore
 	restore_tmux_environment_and_save_again
 

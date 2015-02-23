@@ -6,15 +6,13 @@ source $CURRENT_DIR/helpers/helpers.sh
 source $CURRENT_DIR/helpers/resurrect_helpers.sh
 
 create_tmux_test_environment_and_save() {
-	set_tmux_conf_helper<<-HERE
-	run-shell '~/.tmux/plugins/tmux-resurrect/resurrect.tmux'
-	HERE
 	set_screen_dimensions_helper
 	$CURRENT_DIR/helpers/create_and_save_tmux_test_environment.exp
 }
 
 main() {
-	install_tmux_resurrect_helper
+	install_tmux_plugin_under_test_helper
+	install_tmux_plugin_under_test_helper
 	mkdir -p /tmp/bar # setup required dirs
 	create_tmux_test_environment_and_save
 
