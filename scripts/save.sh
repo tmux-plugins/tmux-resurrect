@@ -78,7 +78,8 @@ state_format() {
 }
 
 dump_panes_raw() {
-	tmux list-panes -a -F "$(pane_format)"
+	local format="${1:-$(pane_format)}"
+	tmux list-panes -a -F "$format"
 }
 
 dump_windows_raw(){
@@ -110,7 +111,9 @@ pane_full_command() {
 
 capture_pane_contents() {
 	local pane_id="$1"
-	tmux capture-pane -ep -t "$pane_id" > "$(resurrect_pane_file "$pane_id")"
+	local start_line="0"
+	[[ "$(get_tmux_option "$pane_contents_area_option" "visible")" == "full" ]] && start_line="-$2"
+	tmux capture-pane -ep -S "$start_line" -t "$pane_id" > "$(resurrect_pane_file "$pane_id")"
 }
 
 save_shell_history() {
@@ -207,9 +210,9 @@ dump_state() {
 }
 
 dump_pane_contents() {
-	dump_panes |
-		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command full_command; do
-			capture_pane_contents "$session_name:$window_number.$pane_index"
+	paste -d"$d" <(dump_panes) <(dump_panes_raw "#{history_size}") |
+		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command full_command history_size; do
+			capture_pane_contents "$session_name:$window_number.$pane_index" "$history_size"
 		done
 }
 
