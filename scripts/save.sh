@@ -108,6 +108,11 @@ pane_full_command() {
 	$strategy_file "$pane_pid"
 }
 
+capture_pane_contents() {
+	local pane_id="$1"
+	tmux capture-pane -ep -t "$pane_id" > "$(resurrect_pane_file "$pane_id")"
+}
+
 save_shell_history() {
 	local pane_id="$1"
 	local pane_command="$2"
@@ -201,6 +206,13 @@ dump_state() {
 	tmux display-message -p "$(state_format)"
 }
 
+dump_pane_contents() {
+	dump_panes |
+		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command full_command; do
+			capture_pane_contents "$session_name:$window_number.$pane_index"
+		done
+}
+
 dump_bash_history() {
 	dump_panes |
 		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command full_command; do
@@ -216,6 +228,9 @@ save_all() {
 	dump_windows >> "$resurrect_file_path"
 	dump_state   >> "$resurrect_file_path"
 	ln -fs "$(basename "$resurrect_file_path")" "$(last_resurrect_file)"
+	if capture_pane_contents_option_on; then
+		dump_pane_contents
+	fi
 	if save_bash_history_option_on; then
 		dump_bash_history
 	fi

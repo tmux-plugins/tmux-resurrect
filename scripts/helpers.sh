@@ -51,6 +51,11 @@ remove_first_char() {
 	echo "$1" | cut -c2-
 }
 
+capture_pane_contents_option_on() {
+	local option="$(get_tmux_option "$pane_contents_option" "off")"
+	[ "$option" == "on" ]
+}
+
 save_bash_history_option_on() {
 	local option="$(get_tmux_option "$bash_history_option" "off")"
 	[ "$option" == "on" ]
@@ -79,6 +84,11 @@ resurrect_file_path() {
 
 last_resurrect_file() {
 	echo "$(resurrect_dir)/last"
+}
+
+resurrect_pane_file() {
+	local pane_id="$1"
+	echo "$(resurrect_dir)/pane_contents-${pane_id}"
 }
 
 resurrect_history_file() {
