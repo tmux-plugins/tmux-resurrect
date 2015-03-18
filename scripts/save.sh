@@ -113,7 +113,7 @@ capture_pane_contents() {
 	local pane_id="$1"
 	local start_line="0"
 	[[ "$(get_tmux_option "$pane_contents_area_option" "visible")" == "full" ]] && start_line="-$2"
-	tmux capture-pane -ep -S "$start_line" -t "$pane_id" > "$(resurrect_pane_file "$pane_id")"
+	tmux capture-pane -epJ -S "$start_line" -t "$pane_id" > "$(resurrect_pane_file "$pane_id")"
 }
 
 save_shell_history() {
