@@ -52,6 +52,8 @@ This plugin goes to great lengths to save and restore all the details from your
   [restoring vim and neovim sessions](#restoring-vim-and-neovim-sessions).
 - restoring bash history (optional, \*experimental*). More details in
   [restoring bash history](#restoring-bash-history-experimental).
+- restoring tmux pane contents (optional, \*experimental*). More details in
+  [restoring pane contents](#restoring-pane-contents-experimental).
 
 Requirements / dependencies: `tmux 1.9` or higher, `bash`.
 
@@ -155,6 +157,15 @@ technical limitations, this only works for panes which have no program running i
 foreground when saving. `tmux-resurrect` will send history write command
 to each such pane. To prevent these commands from being added to history themselves,
 add `HISTCONTROL=ignoreboth` to your `.bashrc` (this is set by default in Ubuntu).
+
+#### Restoring pane contents (experimental)
+
+To enable saving and restoring tmux pane contents add this line to `.tmux.conf`:
+
+    set -g @resurrect-capture-pane-contents 'on'
+
+This feature works fine, but there may be some glitches as we're
+[actively working on this](https://github.com/tmux-plugins/tmux-resurrect/issues/81).
 
 ### Other goodies
 

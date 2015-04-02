@@ -1,6 +1,7 @@
 # Changelog
 
 ### master
+- save and restore tmux pane contents (@laomaiweng)
 
 ### v2.4.0, 2015-02-23
 - add "tmux-test"
