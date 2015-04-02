@@ -210,10 +210,20 @@ restore_pane_layout_for_each_window() {
 		done
 }
 
+restore_pane_contents() {
+	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ { print $2, $3, $7, $10; }' $(last_resurrect_file) |
+		while IFS=$d read session_name window_number pane_index pane_command; do
+			if ! is_pane_registered_as_existing "$session_name" "$window_number" "$pane_index"; then
+				local pane_id="$session_name:$window_number.$pane_index"
+				local read_command=" cat '$(resurrect_pane_file "$pane_id")'"
+				tmux send-keys -t "$pane_id" "$read_command" C-m
+			fi
+		done
+}
 restore_shell_history() {
 	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ { print $2, $3, $7, $10; }' $(last_resurrect_file) |
 		while IFS=$d read session_name window_number pane_index pane_command; do
-		 if ! is_pane_registered_as_existing "$session_name" "$window_number" "$pane_index"; then
+			if ! is_pane_registered_as_existing "$session_name" "$window_number" "$pane_index"; then
 				if [ "$pane_command" = "bash" ]; then
 					local pane_id="$session_name:$window_number.$pane_index"
 					# tmux send-keys has -R option that should reset the terminal.
@@ -284,6 +294,9 @@ main() {
 		restore_pane_layout_for_each_window >/dev/null 2>&1
 		if save_bash_history_option_on; then
 			restore_shell_history
+		fi
+		if capture_pane_contents_option_on; then
+			restore_pane_contents
 		fi
 		restore_all_pane_processes
 		# below functions restore exact cursor positions
