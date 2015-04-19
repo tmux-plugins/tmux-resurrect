@@ -2,6 +2,7 @@
 
 ### master
 - save and restore tmux pane contents (@laomaiweng)
+- update tmux-test to solve issue with recursing git submodules in that project
 
 ### v2.4.0, 2015-02-23
 - add "tmux-test"
