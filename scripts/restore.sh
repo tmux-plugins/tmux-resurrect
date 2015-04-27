@@ -91,7 +91,12 @@ new_window() {
 	local window_number="$2"
 	local window_name="$3"
 	local dir="$4"
-	tmux new-window -d -t "${session_name}:${window_number}" -n "$window_name" -c "$dir"
+	local auto_rename="$(get_tmux_option "automatic-rename" "on")"
+	if [ "$auto_rename" == "off" ] then;
+		tmux new-window -d -t "${session_name}:${window_number}" -n "$window_name" -c "$dir"
+	else
+		tmux new-window -d -t "${session_name}:${window_number}" -c "$dir"
+	fi
 }
 
 new_session() {
@@ -99,7 +104,12 @@ new_session() {
 	local window_number="$2"
 	local window_name="$3"
 	local dir="$4"
-	TMUX="" tmux -S "$(tmux_socket)" new-session -d -s "$session_name" -n "$window_name" -c "$dir"
+	local auto_rename="$(get_tmux_option "automatic-rename" "on")"
+	if [ "$auto_rename" == "off" ] then;
+		TMUX="" tmux -S "$(tmux_socket)" new-session -d -s "$session_name" -n "$window_name" -c "$dir"
+	else
+		TMUX="" tmux -S "$(tmux_socket)" new-session -d -s "$session_name" -c "$dir"
+	fi
 	# change first window number if necessary
 	local created_window_num="$(first_window_num)"
 	if [ $created_window_num -ne $window_number ]; then
