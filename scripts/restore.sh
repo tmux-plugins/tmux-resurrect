@@ -216,7 +216,7 @@ restore_pane_contents() {
 			if ! is_pane_registered_as_existing "$session_name" "$window_number" "$pane_index"; then
 				local pane_id="$session_name:$window_number.$pane_index"
 				local pane_tty=$(tmux display-message -p -F "#{pane_tty}" -t "$pane_id")
-				cat -s "$(resurrect_pane_file "$pane_id")" | perl -pe "chomp if eof" > "$pane_tty"
+				cat -s "$(resurrect_pane_file "$pane_id")" > "$pane_tty"
 			fi
 		done
 }
