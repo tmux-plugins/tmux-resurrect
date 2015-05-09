@@ -18,6 +18,8 @@ EXISTING_PANES_VAR=""
 
 RESTORING_FROM_SCRATCH="false"
 
+RESTORE_PANE_CONTENTS="false"
+
 is_line_type() {
 	local line_type="$1"
 	local line="$2"
@@ -66,6 +68,14 @@ is_restoring_from_scratch() {
 	[ "$RESTORING_FROM_SCRATCH" == "true" ]
 }
 
+restore_pane_contents_true() {
+	RESTORE_PANE_CONTENTS="true"
+}
+
+is_restoring_pane_contents() {
+	[ "$RESTORE_PANE_CONTENTS" == "true" ]
+}
+
 window_exists() {
 	local session_name="$1"
 	local window_number="$2"
@@ -86,12 +96,33 @@ tmux_socket() {
 	echo $TMUX | cut -d',' -f1
 }
 
+# Tmux option stored in a global variable so that we don't have to "ask"
+# tmux server each time.
+cache_tmux_default_command() {
+	local default_shell="$(get_tmux_option "default-shell" "")"
+	export TMUX_DEFAULT_COMMAND="$(get_tmux_option "default-command" "$default_shell")"
+}
+
+tmux_default_command() {
+	echo "$TMUX_DEFAULT_COMMAND"
+}
+
+pane_creation_command() {
+	echo "cat '$(resurrect_pane_file "${1}:${2}.${3}")'; $(tmux_default_command)"
+}
+
 new_window() {
 	local session_name="$1"
 	local window_number="$2"
 	local window_name="$3"
 	local dir="$4"
-	tmux new-window -d -t "${session_name}:${window_number}" -n "$window_name" -c "$dir"
+	local pane_index="$5"
+	if is_restoring_pane_contents; then
+		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "$pane_index")"
+		tmux new-window -d -t "${session_name}:${window_number}" -n "$window_name" -c "$dir" "$pane_creation_command"
+	else
+		tmux new-window -d -t "${session_name}:${window_number}" -n "$window_name" -c "$dir"
+	fi
 }
 
 new_session() {
@@ -99,7 +130,13 @@ new_session() {
 	local window_number="$2"
 	local window_name="$3"
 	local dir="$4"
-	TMUX="" tmux -S "$(tmux_socket)" new-session -d -s "$session_name" -n "$window_name" -c "$dir"
+	local pane_index="$5"
+	if is_restoring_pane_contents; then
+		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "$pane_index")"
+		TMUX="" tmux -S "$(tmux_socket)" new-session -d -s "$session_name" -n "$window_name" -c "$dir" "$pane_creation_command"
+	else
+		TMUX="" tmux -S "$(tmux_socket)" new-session -d -s "$session_name" -n "$window_name" -c "$dir"
+	fi
 	# change first window number if necessary
 	local created_window_num="$(first_window_num)"
 	if [ $created_window_num -ne $window_number ]; then
@@ -112,7 +149,13 @@ new_pane() {
 	local window_number="$2"
 	local window_name="$3"
 	local dir="$4"
-	tmux split-window -t "${session_name}:${window_number}" -c "$dir"
+	local pane_index="$5"
+	if is_restoring_pane_contents; then
+		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "$pane_index")"
+		tmux split-window -t "${session_name}:${window_number}" -c "$dir" "$pane_creation_command"
+	else
+		tmux split-window -t "${session_name}:${window_number}" -c "$dir"
+	fi
 	# minimize window so more panes can fit
 	tmux resize-pane  -t "${session_name}:${window_number}" -U "999"
 }
@@ -128,7 +171,7 @@ restore_pane() {
 				# overwrite the pane
 				# happens only for the first pane if it's the only registered pane for the whole tmux server
 				local pane_id="$(tmux display-message -p -F "#{pane_id}" -t "$session_name:$window_number")"
-				new_pane "$session_name" "$window_number" "$window_name" "$dir"
+				new_pane "$session_name" "$window_number" "$window_name" "$dir" "$pane_index"
 				tmux kill-pane -t "$pane_id"
 			else
 				# Pane exists, no need to create it!
@@ -136,11 +179,11 @@ restore_pane() {
 				register_existing_pane "$session_name" "$window_number" "$pane_index"
 			fi
 		elif window_exists "$session_name" "$window_number"; then
-			new_pane "$session_name" "$window_number" "$window_name" "$dir"
+			new_pane "$session_name" "$window_number" "$window_name" "$dir" "$pane_index"
 		elif session_exists "$session_name"; then
-			new_window "$session_name" "$window_number" "$window_name" "$dir"
+			new_window "$session_name" "$window_number" "$window_name" "$dir" "$pane_index"
 		else
-			new_session "$session_name" "$window_number" "$window_name" "$dir"
+			new_session "$session_name" "$window_number" "$window_name" "$dir" "$pane_index"
 		fi
 	done < <(echo "$pane")
 }
@@ -192,10 +235,18 @@ detect_if_restoring_from_scratch() {
 	fi
 }
 
+detect_if_restoring_pane_contents() {
+	if capture_pane_contents_option_on; then
+		cache_tmux_default_command
+		restore_pane_contents_true
+	fi
+}
+
 # functions called from main (ordered)
 
 restore_all_panes() {
-	detect_if_restoring_from_scratch
+	detect_if_restoring_from_scratch   # sets a global variable
+	detect_if_restoring_pane_contents  # sets a global variable
 	while read line; do
 		if is_line_type "pane" "$line"; then
 			restore_pane "$line"
@@ -210,16 +261,6 @@ restore_pane_layout_for_each_window() {
 		done
 }
 
-restore_pane_contents() {
-	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ { print $2, $3, $7, $10; }' $(last_resurrect_file) |
-		while IFS=$d read session_name window_number pane_index pane_command; do
-			if ! is_pane_registered_as_existing "$session_name" "$window_number" "$pane_index"; then
-				local pane_id="$session_name:$window_number.$pane_index"
-				local read_command=" cat '$(resurrect_pane_file "$pane_id")'"
-				tmux send-keys -t "$pane_id" "$read_command" C-m
-			fi
-		done
-}
 restore_shell_history() {
 	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ { print $2, $3, $7, $10; }' $(last_resurrect_file) |
 		while IFS=$d read session_name window_number pane_index pane_command; do
@@ -294,9 +335,6 @@ main() {
 		restore_pane_layout_for_each_window >/dev/null 2>&1
 		if save_bash_history_option_on; then
 			restore_shell_history
-		fi
-		if capture_pane_contents_option_on; then
-			restore_pane_contents
 		fi
 		restore_all_pane_processes
 		# below functions restore exact cursor positions
