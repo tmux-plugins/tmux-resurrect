@@ -31,10 +31,11 @@ default_save_command_strategy="ps"
 
 # Pane contents capture options.
 # @resurrect-pane-contents-area option can be:
-#   'visible' - capture only the visible pane area (default)
+#   'visible' - capture only the visible pane area
 #   'full'    - capture the full pane contents
 pane_contents_option="@resurrect-capture-pane-contents"
 pane_contents_area_option="@resurrect-pane-contents-area"
+default_pane_contents_area="full"
 
 bash_history_option="@resurrect-save-bash-history"
 

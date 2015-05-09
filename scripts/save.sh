@@ -112,7 +112,10 @@ pane_full_command() {
 capture_pane_contents() {
 	local pane_id="$1"
 	local start_line="-$2"
-	[[ "$(get_tmux_option "$pane_contents_area_option" "full")" == "visible" ]] && start_line="0"
+	local pane_contents_area="$3"
+	if [ "$pane_contents_area" = "visible" ]; then
+		start_line="0"
+	fi
 	tmux capture-pane -epJ -S "$start_line" -t "$pane_id" > "$(resurrect_pane_file "$pane_id")"
 }
 
@@ -210,9 +213,10 @@ dump_state() {
 }
 
 dump_pane_contents() {
+	local pane_contents_area="$(get_tmux_option "$pane_contents_area_option" "$default_pane_contents_area")"
 	paste -d"$d" <(dump_panes) <(dump_panes_raw "#{history_size}") |
 		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command full_command history_size; do
-			capture_pane_contents "$session_name:$window_number.$pane_index" "$history_size"
+			capture_pane_contents "$session_name:$window_number.$pane_index" "$history_size" "$pane_contents_area"
 		done
 }
 
