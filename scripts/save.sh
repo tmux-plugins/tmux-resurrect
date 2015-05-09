@@ -48,6 +48,8 @@ pane_format() {
 	format+="#{pane_current_command}"
 	format+="${delimiter}"
 	format+="#{pane_pid}"
+	format+="${delimiter}"
+	format+="#{history_size}"
 	echo "$format"
 }
 
@@ -78,8 +80,7 @@ state_format() {
 }
 
 dump_panes_raw() {
-	local format="${1:-$(pane_format)}"
-	tmux list-panes -a -F "$format"
+	tmux list-panes -a -F "$(pane_format)"
 }
 
 dump_windows_raw(){
@@ -178,7 +179,7 @@ fetch_and_dump_grouped_sessions(){
 dump_panes() {
 	local full_command
 	dump_panes_raw |
-		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid; do
+		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid history_size; do
 			# not saving panes from grouped sessions
 			if is_session_grouped "$session_name"; then
 				continue
@@ -214,9 +215,9 @@ dump_state() {
 
 dump_pane_contents() {
 	local pane_contents_area="$(get_tmux_option "$pane_contents_area_option" "$default_pane_contents_area")"
-	paste -d"$d" <(dump_panes) <(dump_panes_raw "#{history_size}") |
-		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command full_command history_size; do
-			capture_pane_contents "$session_name:$window_number.$pane_index" "$history_size" "$pane_contents_area"
+	dump_panes_raw |
+		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid history_size; do
+			capture_pane_contents "${session_name}:${window_number}.${pane_index}" "$history_size" "$pane_contents_area"
 		done
 }
 
