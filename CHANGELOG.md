@@ -7,6 +7,7 @@
 - improve pane contents restoration: `cat <file>` is no longer shown in pane
   content history
 - refactoring: drop dependency on `paste` command
+- bugfix for pane contents restoration
 
 ### v2.4.0, 2015-02-23
 - add "tmux-test"
