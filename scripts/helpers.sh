@@ -87,7 +87,7 @@ last_resurrect_file() {
 	echo "$(resurrect_dir)/last"
 }
 
-resurrect_pane_file() {
+pane_contents_file() {
 	local pane_id="$1"
 	echo "$(resurrect_dir)/pane_contents-${pane_id}"
 }

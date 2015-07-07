@@ -117,7 +117,7 @@ capture_pane_contents() {
 	if [ "$pane_contents_area" = "visible" ]; then
 		start_line="0"
 	fi
-	printf '%s\n' "$(tmux capture-pane -epJ -S "$start_line" -t "$pane_id")" > "$(resurrect_pane_file "$pane_id")"
+	printf '%s\n' "$(tmux capture-pane -epJ -S "$start_line" -t "$pane_id")" > "$(pane_contents_file "$pane_id")"
 }
 
 save_shell_history() {
