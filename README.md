@@ -137,7 +137,7 @@ is present.
 By default Tmux environment is saved to a file in `~/.tmux/resurrect` dir.
 Change this with:
 
-    set -g @resurrect-dir '/some/path'
+    set -g @resurrect-dir /some/path
 
 #### Restoring bash history (experimental)
 
