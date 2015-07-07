@@ -74,7 +74,8 @@ is_session_grouped() {
 # path helpers
 
 resurrect_dir() {
-	echo $(get_tmux_option "$resurrect_dir_option" "$default_resurrect_dir")
+	local path="$(get_tmux_option "$resurrect_dir_option" "$default_resurrect_dir")"
+	echo "${path/#\~/$HOME}" # expands tilde if used with @resurrect-dir
 }
 
 resurrect_file_path() {
