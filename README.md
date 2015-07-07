@@ -82,11 +82,7 @@ Add this line to the bottom of `.tmux.conf`:
 
     run-shell ~/clone/path/resurrect.tmux
 
-Reload TMUX environment:
-
-    # type this in terminal
-    $ tmux source-file ~/.tmux.conf
-
+Reload TMUX environment with: `$ tmux source-file ~/.tmux.conf`.
 You should now be able to use the plugin.
 
 ### Configuration
@@ -187,13 +183,6 @@ Both contributing and bug reports are welcome. Please check out
 
 [Mislav Marohnić](https://github.com/mislav) - the idea for the plugin came from his
 [tmux-session script](https://github.com/mislav/dotfiles/blob/2036b5e03fb430bbcbc340689d63328abaa28876/bin/tmux-session).
-
-### Other
-
-Here's another script that tries to solve the same problem:
-[link](http://brainscraps.wikia.com/wiki/Resurrecting_tmux_Sessions_After_Reboot).
-It even has the same name, even though I discovered it only after publishing
-`v1.0` of this plugin.
 
 ### License
 [MIT](LICENSE.md)
