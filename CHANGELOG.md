@@ -9,6 +9,7 @@
 - refactoring: drop dependency on `paste` command
 - bugfix for pane contents restoration
 - expand tilde char `~` if used with `@resurrect-dir`
+- do not save empty trailing lines when pane content is saved
 
 ### v2.4.0, 2015-02-23
 - add "tmux-test"
