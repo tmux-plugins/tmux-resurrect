@@ -12,6 +12,7 @@
 - do not save empty trailing lines when pane content is saved
 - do not save pane contents if pane is empty (only for 'save pane contents'
   feature)
+- "save pane contents" feature saves files to a separate directory
 
 ### v2.4.0, 2015-02-23
 - add "tmux-test"
