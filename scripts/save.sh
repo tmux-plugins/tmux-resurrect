@@ -110,14 +110,36 @@ pane_full_command() {
 	$strategy_file "$pane_pid"
 }
 
+number_nonempty_lines_on_screen() {
+	local pane_id="$1"
+	tmux capture-pane -pJ -t "$pane_id" |
+		sed '/^$/d' |
+		wc -l |
+		sed 's/ //g'
+}
+
+# tests if there was any command output in the current pane
+pane_has_any_content() {
+	local pane_id="$1"
+	local history_size="$(tmux display -p -t "$pane_id" -F "#{history_size}")"
+	local cursor_y="$(tmux display -p -t "$pane_id" -F "#{cursor_y}")"
+	# doing "cheap" tests first
+	[ "$history_size" -gt 0 ] || # history has any content?
+		[ "$cursor_y" -gt 0 ] || # cursor not in first line?
+		[ "$(number_nonempty_lines_on_screen "$pane_id")" -gt 1 ]
+}
+
 capture_pane_contents() {
 	local pane_id="$1"
 	local start_line="-$2"
 	local pane_contents_area="$3"
-	if [ "$pane_contents_area" = "visible" ]; then
-		start_line="0"
+	if pane_has_any_content "$pane_id"; then
+		if [ "$pane_contents_area" = "visible" ]; then
+			start_line="0"
+		fi
+		# the printf hack below removes *trailing* empty lines
+		printf '%s\n' "$(tmux capture-pane -epJ -S "$start_line" -t "$pane_id")" > "$(pane_contents_file "$pane_id")"
 	fi
-	printf '%s\n' "$(tmux capture-pane -epJ -S "$start_line" -t "$pane_id")" > "$(pane_contents_file "$pane_id")"
 }
 
 save_shell_history() {

@@ -92,6 +92,11 @@ pane_contents_file() {
 	echo "$(resurrect_dir)/pane_contents-${pane_id}"
 }
 
+pane_contents_file_exists() {
+	local pane_id="$1"
+	[ -f "$(pane_contents_file "$pane_id")" ]
+}
+
 resurrect_history_file() {
 	local pane_id="$1"
 	echo "$(resurrect_dir)/bash_history-${pane_id}"
