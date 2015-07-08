@@ -250,11 +250,17 @@ detect_if_restoring_pane_contents() {
 restore_all_panes() {
 	detect_if_restoring_from_scratch   # sets a global variable
 	detect_if_restoring_pane_contents  # sets a global variable
+	if is_restoring_pane_contents; then
+		pane_content_files_restore_from_archive
+	fi
 	while read line; do
 		if is_line_type "pane" "$line"; then
 			restore_pane "$line"
 		fi
 	done < $(last_resurrect_file)
+	if is_restoring_pane_contents; then
+		pane_content_files_cleanup
+	fi
 }
 
 restore_pane_layout_for_each_window() {

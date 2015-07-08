@@ -71,6 +71,23 @@ is_session_grouped() {
 	[[ "$GROUPED_SESSIONS" == *"${d}${session_name}${d}"* ]]
 }
 
+# pane content file helpers
+
+pane_contents_create_archive() {
+	tar czf "$(pane_contents_archive_file)" -C "$(resurrect_dir)" ./pane_contents/
+}
+
+pane_content_files_restore_from_archive() {
+	local archive_file="$(pane_contents_archive_file)"
+	if [ -f "$archive_file" ]; then
+		tar xzf "$archive_file" -C "$(resurrect_dir)"
+	fi
+}
+
+pane_content_files_cleanup() {
+	rm "$(pane_contents_dir)"/*
+}
+
 # path helpers
 
 resurrect_dir() {
@@ -99,6 +116,10 @@ pane_contents_file() {
 pane_contents_file_exists() {
 	local pane_id="$1"
 	[ -f "$(pane_contents_file "$pane_id")" ]
+}
+
+pane_contents_archive_file() {
+	echo "$(resurrect_dir)/pane_contents.tar.gz"
 }
 
 resurrect_history_file() {

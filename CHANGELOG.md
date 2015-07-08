@@ -13,6 +13,7 @@
 - do not save pane contents if pane is empty (only for 'save pane contents'
   feature)
 - "save pane contents" feature saves files to a separate directory
+- archive and compress pane contents file
 
 ### v2.4.0, 2015-02-23
 - add "tmux-test"

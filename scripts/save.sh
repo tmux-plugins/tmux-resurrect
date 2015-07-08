@@ -261,6 +261,8 @@ save_all() {
 	if capture_pane_contents_option_on; then
 		mkdir -p "$(pane_contents_dir)"
 		dump_pane_contents
+		pane_contents_create_archive
+		pane_content_files_cleanup
 	fi
 	if save_bash_history_option_on; then
 		dump_bash_history
