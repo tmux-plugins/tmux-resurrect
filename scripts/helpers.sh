@@ -74,13 +74,15 @@ is_session_grouped() {
 # pane content file helpers
 
 pane_contents_create_archive() {
-	tar czf "$(pane_contents_archive_file)" -C "$(resurrect_dir)" ./pane_contents/
+	tar cf - -C "$(resurrect_dir)" ./pane_contents/ |
+		gzip > "$(pane_contents_archive_file)"
 }
 
 pane_content_files_restore_from_archive() {
 	local archive_file="$(pane_contents_archive_file)"
 	if [ -f "$archive_file" ]; then
-		tar xzf "$archive_file" -C "$(resurrect_dir)"
+		gzip -d < "$archive_file" |
+			tar xf - -C "$(resurrect_dir)"
 	fi
 }
 

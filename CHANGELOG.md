@@ -14,6 +14,7 @@
   feature)
 - "save pane contents" feature saves files to a separate directory
 - archive and compress pane contents file
+- make archive & compress pane contents process more portable
 
 ### v2.4.0, 2015-02-23
 - add "tmux-test"
