@@ -14,7 +14,8 @@ projects.
 can be completely restored after a system restart (or when you feel like it).
 No configuration is required. You should feel like you never quit tmux.
 
-It even (optionally) [restores vim and neovim sessions](#restoring-vim-and-neovim-sessions)!
+It even (optionally)
+[restores vim and neovim sessions](docs/restoring_vim_and_neovim_sessions.md)!
 
 Automatic restoring and continuous saving of tmux env is also possible with
 [tmux-continuum](https://github.com/tmux-plugins/tmux-continuum) plugin.
@@ -27,11 +28,6 @@ Automatic restoring and continuous saving of tmux env is also possible with
 
 - `prefix + Ctrl-s` - save
 - `prefix + Ctrl-r` - restore
-
-For custom key bindings, add to `.tmux.conf`:
-
-    set -g @resurrect-save 'S'
-    set -g @resurrect-restore 'R'
 
 ### About
 
@@ -47,13 +43,13 @@ This plugin goes to great lengths to save and restore all the details from your
 - active pane for each window
 - "grouped sessions" (useful feature when using tmux with multiple monitors)
 - programs running within a pane! More details in the
-  [configuration section](#configuration).
-- restoring vim/neovim sessions (optional). More details in
-  [restoring vim and neovim sessions](#restoring-vim-and-neovim-sessions).
-- restoring bash history (optional, \*experimental*). More details in
-  [restoring bash history](#restoring-bash-history-experimental).
-- restoring tmux pane contents (optional, \*experimental*). More details in
-  [restoring pane contents](#restoring-pane-contents-experimental).
+  [restoring programs doc](docs/restoring_programs.md).
+
+Optional:
+
+- [restoring vim and neovim sessions](docs/restoring_vim_and_neovim_sessions.md)
+- [restoring pane contents](docs/restoring_pane_contents.md)
+- [restoring bash history](docs/restoring_bash_history.md) (experimental)
 
 Requirements / dependencies: `tmux 1.9` or higher, `bash`.
 
@@ -85,80 +81,27 @@ Add this line to the bottom of `.tmux.conf`:
 Reload TMUX environment with: `$ tmux source-file ~/.tmux.conf`.
 You should now be able to use the plugin.
 
-### Configuration
+### Docs
 
-Configuration is not required, but it enables extra features.
+**Configuration**
 
-Only a conservative list of programs is restored by default:<br/>
-`vi vim nvim emacs man less more tail top htop irssi`.
+- [Changing the default key bindings](docs/custom_key_bindings.md).
+- Only a conservative list of programs is restored by default:<br/>
+  `vi vim nvim emacs man less more tail top htop irssi`.<br/>
+  [Restoring programs doc](docs/restoring_programs.md) explains how to restore
+  additional programs.
+- [Change a directory](docs/save_dir.md) where `tmux-resurrect` saves tmux
+  environment.
 
-- Restore additional programs with the setting in `.tmux.conf`:
+**Optional features**
 
-        set -g @resurrect-processes 'ssh psql mysql sqlite3'
+- [Restoring vim and neovim sessions](docs/restoring_vim_and_neovim_sessions.md)
+  is nice if you're a vim/neovim user.
+- [Restoring pane contents](docs/restoring_pane_contents.md) feature.
 
-- Programs with arguments should be double quoted:
+**Experimental features (also optional)**
 
-        set -g @resurrect-processes 'some_program "git log"'
-
-- Start with tilde to restore a program whose process contains target name:
-
-        set -g @resurrect-processes 'irb pry "~rails server" "~rails console"'
-
-- Use `->` to specify a command to be used when restoring a program (useful if
-  the default restore command fails ):
-
-        set -g @resurrect-processes 'some_program "grunt->grunt development"'
-
-- Don't restore any programs:
-
-        set -g @resurrect-processes 'false'
-
-- Restore **all** programs (be careful with this!):
-
-        set -g @resurrect-processes ':all:'
-
-#### Restoring vim and neovim sessions
-
-- save vim/neovim sessions. I recommend
-  [tpope/vim-obsession](https://github.com/tpope/vim-obsession) (as almost every
-  plugin, it works for both vim and neovim).
-- in `.tmux.conf`:
-
-        # for vim
-        set -g @resurrect-strategy-vim 'session'
-        # for neovim
-        set -g @resurrect-strategy-nvim 'session'
-
-`tmux-resurrect` will now restore vim and neovim sessions if `Sessions.vim` file
-is present.
-
-#### Resurrect save dir
-
-By default Tmux environment is saved to a file in `~/.tmux/resurrect` dir.
-Change this with:
-
-    set -g @resurrect-dir '/some/path'
-
-#### Restoring bash history (experimental)
-
-In `.tmux.conf`:
-
-    set -g @resurrect-save-bash-history 'on'
-
-Bash `history` for individual panes will now be saved and restored. Due to
-technical limitations, this only works for panes which have no program running in
-foreground when saving. `tmux-resurrect` will send history write command
-to each such pane. To prevent these commands from being added to history themselves,
-add `HISTCONTROL=ignoreboth` to your `.bashrc` (this is set by default in Ubuntu).
-
-#### Restoring pane contents (experimental)
-
-To enable saving and restoring tmux pane contents add this line to `.tmux.conf`:
-
-    set -g @resurrect-capture-pane-contents 'on'
-
-This feature works fine, but there may be some glitches as we're
-[actively working on this](https://github.com/tmux-plugins/tmux-resurrect/issues/81).
+- [restoring bash history](docs/restoring_bash_history.md)
 
 ### Other goodies
 
