@@ -87,7 +87,7 @@ You should now be able to use the plugin.
 
 - [Changing the default key bindings](docs/custom_key_bindings.md).
 - Only a conservative list of programs is restored by default:<br/>
-  `vi vim nvim emacs man less more tail top htop irssi`.<br/>
+  `vi vim nvim emacs man less more tail top htop irssi mutt`.<br/>
   [Restoring programs doc](docs/restoring_programs.md) explains how to restore
   additional programs.
 - [Change a directory](docs/save_dir.md) where `tmux-resurrect` saves tmux
