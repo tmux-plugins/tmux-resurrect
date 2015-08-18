@@ -83,6 +83,8 @@ You should now be able to use the plugin.
 
 ### Docs
 
+- [Guide for migrating from tmuxinator](docs/migrating_from_tmuxinator.md)
+
 **Configuration**
 
 - [Changing the default key bindings](docs/custom_key_bindings.md).
