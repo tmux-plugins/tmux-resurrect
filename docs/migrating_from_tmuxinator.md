@@ -14,7 +14,7 @@ Here are some reasons why you'd want to migrate from `tmuxinator` to
 - **Simplicity**<br/>
   `tmuxinator` has an executable, CLI interface with half dozen commands and
   command completion.<br/>
-  `tmux-resurrect` defines just 2 key bindings.
+  `tmux-resurrect` defines just 2 tmux key bindings.
 
 - **No configuration**<br/>
   `tmuxinator` is all about config files (and their constant updating).<br/>
