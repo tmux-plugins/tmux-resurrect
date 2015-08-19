@@ -14,73 +14,34 @@ delimiter=$'\t'
 SCRIPT_OUTPUT="$1"
 
 grouped_sessions_format() {
-	local format
-	format+="#{session_grouped}"
-	format+="${delimiter}"
-	format+="#{session_group}"
-	format+="${delimiter}"
-	format+="#{session_id}"
-	format+="${delimiter}"
-	format+="#{session_name}"
-	echo "$format"
+    join_str "#{session_grouped}" "#{session_group}" "#{session_id}" "#{session_name}"
 }
 
 pane_format() {
-	local format
-	format+="pane"
-	format+="${delimiter}"
-	format+="#{session_name}"
-	format+="${delimiter}"
-	format+="#{window_index}"
-	format+="${delimiter}"
-	format+=":#{window_name}"
-	format+="${delimiter}"
-	format+="#{window_active}"
-	format+="${delimiter}"
-	format+=":#{window_flags}"
-	format+="${delimiter}"
-	format+="#{pane_index}"
-	format+="${delimiter}"
-	format+=":#{pane_current_path}"
-	format+="${delimiter}"
-	format+="#{pane_active}"
-	format+="${delimiter}"
-	format+="#{pane_current_command}"
-	format+="${delimiter}"
-	format+="#{pane_pid}"
-	format+="${delimiter}"
-	format+="#{history_size}"
-	echo "$format"
+    join_str 'pane' '#{session_name}' '#{window_index}' ':#{window_name}' '#{window_active}' ':#{window_flags}' '#{pane_index}' ':#{pane_current_path}' '#{pane_active}' '#{pane_current_command}' '#{pane_pid}' '#{history_size}'
 }
 
 window_format() {
-	local format
-	format+="window"
-	format+="${delimiter}"
-	format+="#{session_name}"
-	format+="${delimiter}"
-	format+="#{window_index}"
-	format+="${delimiter}"
-	format+="#{window_active}"
-	format+="${delimiter}"
-	format+=":#{window_flags}"
-	format+="${delimiter}"
-	format+="#{window_layout}"
-	echo "$format"
+    join_str 'window' '#{session_name}' '#{window_index}' '#{window_active}' ':#{window_flags}' '#{window_layout}'
 }
 
 state_format() {
-	local format
-	format+="state"
-	format+="${delimiter}"
-	format+="#{client_session}"
-	format+="${delimiter}"
-	format+="#{client_last_session}"
-	echo "$format"
+    join_str 'state' '#{client_session}' '#{client_last_session}'
 }
 
 dump_panes_raw() {
-	tmux list-panes -a -F "$(pane_format)"
+    local _t  # _t is useless
+    local g_rename_option
+    local win_rename_option
+
+    # get the value of global automatic-rename option
+    read _t g_rename_option < <(tmux showw -g automatic-rename)
+
+	tmux list-panes -a -F "$(pane_format)" | \
+		while IFS=$d read line_type session_name window_index window_name window_active window_flags pane_index dir pane_active pane_command pane_pid history_size; do
+            read _t win_rename_option < <(tmux showw -t "$session_name":"$window_index" automatic-rename)
+            join_str "$line_type" "$session_name" "$window_index" "$window_name" "${win_rename_option:-$g_rename_option}" "$window_active" "$window_flags" "$pane_index" "$dir" "$pane_active" "$pane_command" "$pane_pid" "$history_size"
+        done
 }
 
 dump_windows_raw(){
@@ -182,9 +143,12 @@ dump_grouped_sessions() {
 				current_session_group="$session_group"
 			else
 				# this session "points" to the original session
-				active_window_index="$(get_active_window_index "$session_name")"
-				alternate_window_index="$(get_alternate_window_index "$session_name")"
-				echo "grouped_session${d}${session_name}${d}${original_session}${d}:${alternate_window_index}${d}:${active_window_index}"
+				#active_window_index="$(get_active_window_index "$session_name")"
+				#alternate_window_index="$(get_alternate_window_index "$session_name")"
+				#echo "grouped_session${d}${session_name}${d}${original_session}${d}:${alternate_window_index}${d}:${active_window_index}"
+				active_window_index=":$(get_active_window_index "$session_name")"
+				alternate_window_index=":$(get_alternate_window_index "$session_name")"
+                join_str "grouped_session" "${session_name}" "${original_session}" "${alternate_window_index}" "${active_window_index}"
 			fi
 		done
 }
@@ -201,13 +165,13 @@ fetch_and_dump_grouped_sessions(){
 dump_panes() {
 	local full_command
 	dump_panes_raw |
-		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid history_size; do
+		while IFS=$d read line_type session_name window_number window_name rename_option window_active window_flags pane_index dir pane_active pane_command pane_pid history_size; do
 			# not saving panes from grouped sessions
 			if is_session_grouped "$session_name"; then
 				continue
 			fi
-			full_command="$(pane_full_command $pane_pid)"
-			echo "${line_type}${d}${session_name}${d}${window_number}${d}${window_name}${d}${window_active}${d}${window_flags}${d}${pane_index}${d}${dir}${d}${pane_active}${d}${pane_command}${d}:${full_command}"
+			full_command=":$(pane_full_command $pane_pid)"
+            join_str "$line_type" "$session_name" "$window_number" "$window_name" "$rename_option" "$window_active" "$window_flags" "$pane_index" "$dir" "$pane_active" "$pane_command" "$full_command"
 		done
 }
 
@@ -227,7 +191,8 @@ dump_windows() {
 				# maximize window again
 				toggle_window_zoom "${session_name}:${window_index}"
 			fi
-			echo "${line_type}${d}${session_name}${d}${window_index}${d}${window_active}${d}${window_flags}${d}${window_layout}"
+			#echo "${line_type}${d}${session_name}${d}${window_index}${d}${window_active}${d}${window_flags}${d}${window_layout}"
+            join_str "${line_type}" "${session_name}" "${window_index}" "${window_active}" "${window_flags}" "${window_layout}"
 		done
 }
 
@@ -238,14 +203,14 @@ dump_state() {
 dump_pane_contents() {
 	local pane_contents_area="$(get_tmux_option "$pane_contents_area_option" "$default_pane_contents_area")"
 	dump_panes_raw |
-		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid history_size; do
+		while IFS=$d read line_type session_name window_number window_name rename_option window_active window_flags pane_index dir pane_active pane_command pane_pid history_size; do
 			capture_pane_contents "${session_name}:${window_number}.${pane_index}" "$history_size" "$pane_contents_area"
 		done
 }
 
 dump_bash_history() {
 	dump_panes |
-		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command full_command; do
+		while IFS=$d read line_type session_name window_number window_name rename_option window_active window_flags pane_index dir pane_active pane_command full_command; do
 			save_shell_history "$session_name:$window_number.$pane_index" "$pane_command" "$full_command"
 		done
 }
@@ -286,3 +251,5 @@ main() {
 	fi
 }
 main
+
+# vim: smarttab:expandtab:ts=4:sw=4:sts=4
