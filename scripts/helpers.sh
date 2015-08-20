@@ -128,8 +128,3 @@ resurrect_history_file() {
 	local pane_id="$1"
 	echo "$(resurrect_dir)/bash_history-${pane_id}"
 }
-
-join_str() {
-    local str=$(printf "${d}%s" "$@")
-    echo "${str:1}"
-}
