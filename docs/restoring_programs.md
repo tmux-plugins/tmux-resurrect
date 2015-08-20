@@ -82,3 +82,19 @@ command name".
 
 Full (long) process name is now ignored and you'll see just `rails server` in
 the command line when the program is restored.
+
+> Now I understand the tilde and the arrow, but things still don't work for me
+
+Here's the general workflow for figuring this out:
+
+- Set up your whole tmux environment manually.<br/>
+  In our example case, we'd type `rails server` in a pane where we want it to
+  run.
+- Save tmux env (it will get saved to `~/.tmux/resurrect/last`).
+- Open `~/.tmux/resurrect/last` file and try to find full process string for
+  your program.<br/>
+  Unfortunately this is a little vague but it should be easy. A smart
+  thing to do for our example is to search for string `rails` in the `last`
+  file.
+- Now that you know the full and the desired process string use tilde `~` and
+  arrow `->` in `.tmux.conf` to make things work.
