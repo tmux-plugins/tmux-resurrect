@@ -126,5 +126,6 @@ pane_contents_archive_file() {
 
 resurrect_history_file() {
 	local pane_id="$1"
-	echo "$(resurrect_dir)/bash_history-${pane_id}"
+	local shell_name="$2"
+	echo "$(resurrect_dir)/${shell_name}_history-${pane_id}"
 }
