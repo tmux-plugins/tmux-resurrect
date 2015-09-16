@@ -348,7 +348,7 @@ main() {
 		start_spinner "Restoring..." "Tmux restore complete!"
 		restore_all_panes
 		restore_pane_layout_for_each_window >/dev/null 2>&1
-		if save_bash_history_option_on; then
+		if save_shell_history_option_on; then
 			restore_shell_history
 		fi
 		restore_all_pane_processes

@@ -286,8 +286,8 @@ save_all() {
 		pane_contents_create_archive
 		pane_content_files_cleanup
 	fi
-	if save_bash_history_option_on; then
 		dump_bash_history
+	if save_shell_history_option_on; then
 	fi
 }
 

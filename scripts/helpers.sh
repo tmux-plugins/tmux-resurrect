@@ -56,9 +56,11 @@ capture_pane_contents_option_on() {
 	[ "$option" == "on" ]
 }
 
-save_bash_history_option_on() {
-	local option="$(get_tmux_option "$bash_history_option" "off")"
-	[ "$option" == "on" ]
+save_shell_history_option_on() {
+	local option_shell="$(get_tmux_option "$shell_history_option" "off")"
+	local option_bash="$(get_tmux_option "$bash_history_option" "off")"
+
+	[ "$option_shell" == "on" ] || [ "$option_bash" == "on" ]
 }
 
 get_grouped_sessions() {
