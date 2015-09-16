@@ -143,16 +143,37 @@ capture_pane_contents() {
 }
 
 save_shell_history() {
+	if [ "$pane_command" = "bash" ]; then
+		local history_w='history -w'
+		local accept_line='C-m'
+		local end_of_line='C-e'
+		local backward_kill_line='C-u'
+	elif [ "$pane_command" = "zsh" ]; then
+		# fc -W does not work with -L
+		# fc -l format is different from what's written by fc -W
+		# fc -R either reads the format produced by fc -W or considers
+		# the entire line to be a command. That's why we need -n.
+		# fc -l only list the last 16 items by default, I think 64 is more reasonable.
+		local history_w='fc -lLn -64 >'
+
+		local zsh_bindkey="$(zsh -i -c bindkey)"
+		local accept_line="$(expr "$(echo "$zsh_bindkey" | grep -m1 '\saccept-line$')" : '^"\(.*\)".*')"
+		local end_of_line="$(expr "$(echo "$zsh_bindkey" | grep -m1 '\send-of-line$')" : '^"\(.*\)".*')"
+		local backward_kill_line="$(expr "$(echo "$zsh_bindkey" | grep -m1 '\sbackward-kill-line$')" : '^"\(.*\)".*')"
+	else
+		return
+	fi
+
 	local pane_id="$1"
 	local pane_command="$2"
 	local full_command="$3"
-	if [ "$pane_command" == "bash" ] && [ "$full_command" == ":" ]; then
+	if [ "$full_command" = ":" ]; then
 		# leading space prevents the command from being saved to history
 		# (assuming default HISTCONTROL settings)
-		local write_command=" history -w '$(resurrect_history_file "$pane_id")'"
+		local write_command=" $history_w '$(resurrect_history_file "$pane_id" "$pane_command")'"
 		# C-e C-u is a Bash shortcut sequence to clear whole line. It is necessary to
 		# delete any pending input so it does not interfere with our history command.
-		tmux send-keys -t "$pane_id" C-e C-u "$write_command" C-m
+		tmux send-keys -t "$pane_id" "$end_of_line" "$backward_kill_line" "$write_command" "$accept_line"
 	fi
 }
 

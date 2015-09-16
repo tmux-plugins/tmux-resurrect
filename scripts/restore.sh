@@ -274,10 +274,16 @@ restore_shell_history() {
 	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ { print $2, $3, $7, $10; }' $(last_resurrect_file) |
 		while IFS=$d read session_name window_number pane_index pane_command; do
 			if ! is_pane_registered_as_existing "$session_name" "$window_number" "$pane_index"; then
-				if [ "$pane_command" == "bash" ]; then
-					local pane_id="$session_name:$window_number.$pane_index"
-					local read_command="history -r '$(resurrect_history_file "$pane_id")'"
+				local pane_id="$session_name:$window_number.$pane_index"
+				local history_file="$(resurrect_history_file "$pane_id" "$pane_command")"
+
+				if [ "$pane_command" = "bash" ]; then
+					local read_command="history -r '$history_file'"
 					tmux send-keys -t "$pane_id" "$read_command" C-m
+				elif [ "$pane_command" = "zsh" ]; then
+					local accept_line="$(expr "$(zsh -i -c bindkey | grep -m1 '\saccept-line$')" : '^"\(.*\)".*')"
+					local read_command="fc -R '$history_file'; clear"
+					tmux send-keys -t "$pane_id" "$read_command" "$accept_line"
 				fi
 			fi
 		done
