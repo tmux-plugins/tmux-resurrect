@@ -265,7 +265,7 @@ dump_pane_contents() {
 		done
 }
 
-dump_bash_history() {
+dump_shell_history() {
 	dump_panes |
 		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command full_command; do
 			save_shell_history "$session_name:$window_number.$pane_index" "$pane_command" "$full_command"
@@ -286,8 +286,8 @@ save_all() {
 		pane_contents_create_archive
 		pane_content_files_cleanup
 	fi
-		dump_bash_history
 	if save_shell_history_option_on; then
+		dump_shell_history
 	fi
 }
 
