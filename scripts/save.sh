@@ -145,6 +145,7 @@ capture_pane_contents() {
 save_shell_history() {
 	if [ "$pane_command" = "bash" ]; then
 		local history_w='history -w'
+		local history_r='history -r'
 		local accept_line='C-m'
 		local end_of_line='C-e'
 		local backward_kill_line='C-u'
@@ -155,6 +156,7 @@ save_shell_history() {
 		# the entire line to be a command. That's why we need -n.
 		# fc -l only list the last 16 items by default, I think 64 is more reasonable.
 		local history_w='fc -lLn -64 >'
+		local history_r='fc -R'
 
 		local zsh_bindkey="$(zsh -i -c bindkey)"
 		local accept_line="$(expr "$(echo "$zsh_bindkey" | grep -m1 '\saccept-line$')" : '^"\(.*\)".*')"
@@ -172,9 +174,12 @@ save_shell_history() {
 		# leading space prevents the command from being saved to history
 		# (assuming default HISTCONTROL settings)
 		local write_command=" $history_w '$(resurrect_history_file "$pane_id" "$pane_command")'"
+		local read_command=" $history_r '$(resurrect_history_file "$pane_id" "$pane_command")'"
 		# C-e C-u is a Bash shortcut sequence to clear whole line. It is necessary to
 		# delete any pending input so it does not interfere with our history command.
 		tmux send-keys -t "$pane_id" "$end_of_line" "$backward_kill_line" "$write_command" "$accept_line"
+		# Immediately restore after saving
+		tmux send-keys -t "$pane_id" "$end_of_line" "$backward_kill_line" "$read_command" "$accept_line"
 	fi
 }
 
