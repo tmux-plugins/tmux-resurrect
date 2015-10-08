@@ -53,6 +53,8 @@ Optional:
 
 Requirements / dependencies: `tmux 1.9` or higher, `bash`.
 
+Tested and working on Linux, OSX and Cygwin.
+
 `tmux-resurrect` is idempotent! It will not try to restore panes or windows that
 already exist.<br/>
 The single exception to this is when tmux is started with only 1 pane in order
