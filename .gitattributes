@@ -1,2 +1,5 @@
 # Force text files to have unix eols, so Windows/Cygwin does not break them
 *.* eol=lf
+
+# Except for images because then on checkout the files have been altered.
+*.png binary
