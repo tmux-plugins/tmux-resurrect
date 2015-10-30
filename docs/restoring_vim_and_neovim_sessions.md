@@ -12,4 +12,6 @@
 
 `tmux-resurrect` will now restore vim and neovim sessions if `Sessions.vim` file
 is present.
+  - if you have a custom vimscript which is not `Session.vim` initialize vim with the path to that script e.g. `vim -S /path/to/file`
 
+- if you have macvim which overrides the system's vim see [#75](https://github.com/tmux-plugins/tmux-resurrect/issues/75)
