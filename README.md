@@ -49,7 +49,7 @@ Optional:
 
 - [restoring vim and neovim sessions](docs/restoring_vim_and_neovim_sessions.md)
 - [restoring pane contents](docs/restoring_pane_contents.md)
-- [restoring bash history](docs/restoring_bash_history.md) (experimental)
+- [restoring shell history](docs/restoring_shell_history.md) (experimental)
 
 Requirements / dependencies: `tmux 1.9` or higher, `bash`.
 
@@ -105,7 +105,7 @@ You should now be able to use the plugin.
 
 **Experimental features (also optional)**
 
-- [restoring bash history](docs/restoring_bash_history.md)
+- [restoring shell history](docs/restoring_shell_history.md)
 
 ### Other goodies
 

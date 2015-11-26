@@ -274,12 +274,18 @@ restore_shell_history() {
 	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ { print $2, $3, $7, $10; }' $(last_resurrect_file) |
 		while IFS=$d read session_name window_number pane_index pane_command; do
 			if ! is_pane_registered_as_existing "$session_name" "$window_number" "$pane_index"; then
+				local pane_id="$session_name:$window_number.$pane_index"
+				local history_file="$(resurrect_history_file "$pane_id" "$pane_command")"
+
 				if [ "$pane_command" = "bash" ]; then
-					local pane_id="$session_name:$window_number.$pane_index"
 					# tmux send-keys has -R option that should reset the terminal.
 					# However, appending 'clear' to the command seems to work more reliably.
-					local read_command="history -r '$(resurrect_history_file "$pane_id")'; clear"
+					local read_command="history -r '$history_file'; clear"
 					tmux send-keys -t "$pane_id" "$read_command" C-m
+				elif [ "$pane_command" = "zsh" ]; then
+					local accept_line="$(expr "$(zsh -i -c bindkey | grep -m1 '\saccept-line$')" : '^"\(.*\)".*')"
+					local read_command="fc -R '$history_file'; clear"
+					tmux send-keys -t "$pane_id" "$read_command" "$accept_line"
 				fi
 			fi
 		done
@@ -342,7 +348,7 @@ main() {
 		start_spinner "Restoring..." "Tmux restore complete!"
 		restore_all_panes
 		restore_pane_layout_for_each_window >/dev/null 2>&1
-		if save_bash_history_option_on; then
+		if save_shell_history_option_on; then
 			restore_shell_history
 		fi
 		restore_all_pane_processes

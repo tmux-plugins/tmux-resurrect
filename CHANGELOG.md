@@ -17,6 +17,7 @@
 - make archive & compress pane contents process more portable
 - `mutt` added to the list of automatically restored programs
 - added guide for migrating from tmuxinator
+- add zsh history saving and restoring
 
 ### v2.4.0, 2015-02-23
 - add "tmux-test"
