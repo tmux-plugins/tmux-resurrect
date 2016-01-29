@@ -146,7 +146,7 @@ save_shell_history() {
 	local pane_id="$1"
 	local pane_command="$2"
 	local full_command="$3"
-	if [ "$pane_command" = "bash" ] && [ "$full_command" = ":" ]; then
+	if [ "$pane_command" == "bash" ] && [ "$full_command" == ":" ]; then
 		# leading space prevents the command from being saved to history
 		# (assuming default HISTCONTROL settings)
 		local write_command=" history -w '$(resurrect_history_file "$pane_id")'"
