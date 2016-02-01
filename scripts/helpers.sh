@@ -98,7 +98,7 @@ resurrect_dir() {
 }
 
 resurrect_file_path() {
-	local timestamp="$(date +"%Y-%m-%dT%H:%M:%S")"
+	local timestamp="$(date +"%Y-%m-%dT%H_%M_%S")"
 	echo "$(resurrect_dir)/tmux_resurrect_${timestamp}.txt"
 }
 
