@@ -353,7 +353,6 @@ main() {
 		restore_active_and_alternate_windows
 		restore_active_and_alternate_sessions
 		stop_spinner
-		display_message "Tmux restore complete!"
 	fi
 }
 main
