@@ -10,6 +10,6 @@
         # for neovim
         set -g @resurrect-strategy-nvim 'session'
 
-`tmux-resurrect` will now restore vim and neovim sessions if `Sessions.vim` file
+`tmux-resurrect` will now restore vim and neovim sessions if `Session.vim` file
 is present.
 
