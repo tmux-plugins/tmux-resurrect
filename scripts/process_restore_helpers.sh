@@ -94,6 +94,9 @@ _proc_matches_full_command() {
 			return 0
 		fi
 	else
+    # Fix command with absolute path, such as:
+    # "/usr/bin/vim ~/.tmux.conf" => vim
+    pane_full_command=`_just_command "$pane_full_command"`
 		# regex matching the command makes sure process is a "word"
 		if [[ "$pane_full_command" =~ (^${match} ) ]] || [[ "$pane_full_command" =~ (^${match}$) ]]; then
 			return 0
@@ -159,7 +162,10 @@ _get_command_strategy() {
 }
 
 _just_command() {
-	echo "$1" | cut -d' ' -f1
+  # Fix command with absolute path, such as:
+  # "/usr/bin/vim ~/.tmux.conf" => vim
+  local cmd=`printf "$1"|cut -d' ' -f1`
+  printf "%s" "${cmd##*/}"
 }
 
 _get_strategy_file() {
