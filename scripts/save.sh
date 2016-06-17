@@ -148,15 +148,12 @@ save_shell_history() {
 	local full_command="$3"
 	local history_file="$(resurrect_history_file "$pane_id")"
 	if [ "$pane_command" == "bash" ] && [ "$full_command" == ":" ]; then
-		# Multi-part command that stabilly prevents the history recording command from
+		# Command that prevents the history recording command from
 		# staying in the output history file, regardless of configuration settings.
-		local write_command="history -w '$history_file'"
-		local cut_tail="(cat '$history_file' | head -n -1 >'${history_file}.new')"
-		local move_over="mv '${history_file}.new' '$history_file'"
-		local restore_history="history -c && history -r '$history_file'"
+		local write_command="history -d \"\$(history 1 | sed -e 's/^ *\([0-9]*\).*/\1/')\" && history -w \"${history_file}\""
 		# C-e C-u is a Bash shortcut sequence to clear whole line. It is necessary to
 		# delete any pending input so it does not interfere with our history command.
-		tmux send-keys -t "$pane_id" C-e C-u "$write_command && $cut_tail && $move_over && $restore_history" C-m
+		tmux send-keys -t "$pane_id" C-e C-u "$write_command" C-m
 	fi
 }
 
