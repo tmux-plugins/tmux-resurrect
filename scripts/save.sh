@@ -41,7 +41,7 @@ pane_format() {
 	format+="${delimiter}"
 	format+="#{pane_index}"
 	format+="${delimiter}"
-	format+=":#{pane_current_path}"
+	format+=":#{?pane_current_path,#{pane_current_path},#(lsof -t #{pane_tty} | head -1 | xargs -I % readlink -e /proc/%/cwd)}"
 	format+="${delimiter}"
 	format+="#{pane_active}"
 	format+="${delimiter}"
