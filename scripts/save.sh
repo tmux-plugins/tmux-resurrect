@@ -49,6 +49,8 @@ pane_format() {
 	format+="${delimiter}"
 	format+="#{pane_pid}"
 	format+="${delimiter}"
+	format+="#{pane_tty}"
+	format+="${delimiter}"
 	format+="#{history_size}"
 	echo "$format"
 }
@@ -105,9 +107,10 @@ _save_command_strategy_file() {
 
 pane_full_command() {
 	local pane_pid="$1"
+	local pane_tty="$2"
 	local strategy_file="$(_save_command_strategy_file)"
 	# execute strategy script to get pane full command
-	$strategy_file "$pane_pid"
+	$strategy_file "$pane_pid" "$pane_tty"
 }
 
 number_nonempty_lines_on_screen() {
@@ -201,12 +204,12 @@ fetch_and_dump_grouped_sessions(){
 dump_panes() {
 	local full_command
 	dump_panes_raw |
-		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid history_size; do
+		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid pane_tty history_size; do
 			# not saving panes from grouped sessions
 			if is_session_grouped "$session_name"; then
 				continue
 			fi
-			full_command="$(pane_full_command $pane_pid)"
+			full_command="$(pane_full_command $pane_pid $pane_tty)"
 			echo "${line_type}${d}${session_name}${d}${window_number}${d}${window_name}${d}${window_active}${d}${window_flags}${d}${pane_index}${d}${dir}${d}${pane_active}${d}${pane_command}${d}:${full_command}"
 		done
 }
