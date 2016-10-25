@@ -107,6 +107,16 @@ You should now be able to use the plugin.
 
 - [restoring bash history](docs/restoring_bash_history.md)
 
+**Restoring a previously saved environment**
+
+Here are the steps to restore to a previous point in time:
+
+- make sure you start this with a "fresh" tmux instance
+- `$ cd ~/.tmux/resurrect/`
+- locate the save file you'd like to use for restore (file names have a timestamp)
+- symlink the `last` file to the desired save file: `$ ln -sf <file_name> last`
+- do a restore with `tmux-resurrect` key: `prefix + Ctrl-r`  
+
 ### Other goodies
 
 - [tmux-copycat](https://github.com/tmux-plugins/tmux-copycat) - a plugin for
