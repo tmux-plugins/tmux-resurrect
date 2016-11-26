@@ -31,7 +31,8 @@ restore_pane_process() {
 			local strategy_command="$($strategy_file "$pane_full_command" "$dir")"
 			tmux send-keys "$strategy_command" "C-m"
 		else
-			# just invoke the command
+			# just change to the right directory, and invoke the command
+			tmux send-keys "cd $dir" "C-m"
 			tmux send-keys "$pane_full_command" "C-m"
 		fi
 	fi
