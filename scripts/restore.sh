@@ -182,6 +182,7 @@ restore_pane() {
 				register_existing_pane "$session_name" "$window_number" "$pane_index"
 			fi
 		elif window_exists "$session_name" "$window_number"; then
+                        tmux rename-window -t "$window_number" "$window_name"
 			new_pane "$session_name" "$window_number" "$window_name" "$dir" "$pane_index"
 		elif session_exists "$session_name"; then
 			new_window "$session_name" "$window_number" "$window_name" "$dir" "$pane_index"
