@@ -170,6 +170,7 @@ restore_pane() {
 		window_name="$(remove_first_char "$window_name")"
 		pane_full_command="$(remove_first_char "$pane_full_command")"
 		if pane_exists "$session_name" "$window_number" "$pane_index"; then
+                        tmux rename-window -t "$window_number" "$window_name"
 			if is_restoring_from_scratch; then
 				# overwrite the pane
 				# happens only for the first pane if it's the only registered pane for the whole tmux server
