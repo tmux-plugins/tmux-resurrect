@@ -8,25 +8,44 @@
 
 ORIGINAL_COMMAND="$1"
 DIRECTORY="$2"
+EXECUTED_COMMAND=$ORIGINAL_COMMAND
+
+original_command_is_alias() {
+	local alias_regex=".*='(.*)'"
+	[[ `alias $ORIGINAL_COMMAND` =~ $alias_regex ]]
+}
+
+executed_command_contains_obsession_command() {
+	[[ "$EXECUTED_COMMAND" =~ "-c Obsession" ]]
+}
 
 vim_session_file_exists() {
 	[ -e "${DIRECTORY}/Session.vim" ]
 }
 
-original_command_contains_session_flag() {
-	[[ "$ORIGINAL_COMMAND" =~ "-S" ]]
+executed_command_contains_session_flag() {
+	[[ "$EXECUTED_COMMAND" =~ "-S" ]]
 }
 
 main() {
+	if original_command_is_alias; then
+		$EXECUTED_COMMAND=${BASH_REMATCH[1]}
+	fi
+
+	local cmd="\$EXECUTD_COMMAND"
+	if executed_command_contains_obsession_command; then
+		cmd="\vim"
+	fi
+
 	if vim_session_file_exists; then
-		echo "vim -S"
+		echo "$cmd -S"
 	elif original_command_contains_session_flag; then
 		# Session file does not exist, yet the original vim command contains
 		# session flag `-S`. This will cause an error, so we're falling back to
 		# starting plain vim.
-		echo "vim"
+		echo "\vim"
 	else
-		echo "$ORIGINAL_COMMAND"
+		echo "$cmd"
 	fi
 }
 main
