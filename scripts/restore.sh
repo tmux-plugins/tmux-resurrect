@@ -276,9 +276,7 @@ restore_shell_history() {
 			if ! is_pane_registered_as_existing "$session_name" "$window_number" "$pane_index"; then
 				if [ "$pane_command" == "bash" ]; then
 					local pane_id="$session_name:$window_number.$pane_index"
-					# tmux send-keys has -R option that should reset the terminal.
-					# However, appending 'clear' to the command seems to work more reliably.
-					local read_command="history -r '$(resurrect_history_file "$pane_id")'; clear"
+					local read_command="history -r '$(resurrect_history_file "$pane_id")'"
 					tmux send-keys -t "$pane_id" "$read_command" C-m
 				fi
 			fi
