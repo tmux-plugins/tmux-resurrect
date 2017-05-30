@@ -13,6 +13,7 @@ restore_pane_process() {
 	local window_number="$3"
 	local pane_index="$4"
 	local dir="$5"
+	local command
 	if _process_should_be_restored "$pane_full_command" "$session_name" "$window_number" "$pane_index"; then
 		tmux switch-client -t "${session_name}:${window_number}"
 		tmux select-pane -t "$pane_index"
@@ -25,15 +26,16 @@ restore_pane_process() {
 				local strategy_file="$(_get_strategy_file "$inline_strategy")"
 				local inline_strategy="$($strategy_file "$pane_full_command" "$dir")"
 			fi
-			tmux send-keys "$inline_strategy" "C-m"
+			command="$inline_strategy"
 		elif _strategy_exists "$pane_full_command"; then
 			local strategy_file="$(_get_strategy_file "$pane_full_command")"
 			local strategy_command="$($strategy_file "$pane_full_command" "$dir")"
-			tmux send-keys "$strategy_command" "C-m"
+			command="$strategy_command"
 		else
-			# just invoke the command
-			tmux send-keys "$pane_full_command" "C-m"
+			# just invoke the raw command
+			command="$pane_full_command"
 		fi
+		tmux send-keys -t "${session_name}:${window_number}" "$command" "C-m"
 	fi
 }
 
