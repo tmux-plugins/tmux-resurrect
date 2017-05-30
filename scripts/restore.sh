@@ -258,9 +258,6 @@ restore_all_panes() {
 			restore_pane "$line"
 		fi
 	done < $(last_resurrect_file)
-	if is_restoring_pane_contents; then
-		pane_content_files_cleanup
-	fi
 }
 
 restore_pane_layout_for_each_window() {
