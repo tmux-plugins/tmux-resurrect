@@ -138,7 +138,7 @@ capture_pane_contents() {
 			start_line="0"
 		fi
 		# the printf hack below removes *trailing* empty lines
-		printf '%s\n' "$(tmux capture-pane -epJ -S "$start_line" -t "$pane_id")" > "$(pane_contents_file "$pane_id")"
+		printf '%s\n' "$(tmux capture-pane -epJ -S "$start_line" -t "$pane_id")" > "$(pane_contents_file "save" "$pane_id")"
 	fi
 }
 
@@ -266,10 +266,10 @@ save_all() {
 		rm "$resurrect_file_path"
 	fi
 	if capture_pane_contents_option_on; then
-		mkdir -p "$(pane_contents_dir)"
+		mkdir -p "$(pane_contents_dir "save")"
 		dump_pane_contents
 		pane_contents_create_archive
-		pane_content_files_cleanup
+		rm "$(pane_contents_dir "save")"/*
 	fi
 	if save_bash_history_option_on; then
 		dump_bash_history

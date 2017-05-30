@@ -78,20 +78,17 @@ is_session_grouped() {
 # pane content file helpers
 
 pane_contents_create_archive() {
-	tar cf - -C "$(resurrect_dir)" ./pane_contents/ |
+	tar cf - -C "$(resurrect_dir)/save/" ./pane_contents/ |
 		gzip > "$(pane_contents_archive_file)"
 }
 
 pane_content_files_restore_from_archive() {
 	local archive_file="$(pane_contents_archive_file)"
 	if [ -f "$archive_file" ]; then
+		mkdir -p "$(pane_contents_dir "restore")"
 		gzip -d < "$archive_file" |
-			tar xf - -C "$(resurrect_dir)"
+			tar xf - -C "$(resurrect_dir)/restore/"
 	fi
-}
-
-pane_content_files_cleanup() {
-	rm "$(pane_contents_dir)"/*
 }
 
 # path helpers
@@ -111,17 +108,18 @@ last_resurrect_file() {
 }
 
 pane_contents_dir() {
-	echo "$(resurrect_dir)/pane_contents/"
+	echo "$(resurrect_dir)/$1/pane_contents/"
 }
 
 pane_contents_file() {
-	local pane_id="$1"
-	echo "$(pane_contents_dir)/pane-${pane_id}"
+	local save_or_restore="$1"
+	local pane_id="$2"
+	echo "$(pane_contents_dir "$save_or_restore")/pane-${pane_id}"
 }
 
 pane_contents_file_exists() {
 	local pane_id="$1"
-	[ -f "$(pane_contents_file "$pane_id")" ]
+	[ -f "$(pane_contents_file "restore" "$pane_id")" ]
 }
 
 pane_contents_archive_file() {

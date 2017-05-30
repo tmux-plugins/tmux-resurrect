@@ -108,7 +108,7 @@ tmux_default_command() {
 }
 
 pane_creation_command() {
-	echo "cat '$(pane_contents_file "${1}:${2}.${3}")'; exec $(tmux_default_command)"
+	echo "cat '$(pane_contents_file "restore" "${1}:${2}.${3}")'; exec $(tmux_default_command)"
 }
 
 new_window() {
@@ -259,7 +259,7 @@ restore_all_panes() {
 		fi
 	done < $(last_resurrect_file)
 	if is_restoring_pane_contents; then
-		pane_content_files_cleanup
+		rm "$(pane_contents_dir "restore")"/*
 	fi
 }
 
