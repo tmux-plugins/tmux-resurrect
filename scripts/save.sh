@@ -254,12 +254,17 @@ dump_bash_history() {
 
 save_all() {
 	local resurrect_file_path="$(resurrect_file_path)"
+	local last_resurrect_file="$(last_resurrect_file)"
 	mkdir -p "$(resurrect_dir)"
 	fetch_and_dump_grouped_sessions > "$resurrect_file_path"
 	dump_panes   >> "$resurrect_file_path"
 	dump_windows >> "$resurrect_file_path"
 	dump_state   >> "$resurrect_file_path"
-	ln -fs "$(basename "$resurrect_file_path")" "$(last_resurrect_file)"
+	if files_differ "$resurrect_file_path" "$last_resurrect_file"; then
+		ln -fs "$(basename "$resurrect_file_path")" "$last_resurrect_file"
+	else
+		rm "$resurrect_file_path"
+	fi
 	if capture_pane_contents_option_on; then
 		mkdir -p "$(pane_contents_dir)"
 		dump_pane_contents

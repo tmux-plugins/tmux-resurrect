@@ -18,6 +18,7 @@
 - `mutt` added to the list of automatically restored programs
 - added guide for migrating from tmuxinator
 - fixed a bug for restoring commands on tmux 2.5 (and probably tmux 2.4)
+- do not create another resurrect file if there are no changes (credit @vburdo)
 
 ### v2.4.0, 2015-02-23
 - add "tmux-test"
