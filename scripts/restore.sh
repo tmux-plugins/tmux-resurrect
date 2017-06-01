@@ -188,6 +188,7 @@ restore_pane() {
 		else
 			new_session "$session_name" "$window_number" "$window_name" "$dir" "$pane_index"
 		fi
+		tmux set-option -g automatic-rename
 	done < <(echo "$pane")
 }
 
