@@ -282,7 +282,8 @@ remove_old_backups() {
 	# remove resurrect files older than 30 days, but keep at least 5 copies of backup.
 	local -a files
 	files=($(ls -t $(resurrect_dir)/${RESURRECT_FILE_PREFIX}_*.${RESURRECT_FILE_EXTENSION} | tail -n +6))
-	[[ ${#files[@]} -eq 0 ]] || find "${files[@]}" -type f -mtime +30 -delete
+	[[ ${#files[@]} -eq 0 ]] ||
+		find "${files[@]}" -type f -mtime +30 | xargs rm
 }
 
 save_all() {
