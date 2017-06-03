@@ -278,6 +278,13 @@ dump_shell_history() {
 		done
 }
 
+remove_old_backups() {
+	# remove backup files older than 30 days, but keep at least 5 copies of backup.
+	local -a files
+	files=($(ls -t $(resurrect_dir)/*.txt | tail -n +6))
+	[[ ${#files[@]} -eq 0 ]] || find "${files[@]}" -type f -mtime +30 -delete
+}
+
 save_all() {
 	local resurrect_file_path="$(resurrect_file_path)"
 	local last_resurrect_file="$(last_resurrect_file)"
@@ -300,6 +307,7 @@ save_all() {
 	if save_shell_history_option_on; then
 		dump_shell_history
 	fi
+	remove_old_backups
 }
 
 show_output() {
