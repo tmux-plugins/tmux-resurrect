@@ -21,6 +21,7 @@
 - do not create another resurrect file if there are no changes (credit @vburdo)
 - allow using '$HOSTNAME' in @resurrect-dir
 - add zsh history saving and restoring
+- delete resurrect files older than 30 days, but keep at least 5 files
 
 ### v2.4.0, 2015-02-23
 - add "tmux-test"
