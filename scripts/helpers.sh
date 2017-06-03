@@ -2,6 +2,8 @@ default_resurrect_dir="$HOME/.tmux/resurrect"
 resurrect_dir_option="@resurrect-dir"
 
 SUPPORTED_VERSION="1.9"
+RESURRECT_FILE_PREFIX="tmux_resurrect"
+RESURRECT_FILE_EXTENSION="txt"
 _RESURRECT_DIR=""
 _RESURRECT_FILE_PATH=""
 
@@ -111,7 +113,7 @@ _RESURRECT_DIR="$(resurrect_dir)"
 resurrect_file_path() {
 	if [ -z "$_RESURRECT_FILE_PATH" ]; then
 		local timestamp="$(date +"%Y-%m-%dT%H:%M:%S")"
-		echo "$(resurrect_dir)/tmux_resurrect_${timestamp}.txt"
+		echo "$(resurrect_dir)/${RESURRECT_FILE_PREFIX}_${timestamp}.${RESURRECT_FILE_EXTENSION}"
 	else
 		echo "$_RESURRECT_FILE_PATH"
 	fi
