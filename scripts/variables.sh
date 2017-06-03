@@ -37,9 +37,7 @@ pane_contents_option="@resurrect-capture-pane-contents"
 pane_contents_area_option="@resurrect-pane-contents-area"
 default_pane_contents_area="full"
 
-# Keep @resurrect-save-bash-history for backward compatibility.
-# It's effectively an alias to @resurrect-save-shell-history.
-bash_history_option="@resurrect-save-bash-history"
+bash_history_option="@resurrect-save-bash-history" # deprecated
 shell_history_option="@resurrect-save-shell-history"
 
 # set to 'on' to ensure panes are never ever overwritten
