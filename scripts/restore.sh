@@ -2,6 +2,8 @@
 
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+declare -i DYNAMIC_FLAG=2
+
 source "$CURRENT_DIR/variables.sh"
 source "$CURRENT_DIR/helpers.sh"
 source "$CURRENT_DIR/process_restore_helpers.sh"
@@ -117,12 +119,25 @@ new_window() {
 	local window_name="$3"
 	local dir="$4"
 	local pane_index="$5"
+	local rename_option="$6"
 	local pane_id="${session_name}:${window_number}.${pane_index}"
 	if is_restoring_pane_contents && pane_contents_file_exists "$pane_id"; then
 		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "$pane_index")"
-		tmux new-window -d -t "${session_name}:${window_number}" -n "$window_name" -c "$dir" "$pane_creation_command"
+
+		if [[ $rename_option -ne 0 ]]; then
+			# is dynamic
+			tmux new-window -d -t "${session_name}:${window_number}" -c "$dir" "$pane_creation_command"
+		else
+			tmux new-window -d -t "${session_name}:${window_number}" -n "$window_name" -c "$dir" "$pane_creation_command"
+		fi
+
 	else
-		tmux new-window -d -t "${session_name}:${window_number}" -n "$window_name" -c "$dir"
+		if [[ $rename_option -ne 0 ]]; then
+			# is dynamic
+			tmux new-window -d -t "${session_name}:${window_number}" -c "$dir"
+		else
+			tmux new-window -d -t "${session_name}:${window_number}" -n "$window_name" -c "$dir"
+		fi
 	fi
 }
 
@@ -132,12 +147,27 @@ new_session() {
 	local window_name="$3"
 	local dir="$4"
 	local pane_index="$5"
+	local rename_option="$6"
 	local pane_id="${session_name}:${window_number}.${pane_index}"
 	if is_restoring_pane_contents && pane_contents_file_exists "$pane_id"; then
 		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "$pane_index")"
-		TMUX="" tmux -S "$(tmux_socket)" new-session -d -s "$session_name" -n "$window_name" -c "$dir" "$pane_creation_command"
+
+		if [[ $rename_option -ne 0 ]]; then
+			# is dynamic
+			TMUX="" tmux -S "$(tmux_socket)" new-session -d -s "$session_name" -c "$dir" "$pane_creation_command"
+		else
+			TMUX="" tmux -S "$(tmux_socket)" new-session -d -s "$session_name" -n "$window_name" -c "$dir" "$pane_creation_command"
+		fi
+
 	else
-		TMUX="" tmux -S "$(tmux_socket)" new-session -d -s "$session_name" -n "$window_name" -c "$dir"
+
+		if [[ $rename_option -ne 0 ]]; then
+			# is dynamic
+			TMUX="" tmux -S "$(tmux_socket)" new-session -d -s "$session_name" -c "$dir"
+		else
+			TMUX="" tmux -S "$(tmux_socket)" new-session -d -s "$session_name" -n "$window_name" -c "$dir"
+		fi
+
 	fi
 	# change first window number if necessary
 	local created_window_num="$(first_window_num)"
@@ -152,7 +182,12 @@ new_pane() {
 	local window_name="$3"
 	local dir="$4"
 	local pane_index="$5"
+	local rename_option="$6"
 	local pane_id="${session_name}:${window_number}.${pane_index}"
+
+	# The following line may be executed repeatedly when creating multiple panes.
+	[[ $rename_option -eq 0 ]] && tmux rename-window -t "$session_name:$window_number" "$window_name"
+
 	if is_restoring_pane_contents && pane_contents_file_exists "$pane_id"; then
 		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "$pane_index")"
 		tmux split-window -t "${session_name}:${window_number}" -c "$dir" "$pane_creation_command"
@@ -166,6 +201,9 @@ new_pane() {
 restore_pane() {
 	local pane="$1"
 	while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_full_command; do
+
+		declare -i rename_option=$(($window_active & $DYNAMIC_FLAG))
+
 		dir="$(remove_first_char "$dir")"
 		window_name="$(remove_first_char "$window_name")"
 		pane_full_command="$(remove_first_char "$pane_full_command")"
@@ -174,7 +212,7 @@ restore_pane() {
 				# overwrite the pane
 				# happens only for the first pane if it's the only registered pane for the whole tmux server
 				local pane_id="$(tmux display-message -p -F "#{pane_id}" -t "$session_name:$window_number")"
-				new_pane "$session_name" "$window_number" "$window_name" "$dir" "$pane_index"
+				new_pane "$session_name" "$window_number" "$window_name" "$dir" "$pane_index" "$rename_option"
 				tmux kill-pane -t "$pane_id"
 			else
 				# Pane exists, no need to create it!
@@ -182,11 +220,11 @@ restore_pane() {
 				register_existing_pane "$session_name" "$window_number" "$pane_index"
 			fi
 		elif window_exists "$session_name" "$window_number"; then
-			new_pane "$session_name" "$window_number" "$window_name" "$dir" "$pane_index"
+			new_pane "$session_name" "$window_number" "$window_name" "$dir" "$pane_index" "$rename_option"
 		elif session_exists "$session_name"; then
-			new_window "$session_name" "$window_number" "$window_name" "$dir" "$pane_index"
+			new_window "$session_name" "$window_number" "$window_name" "$dir" "$pane_index" "$rename_option"
 		else
-			new_session "$session_name" "$window_number" "$window_name" "$dir" "$pane_index"
+			new_session "$session_name" "$window_number" "$window_name" "$dir" "$pane_index" "$rename_option"
 		fi
 	done < <(echo "$pane")
 }

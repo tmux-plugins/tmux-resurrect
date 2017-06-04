@@ -2,6 +2,8 @@
 
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+declare -i DYNAMIC_FLAG=2
+
 source "$CURRENT_DIR/variables.sh"
 source "$CURRENT_DIR/helpers.sh"
 source "$CURRENT_DIR/spinner_helpers.sh"
@@ -12,6 +14,11 @@ delimiter=$'\t'
 
 # if "quiet" script produces no output
 SCRIPT_OUTPUT="$1"
+
+join_str() {
+	local str=$(printf "${d}%s" "$@")
+	echo "${str:1}"
+}
 
 grouped_sessions_format() {
 	local format
@@ -80,7 +87,23 @@ state_format() {
 }
 
 dump_panes_raw() {
-	tmux list-panes -a -F "$(pane_format)"
+	# get the value of global automatic-rename option
+	local g_rename_option="$(tmux show-window-options -gv automatic-rename)"
+
+	tmux list-panes -a -F "$(pane_format)" | \
+		while IFS="$d" read -ra options_array
+		do
+			# line_type session_name window_index window_name window_active window_flags pane_index dir pane_active pane_command pane_pid history_size
+			session_name="${options_array[1]}"
+			window_index="${options_array[2]}"
+			win_rename_option="$(tmux showw -vt "$session_name:$window_index" automatic-rename)"
+			window_active=${options_array[4]}
+
+			[[ ${win_rename_option:-$g_rename_option} == on ]] && \
+				options_array[4]=$(($window_active | $DYNAMIC_FLAG))
+
+			join_str "${options_array[@]}"
+		done
 }
 
 dump_windows_raw(){
