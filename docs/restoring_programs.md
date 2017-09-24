@@ -1,5 +1,9 @@
 # Restoring programs
+  - [General instructions](#general-instructions)
+  - [Clarifications](#clarifications)
+  - [Working with NodeJS](#nodejs)
 
+### General instructions <a name="general-instructions"></a>
 Only a conservative list of programs is restored by default:<br/>
 `vi vim nvim emacs man less more tail top htop irssi mutt`.
 
@@ -31,7 +35,7 @@ contains space-separated list of additional programs to restore.
 
         set -g @resurrect-processes ':all:'
 
-### Clarifications
+### Clarifications <a name="clarfications"></a>
 
 > I don't understand tilde `~`, what is it and why is it used when restoring
   programs?
@@ -73,7 +77,7 @@ the command line.
 Naturally, you'd rather want to see just `rails server` (what you initially
 typed), but that information is now unfortunately lost.
 
-To aid this, you can use arrow `->`:
+To aid this, you can use arrow `->`: (**note**: there is no space before and after `->`)
 
     set -g @resurrect-processes '"~rails server->rails server"'  # OK
 
@@ -98,3 +102,70 @@ Here's the general workflow for figuring this out:
   file.
 - Now that you know the full and the desired process string use tilde `~` and
   arrow `->` in `.tmux.conf` to make things work.
+
+### Working with NodeJS <a name="nodejs"></a> 
+If you are working with NodeJS, you may get some troubles with configuring restoring programs.
+
+Particularly, some programs like `gulp`, `grunt` or `npm` are not saved with parameters so tmux-resurrect cannot restore it. This is actually **not tmux-resurrect's issue** but more likely, those programs' issues. For example if you run `gulp watch` or `npm start` and then try to look at `ps` or `pgrep`, you will only see `gulp` or `npm`.
+
+To deal with these issues, one solution is to use [yarn](https://yarnpkg.com/en/docs/install) which a package manager for NodeJS and an alternative for `npm`. It's nearly identical to `npm` and very easy to use. Therefore you don't have to do any migration, you can simply use it immediately. For example: 
+- `npm test` is equivalent to `yarn test`, 
+- `npm run watch:dev` is equivalent to `yarn watch:dev`
+- more interestingly, `gulp watch:dev` is equivalent to `yarn gulp watch:dev`
+
+Before continuing, please ensure that you understand the [clarifications](#clarifications) section about `~` and `->`
+
+#### yarn
+It's fairly straight forward if you have been using `yarn` already.
+
+    set -g @resurrect-processes '"~yarn watch"'
+    set -g @resurrect-processes '"~yarn watch->yarn watch"'
+
+
+#### npm
+Instead of 
+
+    set -g @resurrect-processes '"~npm run watch"'  # will NOT work
+
+we use 
+
+    set -g @resurrect-processes '"~yarn watch"'     # OK
+
+
+#### gulp
+Instead of
+
+    set -g @resurrect-processes '"~gulp test"'      # will NOT work
+
+we use
+
+    set -g @resurrect-processes '"~yarn gulp test"' # OK
+
+
+#### nvm
+If you use `nvm` in your project, here is how you could config tmux-resurrect:
+
+    set -g @resurrect-processes '"~yarn gulp test->nvm use && gulp test"'
+
+#### Another problem 
+Let take a look at this example
+
+    set -g @resurrect-processes '\
+          "~yarn gulp test->gulp test" \ 
+          "~yarn gulp test-it->gulp test-it" \
+    '
+**This will not work properly**, only `gulp test` is run, although you can see the command `node /path/to/yarn gulp test-it` is added correctly in `.tmux/resurrect/last` file. 
+
+The reason is when restoring program, the **command part after the dash `-` is ignored** so instead  of command `gulp test-it`, the command `gulp test` which will be run.
+
+A work around, for this problem until it's fixed, is:
+- the config should be like this:
+
+      set -g @resurrect-processes '\
+          "~yarn gulp test->gulp test" \ 
+          "~yarn gulp \"test-it\"->gulp test-it" \
+
+- and in `.tmux/resurrect/last`, we should add quote to `test-it` word
+
+      ... node:node /path/to/yarn gulp "test-it"
+
