@@ -298,6 +298,9 @@ restore_all_pane_processes() {
 			while IFS=$d read session_name window_number pane_index dir pane_full_command; do
 				dir="$(remove_first_char "$dir")"
 				pane_full_command="$(remove_first_char "$pane_full_command")"
+				if base64 -d <<< $pane_full_command >/dev/null 2>&1; then
+					pane_full_command=$(base64 -d <<< $pane_full_command | perl -ne 'print join(" ", map quotemeta, split(/\000/)), "\n"')
+				fi
 				restore_pane_process "$pane_full_command" "$session_name" "$window_number" "$pane_index" "$dir"
 			done
 	fi
