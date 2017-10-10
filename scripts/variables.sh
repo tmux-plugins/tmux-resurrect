@@ -9,7 +9,7 @@ restore_path_option="@resurrect-restore-script-path"
 
 # default processes that are restored
 default_proc_list_option="@resurrect-default-processes"
-default_proc_list='vi vim nvim emacs man less more tail top htop irssi mutt'
+default_proc_list='vi vim nvim emacs man less more tail top htop irssi weechat mutt'
 
 # User defined processes that are restored
 #  'false' - nothing is restored
