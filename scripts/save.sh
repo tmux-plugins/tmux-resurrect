@@ -283,7 +283,7 @@ remove_old_backups() {
 	local -a files
 	files=($(ls -t $(resurrect_dir)/${RESURRECT_FILE_PREFIX}_*.${RESURRECT_FILE_EXTENSION} | tail -n +6))
 	[[ ${#files[@]} -eq 0 ]] ||
-		find "${files[@]}" -type f -mtime +30 | xargs rm
+		find "${files[@]}" -type f -mtime +30 -exec rm -v "{}" \;
 }
 
 save_all() {
