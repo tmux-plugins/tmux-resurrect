@@ -14,6 +14,7 @@ ps_command_flags() {
 	case $(uname -s) in
 		FreeBSD) echo "-ao" ;;
 		OpenBSD) echo "-ao" ;;
+		Linux) echo "-ao" ;;
 		*) echo "-eo" ;;
 	esac
 }
