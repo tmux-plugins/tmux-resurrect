@@ -246,7 +246,7 @@ dump_windows() {
 			fi
 			# get window automatic renaming configuration
 			window_auto_rename_option="$(tmux show-window-option -t "${session_name}:${window_index}" automatic-rename)"
-			if [[ -z "$window_auto_rename_option" ]]; then
+			if [[ -z "$window_auto_rename_option" || "$window_auto_rename_option" == "automatic-rename on" ]]; then
 				window_auto_rename_option="on"
 			else
 				window_auto_rename_option="off"
