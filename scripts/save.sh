@@ -246,11 +246,11 @@ dump_windows() {
 			fi
 			# get window automatic renaming configuration
 			window_auto_rename_option="$(tmux show-window-option -t "${session_name}:${window_index}" automatic-rename)"
-			if [[ -z "$window_auto_rename_option" || "$window_auto_rename_option" == "automatic-rename on" ]]; then
-				window_auto_rename_option="on"
-			else
-				window_auto_rename_option="off"
+			if [[ -z "$window_auto_rename_option" ]]; then
+				# If automatic-rename option is empty, then it is using global setting
+				window_auto_rename_option="$(tmux show-window-option -g -t "${session_name}:${window_index}" automatic-rename)"
 			fi
+			window_auto_rename_option=$(echo "$window_auto_rename_option"|awk '{print $2}')
 			# window_layout is not correct for zoomed windows
 			if [[ "$window_flags" == *Z* ]]; then
 				# unmaximize the window
