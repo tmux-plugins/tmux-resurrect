@@ -270,6 +270,13 @@ restore_pane_layout_for_each_window() {
 		done
 }
 
+restore_rename_option_for_each_window() {
+	awk 'BEGIN { FS="\t"; OFS="\t" } /^window/ { print $2, $3, $7; }' $(last_resurrect_file) |
+		while IFS=$d read session_name window_number window_auto_rename_option; do
+			tmux set-window-option -t "${session_name}:${window_number}" automatic-rename "$window_auto_rename_option"
+		done
+}
+
 restore_shell_history() {
 	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ { print $2, $3, $7, $10; }' $(last_resurrect_file) |
 		while IFS=$d read session_name window_number pane_index pane_command; do
@@ -356,6 +363,7 @@ main() {
 		restore_grouped_sessions  # also restores active and alt windows for grouped sessions
 		restore_active_and_alternate_windows
 		restore_active_and_alternate_sessions
+		restore_rename_option_for_each_window
 		stop_spinner
 		display_message "Tmux restore complete!"
 	fi

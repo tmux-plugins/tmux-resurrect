@@ -244,6 +244,13 @@ dump_windows() {
 			if is_session_grouped "$session_name"; then
 				continue
 			fi
+			# get window automatic renaming configuration
+			window_auto_rename_option="$(tmux show-window-option -t "${session_name}:${window_index}" automatic-rename)"
+			if [[ -z "$window_auto_rename_option" ]]; then
+				window_auto_rename_option="on"
+			else
+				window_auto_rename_option="off"
+			fi
 			# window_layout is not correct for zoomed windows
 			if [[ "$window_flags" == *Z* ]]; then
 				# unmaximize the window
@@ -255,7 +262,7 @@ dump_windows() {
 				# maximize window again
 				toggle_window_zoom "${session_name}:${window_index}"
 			fi
-			echo "${line_type}${d}${session_name}${d}${window_index}${d}${window_active}${d}${window_flags}${d}${window_layout}"
+			echo "${line_type}${d}${session_name}${d}${window_index}${d}${window_active}${d}${window_flags}${d}${window_layout}${d}${window_auto_rename_option}"
 		done
 }
 
