@@ -325,6 +325,9 @@ main() {
 			stop_spinner
 			display_message "Tmux environment saved!"
 		fi
+		if [ -n "$(save_hook)" ]; then
+			eval "$(save_hook)"
+		fi
 	fi
 }
 main

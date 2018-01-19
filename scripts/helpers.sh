@@ -148,3 +148,14 @@ resurrect_history_file() {
 	local shell_name="$2"
 	echo "$(resurrect_dir)/${shell_name}_history-${pane_id}"
 }
+
+# hook helpers
+
+save_hook() {
+	get_tmux_option "$save_hook_option" "$save_hook_default"
+}
+
+restore_hook() {
+	get_tmux_option "$restore_hook_option" "$restore_hook_default"
+}
+
