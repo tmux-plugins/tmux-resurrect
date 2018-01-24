@@ -246,14 +246,8 @@ dump_windows() {
 			fi
 			# window_layout is not correct for zoomed windows
 			if [[ "$window_flags" == *Z* ]]; then
-				# unmaximize the window
-				toggle_window_zoom "${session_name}:${window_index}"
 				# get correct window layout
 				window_layout="$(tmux display-message -p -t "${session_name}:${window_index}" -F "#{window_layout}")"
-				# sleep required otherwise vim does not redraw correctly, issue #112
-				sleep 0.1 || sleep 1 # portability hack
-				# maximize window again
-				toggle_window_zoom "${session_name}:${window_index}"
 			fi
 			echo "${line_type}${d}${session_name}${d}${window_index}${d}${window_active}${d}${window_flags}${d}${window_layout}"
 		done
