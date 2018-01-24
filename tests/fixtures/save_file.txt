@@ -4,9 +4,9 @@ pane	blue	1	:man	0	:!-	0	:/tmp	0	bash	:
 pane	blue	1	:man	0	:!-	1	:/usr/share/man	1	man	:man echo
 pane	blue	2	:bash	1	:*	0	:/tmp	1	bash	:
 pane	red	0	:bash	0	:	0	:/tmp	1	bash	:
-pane	red	1	:bash	0	:-	0	:/tmp	0	bash	:
-pane	red	1	:bash	0	:-	1	:/tmp	0	bash	:
-pane	red	1	:bash	0	:-	2	:/tmp	1	bash	:
+pane	red	1	:bash	0	:-Z	0	:/tmp	0	bash	:
+pane	red	1	:bash	0	:-Z	1	:/tmp	0	bash	:
+pane	red	1	:bash	0	:-Z	2	:/tmp	1	bash	:
 pane	red	2	:bash	1	:*	0	:/tmp	0	bash	:
 pane	red	2	:bash	1	:*	1	:/tmp	1	bash	:
 pane	yellow	0	:bash	1	:*	0	:/tmp/bar	1	bash	:
@@ -15,7 +15,7 @@ window	blue	0	0	:!	cea4,200x49,0,0,7
 window	blue	1	0	:!-	9797,200x49,0,0{100x49,0,0,8,99x49,101,0,9}
 window	blue	2	1	:*	677f,200x49,0,0,10
 window	red	0	0	:	ce9e,200x49,0,0,1
-window	red	1	0	:-	52b7,200x49,0,0[200x24,0,0,2,200x24,0,25{100x24,0,25,3,99x24,101,25,4}]
+window	red	1	0	:-Z	52b7,200x49,0,0[200x24,0,0,2,200x24,0,25{100x24,0,25,3,99x24,101,25,4}]
 window	red	2	1	:*	bd68,200x49,0,0[200x24,0,0,5,200x24,0,25,6]
 window	yellow	0	1	:*	6780,200x49,0,0,11
 state	yellow	blue

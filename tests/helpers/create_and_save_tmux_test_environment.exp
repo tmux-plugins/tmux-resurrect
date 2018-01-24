@@ -16,6 +16,7 @@ new_tmux_session "red"
 new_tmux_window
 horizontal_split
 vertical_split
+toggle_zoom_pane
 
 new_tmux_window
 horizontal_split
