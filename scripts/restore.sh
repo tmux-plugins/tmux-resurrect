@@ -344,6 +344,9 @@ restore_active_and_alternate_sessions() {
 main() {
 	if supported_tmux_version_ok && check_saved_session_exists; then
 		start_spinner "Restoring..." "Tmux restore complete!"
+		if [ -n "$(restore_hook)" ]; then
+			eval "$(restore_hook)"
+		fi
 		restore_all_panes
 		restore_pane_layout_for_each_window >/dev/null 2>&1
 		if save_shell_history_option_on; then
