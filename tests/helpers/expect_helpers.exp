@@ -44,6 +44,11 @@ proc vertical_split {} {
   sleep 0.1
 }
 
+proc toggle_zoom_pane {} {
+  send "z"
+  sleep 0.2
+}
+
 proc run_shell_command {command} {
   send "$command\r"
   sleep 1
