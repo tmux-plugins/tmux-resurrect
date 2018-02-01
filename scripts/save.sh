@@ -244,7 +244,14 @@ dump_windows() {
 			if is_session_grouped "$session_name"; then
 				continue
 			fi
-			echo "${line_type}${d}${session_name}${d}${window_index}${d}${window_active}${d}${window_flags}${d}${window_layout}"
+			# get window automatic renaming configuration
+			window_auto_rename_option="$(tmux show-window-option -t "${session_name}:${window_index}" automatic-rename)"
+			if [[ -z "$window_auto_rename_option" ]]; then
+				# If automatic-rename option is empty, then it is using global setting
+				window_auto_rename_option="$(tmux show-window-option -g -t "${session_name}:${window_index}" automatic-rename)"
+			fi
+			window_auto_rename_option=$(echo "$window_auto_rename_option"|awk '{print $2}')
+			echo "${line_type}${d}${session_name}${d}${window_index}${d}${window_active}${d}${window_flags}${d}${window_layout}${d}${window_auto_rename_option}"
 		done
 }
 
