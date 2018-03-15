@@ -283,7 +283,7 @@ save_all() {
 	dump_panes   >> "$resurrect_file_path"
 	dump_windows >> "$resurrect_file_path"
 	dump_state   >> "$resurrect_file_path"
-	if files_differ "$resurrect_file_path" "$last_resurrect_file"; then
+	if ! -L "$last_resurrect_file" || files_diff "$resurrect_file_path" "$last_resurrect_file"; then
 		ln -fs "$(basename "$resurrect_file_path")" "$last_resurrect_file"
 	else
 		rm "$resurrect_file_path"
