@@ -22,7 +22,8 @@ full_command() {
 	ps "$(ps_command_flags)" "ppid command" |
 		sed "s/^ *//" |
 		grep "^${PANE_PID}" |
-		cut -d' ' -f2-
+		cut -d' ' -f2- |
+		tail -1
 }
 
 main() {
