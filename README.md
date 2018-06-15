@@ -63,6 +63,8 @@ overwritten.
 
 ### Installation with [Tmux Plugin Manager](https://github.com/tmux-plugins/tpm) (recommended)
 
+> *Note: You must [install TPM](https://github.com/tmux-plugins/tpm#installation) first*
+
 Add plugin to the list of TPM plugins in `.tmux.conf`:
 
     set -g @plugin 'tmux-plugins/tmux-resurrect'
