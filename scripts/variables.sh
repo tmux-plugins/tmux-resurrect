@@ -46,3 +46,6 @@ overwrite_option="@resurrect-never-overwrite"
 
 # Hooks are set via ${hook_prefix}${name}, i.e. "@resurrect-hook-post-save-all"
 hook_prefix="@resurrect-hook-"
+
+delete_backup_after_option="@resurrect-delete-backup-after"
+default_delete_backup_after="30" # days
