@@ -42,3 +42,6 @@ shell_history_option="@resurrect-save-shell-history"
 
 # set to 'on' to ensure panes are never ever overwritten
 overwrite_option="@resurrect-never-overwrite"
+
+backup_retention_period_option="@resurrect-backup-retention-period"
+default_backup_retention_period="+30d"

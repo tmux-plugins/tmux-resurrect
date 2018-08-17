@@ -269,10 +269,11 @@ dump_shell_history() {
 
 remove_old_backups() {
 	# remove resurrect files older than 30 days, but keep at least 5 copies of backup.
+	local delete_after="$(get_tmux_option "$backup_retention_period_option" "$default_backup_retention_period")"
 	local -a files
 	files=($(ls -t $(resurrect_dir)/${RESURRECT_FILE_PREFIX}_*.${RESURRECT_FILE_EXTENSION} | tail -n +6))
 	[[ ${#files[@]} -eq 0 ]] ||
-		find "${files[@]}" -type f -mtime +30 -exec rm -v "{}" \;
+		find "${files[@]}" -type f -mtime "${delete_after}" -exec rm -v "{}" \;
 }
 
 save_all() {
