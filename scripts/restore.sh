@@ -344,11 +344,14 @@ restore_active_and_alternate_sessions() {
 main() {
 	if supported_tmux_version_ok && check_saved_session_exists; then
 		start_spinner "Restoring..." "Tmux restore complete!"
+		execute_hook "pre-restore-all"
 		restore_all_panes
 		restore_pane_layout_for_each_window >/dev/null 2>&1
+		execute_hook "pre-restore-history"
 		if save_shell_history_option_on; then
 			restore_shell_history
 		fi
+		execute_hook "pre-restore-pane-processes"
 		restore_all_pane_processes
 		# below functions restore exact cursor positions
 		restore_active_pane_for_each_window
@@ -356,6 +359,7 @@ main() {
 		restore_grouped_sessions  # also restores active and alt windows for grouped sessions
 		restore_active_and_alternate_windows
 		restore_active_and_alternate_sessions
+		execute_hook "post-restore-all"
 		stop_spinner
 		display_message "Tmux restore complete!"
 	fi

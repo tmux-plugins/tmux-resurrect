@@ -42,3 +42,6 @@ shell_history_option="@resurrect-save-shell-history"
 
 # set to 'on' to ensure panes are never ever overwritten
 overwrite_option="@resurrect-never-overwrite"
+
+# Hooks are set via ${hook_prefix}${name}, i.e. "@resurrect-hook-post-save-all"
+hook_prefix="@resurrect-hook-"
