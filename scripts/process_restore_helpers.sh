@@ -14,28 +14,29 @@ restore_pane_process() {
 	local pane_index="$4"
 	local dir="$5"
 	local command
-	if _process_should_be_restored "$pane_full_command" "$session_name" "$window_number" "$pane_index"; then
-		tmux switch-client -t "${session_name}:${window_number}"
-		tmux select-pane -t "$pane_index"
+    tmux switch-client -t "${session_name}:${window_number}"
+    tmux select-pane -t "$pane_index"
 
-		local inline_strategy="$(_get_inline_strategy "$pane_full_command")" # might not be defined
-		if [ -n "$inline_strategy" ]; then
-			# inline strategy exists
-			# check for additional "expansion" of inline strategy, e.g. `vim` to `vim -S`
-			if _strategy_exists "$inline_strategy"; then
-				local strategy_file="$(_get_strategy_file "$inline_strategy")"
-				local inline_strategy="$($strategy_file "$pane_full_command" "$dir")"
-			fi
-			command="$inline_strategy"
-		elif _strategy_exists "$pane_full_command"; then
-			local strategy_file="$(_get_strategy_file "$pane_full_command")"
-			local strategy_command="$($strategy_file "$pane_full_command" "$dir")"
-			command="$strategy_command"
-		else
-			# just invoke the raw command
-			command="$pane_full_command"
-		fi
-		tmux send-keys -t "${session_name}:${window_number}.${pane_index}" "$command" "C-m"
+    local inline_strategy="$(_get_inline_strategy "$pane_full_command")" # might not be defined
+    if [ -n "$inline_strategy" ]; then
+        # inline strategy exists
+        # check for additional "expansion" of inline strategy, e.g. `vim` to `vim -S`
+        if _strategy_exists "$inline_strategy"; then
+            local strategy_file="$(_get_strategy_file "$inline_strategy")"
+            local inline_strategy="$($strategy_file "$pane_full_command" "$dir")"
+        fi
+        command="$inline_strategy"
+    elif _strategy_exists "$pane_full_command"; then
+        local strategy_file="$(_get_strategy_file "$pane_full_command")"
+        local strategy_command="$($strategy_file "$pane_full_command" "$dir")"
+        command="$strategy_command"
+    else
+        # just invoke the raw command
+        command="$pane_full_command"
+    fi
+    tmux send-keys -t "${session_name}:${window_number}.${pane_index}" "$command"
+	if _process_should_be_restored "$pane_full_command" "$session_name" "$window_number" "$pane_index"; then
+        tmux send-keys -t "${session_name}:${window_number}.${pane_index}" "C-m"
 	fi
 }
 
