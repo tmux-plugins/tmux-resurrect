@@ -112,7 +112,7 @@ _RESURRECT_DIR="$(resurrect_dir)"
 
 resurrect_file_path() {
 	if [ -z "$_RESURRECT_FILE_PATH" ]; then
-		local timestamp="$(date +"%Y-%m-%dT%H:%M:%S")"
+		local timestamp="$(date +"%Y-%m-%dT%H_%M_%S")"
 		echo "$(resurrect_dir)/${RESURRECT_FILE_PREFIX}_${timestamp}.${RESURRECT_FILE_EXTENSION}"
 	else
 		echo "$_RESURRECT_FILE_PATH"
