@@ -293,7 +293,6 @@ save_all() {
 		mkdir -p "$(pane_contents_dir "save")"
 		dump_pane_contents
 		pane_contents_create_archive
-		rm "$(pane_contents_dir "save")"/*
 	fi
 	if save_shell_history_option_on; then
 		dump_shell_history
