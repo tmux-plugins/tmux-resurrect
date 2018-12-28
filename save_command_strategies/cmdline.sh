@@ -13,7 +13,7 @@ exit_safely_if_empty_ppid() {
 
 full_command() {
 	[[ -z "$CPID" ]] && exit 0
-	base64 /proc/${CPID}/cmdline
+	cat /proc/${CPID}/cmdline | perl -ne 'print join(" ", map quotemeta, split(/\000/))' | base64 -w0
 }
 
 main() {
