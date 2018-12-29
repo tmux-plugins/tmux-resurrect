@@ -20,6 +20,12 @@ default_proc_list='vi vim nvim emacs man less more tail top htop irssi weechat m
 restore_processes_option="@resurrect-processes"
 restore_processes=""
 
+# Strategy for matching process names
+#  'full' - matches from the beginning of the full command
+#  'basename' - matches against a basename of the first part of the full command
+process_match_strategy_option="@resurrect-process-match-strategy"
+default_process_match_strategy="full"
+
 # Defines part of the user variable. Example usage:
 #   set -g @resurrect-strategy-vim "session"
 restore_process_strategy_option="@resurrect-strategy-"
