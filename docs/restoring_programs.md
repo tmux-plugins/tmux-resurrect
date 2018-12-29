@@ -2,6 +2,7 @@
   - [General instructions](#general-instructions)
   - [Clarifications](#clarifications)
   - [Working with NodeJS](#nodejs)
+  - [Restoring Mosh](#mosh)
 
 ### General instructions <a name="general-instructions"></a>
 Only a conservative list of programs is restored by default:<br/>
@@ -169,3 +170,10 @@ A work around, for this problem until it's fixed, is:
 
       ... node:node /path/to/yarn gulp "test-it"
 
+
+### Restoring Mosh <a name="#mosh"></a>
+Mosh spawns a `mosh-client` process, so we need to specify that as the process to be resurrected.
+
+    set -g @resurrect-processes 'mosh-client'
+
+Additionally a mosh-client strategy is provided to handle extracting the original arguments and re-run Mosh.
