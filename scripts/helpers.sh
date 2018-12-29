@@ -166,3 +166,18 @@ execute_hook() {
 		eval "$hook $args"
 	fi
 }
+
+# This is a bit of a hack to handle escape sequences, since TMUX doesn't seem to recognize '^[[4~'
+_tmux_send_keys() {
+	local key
+	local keys=()
+
+	for key in "$@"; do
+		case "${key:0:2}" in
+			"^[") keys+=("[^" "${key:2}");;
+			*) keys+=("$key");;
+		esac
+	done
+
+	tmux send-keys -t "$pane_id" "${keys[@]}"
+}

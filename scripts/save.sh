@@ -162,6 +162,11 @@ save_shell_history() {
 		local accept_line="$(expr "$(echo "$zsh_bindkey" | grep -m1 '\saccept-line$')" : '^"\(.*\)".*')"
 		local end_of_line="$(expr "$(echo "$zsh_bindkey" | grep -m1 '\send-of-line$')" : '^"\(.*\)".*')"
 		local backward_kill_line="$(expr "$(echo "$zsh_bindkey" | grep -m1 '\sbackward-kill-line$')" : '^"\(.*\)".*')"
+
+		# zsh defaults to bash-compatable bindings if not bound
+		accept_line=${accept_line:-C-m}
+		end_of_line=${end_of_line:-C-e}
+		backward_kill_line=${backward_kill_line:-C-u}
 	else
 		return
 	fi
@@ -176,9 +181,9 @@ save_shell_history() {
 		local read_command=" $history_r '$(resurrect_history_file "$pane_id" "$pane_command")'"
 		# C-e C-u is a Bash shortcut sequence to clear whole line. It is necessary to
 		# delete any pending input so it does not interfere with our history command.
-		tmux send-keys -t "$pane_id" "$end_of_line" "$backward_kill_line" "$write_command" "$accept_line"
+		_tmux_send_keys "$end_of_line" "$backward_kill_line" "$write_command" "$accept_line"
 		# Immediately restore after saving
-		tmux send-keys -t "$pane_id" "$end_of_line" "$backward_kill_line" "$read_command" "$accept_line"
+		_tmux_send_keys "$end_of_line" "$backward_kill_line" "$read_command" "$accept_line"
 	fi
 }
 

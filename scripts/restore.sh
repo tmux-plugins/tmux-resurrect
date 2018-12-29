@@ -285,7 +285,11 @@ restore_shell_history() {
 				elif [ "$pane_command" = "zsh" ]; then
 					local accept_line="$(expr "$(zsh -i -c bindkey | grep -m1 '\saccept-line$')" : '^"\(.*\)".*')"
 					local read_command="fc -R '$history_file'; clear"
-					tmux send-keys -t "$pane_id" "$read_command" "$accept_line"
+
+					# zsh defaults to bash-compatable bindings if not bound
+					accept_line=${accept_line:-C-m}
+
+					_tmux_send_keys "$read_command" "$accept_line"
 				fi
 			fi
 		done
