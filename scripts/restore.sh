@@ -293,7 +293,6 @@ restore_shell_history() {
 
 restore_all_pane_processes() {
 	if restore_pane_processes_enabled; then
-		local save_command_strategy="$(get_tmux_option "$save_command_strategy_option" "$default_save_command_strategy")"
 		local pane_full_command
 		awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $11 !~ "^:$" { print $2, $3, $7, $8, $11; }' $(last_resurrect_file) |
 			while IFS=$d read -r session_name window_number pane_index dir pane_full_command; do
