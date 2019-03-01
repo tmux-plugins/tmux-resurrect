@@ -233,6 +233,7 @@ dump_panes() {
 				continue
 			fi
 			full_command="$(pane_full_command $pane_pid)"
+			dir=$(echo $dir | sed 's/ /\\ /') # escape all spaces in directory path
 			echo "${line_type}${d}${session_name}${d}${window_number}${d}${window_name}${d}${window_active}${d}${window_flags}${d}${pane_index}${d}${dir}${d}${pane_active}${d}${pane_command}${d}:${full_command}"
 		done
 }
