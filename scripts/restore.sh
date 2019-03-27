@@ -281,7 +281,7 @@ restore_shell_history() {
 
 				if [ "$pane_command" = "bash" ]; then
 					local read_command="history -r '$history_file'"
-					tmux send-keys -t "$pane_id" "$read_command" C-m
+					tmux send-keys -t "$pane_id" M-z "$read_command" C-m M-Z
 				elif [ "$pane_command" = "zsh" ]; then
 					local accept_line="$(expr "$(zsh -i -c bindkey | grep -m1 '\saccept-line$')" : '^"\(.*\)".*')"
 					local read_command="fc -R '$history_file'; clear"
