@@ -1,7 +1,16 @@
 #!/usr/bin/env bash
 
-CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Absolute path to this script, e.g. /home/user/.tmux/plugins/tmux-resurrect/scripts/save.sh
+SCRIPT=$(readlink -f "$0")
+# Absolute path this script is in, thus /home/user/.tmux/plugins/tmux-resurrect/scripts
+SCRIPT_PATH=$(dirname "$SCRIPT")
+echo "SCRIPT_PATH -> $SCRIPT_PATH"
 
+CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+echo "CURRENT_DIR -> $CURRENT_DIR"
+
+# $CURRENT_DIR seems is expected to be an absolut path this script is located in
+CURRENT_DIR="$SCRIPT_PATH"
 source "$CURRENT_DIR/variables.sh"
 source "$CURRENT_DIR/helpers.sh"
 source "$CURRENT_DIR/process_restore_helpers.sh"
