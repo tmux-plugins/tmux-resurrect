@@ -11,6 +11,7 @@ echo "CURRENT_DIR -> $CURRENT_DIR"
 
 # $CURRENT_DIR seems is expected to be an absolut path this script is located in
 CURRENT_DIR="$SCRIPT_PATH"
+
 source "$CURRENT_DIR/variables.sh"
 source "$CURRENT_DIR/helpers.sh"
 source "$CURRENT_DIR/process_restore_helpers.sh"
