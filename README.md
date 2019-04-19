@@ -119,9 +119,6 @@ You should now be able to use the plugin.
 - [tmux-continuum](https://github.com/tmux-plugins/tmux-continuum) - automatic
   restoring and continuous saving of tmux env
 
-You might want to follow [@brunosutic](https://twitter.com/brunosutic) on
-twitter if you want to hear about new tmux plugins or feature updates.
-
 ### Reporting bugs and contributing
 
 Both contributing and bug reports are welcome. Please check out
