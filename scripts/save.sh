@@ -50,6 +50,8 @@ pane_format() {
 	format+="#{pane_pid}"
 	format+="${delimiter}"
 	format+="#{history_size}"
+	format+="${delimiter}"
+	format+="#{window_id}"
 	echo "$format"
 }
 
@@ -66,6 +68,8 @@ window_format() {
 	format+=":#{window_flags}"
 	format+="${delimiter}"
 	format+="#{window_layout}"
+	format+="${delimiter}"
+	format+="#{window_id}"
 	echo "$format"
 }
 
@@ -77,6 +81,35 @@ state_format() {
 	format+="${delimiter}"
 	format+="#{client_last_session}"
 	echo "$format"
+}
+
+set_canonical_window() {
+	# We store the canonical window targets using variables named based on the
+	# window id, because Bash <4.0 doesn't support associative arrays.  This
+	# technique is based on https://stackoverflow.com/a/11776875.
+	local session_name="$1"
+	local window_number="$2"
+	local window_id_num="${3:1}"
+	local window_target="${session_name}:${window_number}"
+
+	printf -v "CANONICAL_WINDOW__${window_id_num}" %s "$window_target"
+}
+
+get_canonical_window() {
+	local window_id_num="${1:1}"
+
+	var_name="CANONICAL_WINDOW__${window_id_num}"
+	echo "${!var_name}"
+}
+
+is_canonical_window() {
+	local session_name="$1"
+	local window_number="$2"
+	local window_id="$3"
+	local window_target="${session_name}:${window_number}"
+
+	canonical_window=$(get_canonical_window "$window_id")
+	[[ "$canonical_window" == "$window_target" ]]
 }
 
 dump_panes_raw() {
@@ -223,13 +256,38 @@ fetch_and_dump_grouped_sessions(){
 	fi
 }
 
+set_canonical_windows() {
+	# When multiple windows are linked via link-window, they will all share the
+	# same window_id.  For each window_id, we arbitrarily pick one of the linked
+	# window locations (session_name:window_number) to be the canonical window.  We
+	# will only output information for that window, and output a link line for all
+	# other windows linked to the given id.
+
+	# NB: We use bash process substitution instead of piping into the while
+	# loop to avoid losing the variables set in set_canonical_window. See
+	# http://mywiki.wooledge.org/BashFAQ/024 for more info.
+	while IFS=$d read line_type session_name window_index window_active window_flags window_layout window_id; do
+		# not saving windows from grouped sessions
+		if is_session_grouped "$session_name"; then
+			continue
+		fi
+		# We run this for every window, so that for any given window_id, the
+		# final time we encounter it will be the location we call canonical.
+		# This is arbitrary, so just picked easiest to implement.
+		set_canonical_window "$session_name" "$window_index" "$window_id"
+	done < <(dump_windows_raw)
+}
+
 # translates pane pid to process command running inside a pane
 dump_panes() {
 	local full_command
 	dump_panes_raw |
-		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid history_size; do
+		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid history_size window_id; do
 			# not saving panes from grouped sessions
 			if is_session_grouped "$session_name"; then
+				continue
+			fi
+			if ! is_canonical_window "$session_name" "$window_number" "$window_id"; then
 				continue
 			fi
 			full_command="$(pane_full_command $pane_pid)"
@@ -240,12 +298,17 @@ dump_panes() {
 
 dump_windows() {
 	dump_windows_raw |
-		while IFS=$d read line_type session_name window_index window_active window_flags window_layout; do
+		while IFS=$d read line_type session_name window_index window_active window_flags window_layout window_id; do
 			# not saving windows from grouped sessions
 			if is_session_grouped "$session_name"; then
 				continue
 			fi
-			echo "${line_type}${d}${session_name}${d}${window_index}${d}${window_active}${d}${window_flags}${d}${window_layout}"
+			if is_canonical_window "$session_name" "$window_index" "$window_id"; then
+				echo "${line_type}${d}${session_name}${d}${window_index}${d}${window_active}${d}${window_flags}${d}${window_layout}"
+			else
+				canonical_window=$(get_canonical_window "$window_id")
+				echo "link${d}${session_name}${d}${window_index}${d}${canonical_window}"
+			fi
 		done
 }
 
@@ -256,7 +319,7 @@ dump_state() {
 dump_pane_contents() {
 	local pane_contents_area="$(get_tmux_option "$pane_contents_area_option" "$default_pane_contents_area")"
 	dump_panes_raw |
-		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid history_size; do
+		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid history_size window_id; do
 			capture_pane_contents "${session_name}:${window_number}.${pane_index}" "$history_size" "$pane_contents_area"
 		done
 }
@@ -281,6 +344,7 @@ save_all() {
 	local last_resurrect_file="$(last_resurrect_file)"
 	mkdir -p "$(resurrect_dir)"
 	fetch_and_dump_grouped_sessions > "$resurrect_file_path"
+	set_canonical_windows
 	dump_panes   >> "$resurrect_file_path"
 	dump_windows >> "$resurrect_file_path"
 	dump_state   >> "$resurrect_file_path"

@@ -272,6 +272,34 @@ restore_pane_layout_for_each_window() {
 		done
 }
 
+restore_linked_windows() {
+	\grep '^link' $(last_resurrect_file) |
+		while IFS=$d read line_type session_name window_number window_source; do
+			if session_exists "$session_name"; then
+				tmux link-window -s "${window_source}" -t "${session_name}:${window_number}"
+			else
+				# Create session if it doesn't exist.  This situation occurs
+				# when a session only contains linked windows.  Otherwise the
+				# session will have been created at some point while
+				# restoring the panes.
+				TMUX="" tmux -S "$(tmux_socket)" new-session -d -s "$session_name"
+
+				local created_window_num="$(first_window_num)"
+				# If the window number we created is the same as our target
+				# window, we move it up by 1
+				if [ $created_window_num -eq $window_number ]; then
+					original_window_num=$created_window_num
+					let created_window_num=$original_window_num+1
+					tmux move-window -s "${session_name}:${original_window_num}" -t "${session_name}:${created_window_num}"
+				fi
+				tmux link-window -s "${window_source}" -t "${session_name}:${window_number}"
+				# We keep the window around to the end so that the session
+				# doesn't disappear
+				tmux kill-window -t "${session_name}:${created_window_num}"
+			fi
+		done
+}
+
 restore_shell_history() {
 	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ { print $2, $3, $7, $10; }' $(last_resurrect_file) |
 		while IFS=$d read session_name window_number pane_index pane_command; do
@@ -359,6 +387,7 @@ main() {
 		restore_active_pane_for_each_window
 		restore_zoomed_windows
 		restore_grouped_sessions  # also restores active and alt windows for grouped sessions
+		restore_linked_windows
 		restore_active_and_alternate_windows
 		restore_active_and_alternate_sessions
 		execute_hook "post-restore-all"
