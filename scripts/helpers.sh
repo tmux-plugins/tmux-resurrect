@@ -6,6 +6,7 @@ RESURRECT_FILE_PREFIX="tmux_resurrect"
 RESURRECT_FILE_EXTENSION="txt"
 _RESURRECT_DIR=""
 _RESURRECT_FILE_PATH=""
+HISTORY_DATE_FILE_PREFIX="shell_history_saved"
 
 d=$'\t'
 
@@ -69,6 +70,11 @@ save_shell_history_option_on() {
 	local option_bash="$(get_tmux_option "$bash_history_option" "off")"
 
 	[ "$option_shell" == "on" ] || [ "$option_bash" == "on" ]
+}
+
+limit_save_shell_history_option_on() {
+	local option="$(get_tmux_option "$limit_shell_history_option" "off")"
+	[ "$option" == "on" ]
 }
 
 get_grouped_sessions() {
@@ -165,4 +171,24 @@ execute_hook() {
 	if [ -n "$hook" ]; then
 		eval "$hook $args"
 	fi
+}
+
+history_date_file() {
+  current_date=$(date +"%Y_%m_%d")
+  echo "$HISTORY_DATE_FILE_PREFIX""_""$current_date"
+}
+
+history_file_current() {
+  if $(limit_save_shell_history_option_on); then
+    ls $(resurrect_dir) | grep $(history_date_file) > /dev/null
+    echo $?
+  else
+    echo "1"
+  fi
+}
+
+update_history_date_file() {
+  rm -f "$(resurrect_dir)/$HISTORY_DATE_FILE_PREFIX""_""*"
+  current_date=$(date +"%Y_%m_%d")
+  touch "$(resurrect_dir)/$HISTORY_DATE_FILE_PREFIX""_""$current_date"
 }

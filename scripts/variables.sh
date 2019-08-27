@@ -39,6 +39,7 @@ default_pane_contents_area="full"
 
 bash_history_option="@resurrect-save-bash-history" # deprecated
 shell_history_option="@resurrect-save-shell-history"
+limit_shell_history_option="@resurrect-limit-save-shell-history"
 
 # set to 'on' to ensure panes are never ever overwritten
 overwrite_option="@resurrect-never-overwrite"
