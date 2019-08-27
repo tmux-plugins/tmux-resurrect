@@ -1,4 +1,8 @@
-# Restoring shell history (experimental)
+# Restoring shell history (deprecated, do not use)
+
+This feature is deprecated because it's very invasive. It will be removed in
+the future with no replacement. To see problems it causes check
+[this issue](https://github.com/tmux-plugins/tmux-resurrect/issues/288).
 
 **Supported shells**: `bash` and `zsh`.
 

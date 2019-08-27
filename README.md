@@ -49,7 +49,6 @@ Optional:
 
 - [restoring vim and neovim sessions](docs/restoring_vim_and_neovim_sessions.md)
 - [restoring pane contents](docs/restoring_pane_contents.md)
-- [restoring shell history](docs/restoring_shell_history.md) (experimental)
 
 Requirements / dependencies: `tmux 1.9` or higher, `bash`.
 

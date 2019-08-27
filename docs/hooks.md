@@ -20,7 +20,7 @@ Currently the following hooks are supported:
 
   Called before any tmux state is altered.
 
-- `@resurrect-hook-pre-restore-history`
+- `@resurrect-hook-pre-restore-history` - deprecated
 
   Called after panes and layout have been restores, but before bash history is
   restored (if it is enabled) -- the hook is always called even if history
