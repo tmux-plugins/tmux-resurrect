@@ -24,6 +24,7 @@
 - delete resurrect files older than 30 days, but keep at least 5 files
 - add save and restore hooks
 - always use `-ao` flags for `ps` command to detect commands
+- Deprecate restoring shell history feature.
 
 ### v2.4.0, 2015-02-23
 - add "tmux-test"
