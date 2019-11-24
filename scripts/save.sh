@@ -80,7 +80,7 @@ state_format() {
 }
 
 dump_panes_raw() {
-	tmux list-panes -a -F "$(pane_format)"
+	tmux list-panes -a -F "$(pane_format)" | sed -e 's/%//' | sort -n -k 7
 }
 
 dump_windows_raw(){
