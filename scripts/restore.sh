@@ -16,6 +16,8 @@ d=$'\t'
 # is also not restored. That makes the restoration process more idempotent.
 EXISTING_PANES_VAR=""
 
+RESTORED_PANE_NUMBERS=""
+
 RESTORING_FROM_SCRATCH="false"
 
 RESTORE_PANE_COUNT=0
@@ -59,6 +61,17 @@ is_pane_registered_as_existing() {
 	local pane_index="$3"
 	local pane_custom_id="${session_name}:${window_number}:${pane_index}"
 	[[ "$EXISTING_PANES_VAR" =~ "$pane_custom_id" ]]
+}
+
+register_restored_pane() {
+	local pane_index="$1"
+	local delimiter=$'\t'
+	RESTORED_PANE_NUMBERS="${RESTORED_PANE_NUMBERS}${delimiter}${pane_index}"
+}
+
+is_pane_registered_as_restored() {
+	local pane_index="$1"
+	[[ "$RESTORED_PANE_NUMBERS" =~ "$pane_index" ]]
 }
 
 restore_from_scratch_true() {
@@ -196,6 +209,7 @@ restore_pane() {
 		else
 			new_session "$session_name" "$window_number" "$window_name" "$dir" "$pane_index"
 		fi
+		register_restored_pane "$pane_index"
 	done < <(echo "$pane")
 }
 
@@ -270,6 +284,11 @@ restore_all_panes() {
 	if ! is_pane_registered_as_existing 0 0 0; then
 		tmux kill-pane -t "0:0.0"
 	fi
+	tmux list-panes -a -F  "#{session_name} #{window_index} #{pane_id}" | while read session_name window_number pane_id; do
+		if ! is_pane_registered_as_restored "${pane_id#%}" ; then
+			tmux kill-pane -t "${session_name}:${window_number}.${pane_id}"
+		fi
+	done
 	if is_restoring_pane_contents; then
 		rm "$(pane_contents_dir "restore")"/*
 	fi
