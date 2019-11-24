@@ -39,7 +39,7 @@ pane_format() {
 	format+="${delimiter}"
 	format+=":#{window_flags}"
 	format+="${delimiter}"
-	format+="#{pane_index}"
+	format+="#{pane_id}"
 	format+="${delimiter}"
 	format+=":#{pane_current_path}"
 	format+="${delimiter}"
