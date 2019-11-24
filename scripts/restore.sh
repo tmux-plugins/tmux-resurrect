@@ -18,6 +18,7 @@ EXISTING_PANES_VAR=""
 
 RESTORING_FROM_SCRATCH="false"
 
+RESTORE_PANE_COUNT=0
 RESTORE_PANE_CONTENTS="false"
 
 is_line_type() {
@@ -117,6 +118,7 @@ new_window() {
 	local window_name="$3"
 	local dir="$4"
 	local pane_index="$5"
+	RESTORE_PANE_COUNT=$[$RESTORE_PANE_COUNT+1]
 	local pane_id="${session_name}:${window_number}.%${pane_index}"
 	if is_restoring_pane_contents && pane_contents_file_exists "$pane_id"; then
 		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "%$pane_index")"
@@ -132,6 +134,7 @@ new_session() {
 	local window_name="$3"
 	local dir="$4"
 	local pane_index="$5"
+	RESTORE_PANE_COUNT=$[$RESTORE_PANE_COUNT+1]
 	local pane_id="${session_name}:${window_number}.%${pane_index}"
 	if is_restoring_pane_contents && pane_contents_file_exists "$pane_id"; then
 		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "%$pane_index")"
@@ -152,6 +155,10 @@ new_pane() {
 	local window_name="$3"
 	local dir="$4"
 	local pane_index="$5"
+	RESTORE_PANE_COUNT=$[$RESTORE_PANE_COUNT+1]
+	if [ $RESTORE_PANE_COUNT -ne $pane_index ] ; then
+		new_pane "$session_name" "$window_number" "$window_name" "$dir" "$pane_index"
+	fi
 	local pane_id="${session_name}:${window_number}.%${pane_index}"
 	if is_restoring_pane_contents && pane_contents_file_exists "$pane_id"; then
 		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "%$pane_index")"
