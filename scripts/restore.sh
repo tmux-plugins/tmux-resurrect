@@ -176,7 +176,6 @@ restore_pane() {
 				# happens only for the first pane if it's the only registered pane for the whole tmux server
 				local pane_id="$(tmux display-message -p -F "#{pane_id}" -t "$session_name:$window_number")"
 				new_pane "$session_name" "$window_number" "$window_name" "$dir" "$pane_index"
-				tmux kill-pane -t "$pane_id"
 			else
 				# Pane exists, no need to create it!
 				# Pane existence is registered. Later, its process also won't be restored.
@@ -260,6 +259,10 @@ restore_all_panes() {
 			restore_pane "$line"
 		fi
 	done < $(last_resurrect_file)
+	# This is a temporary trick, by killing the first pane before saving for proper restore
+	if ! is_pane_registered_as_existing 0 0 0; then
+		tmux kill-pane -t "0:0.0"
+	fi
 	if is_restoring_pane_contents; then
 		rm "$(pane_contents_dir "restore")"/*
 	fi
