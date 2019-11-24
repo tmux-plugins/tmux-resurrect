@@ -117,9 +117,9 @@ new_window() {
 	local window_name="$3"
 	local dir="$4"
 	local pane_index="$5"
-	local pane_id="${session_name}:${window_number}.${pane_index}"
+	local pane_id="${session_name}:${window_number}.%${pane_index}"
 	if is_restoring_pane_contents && pane_contents_file_exists "$pane_id"; then
-		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "$pane_index")"
+		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "%$pane_index")"
 		tmux new-window -d -t "${session_name}:${window_number}" -n "$window_name" -c "$dir" "$pane_creation_command"
 	else
 		tmux new-window -d -t "${session_name}:${window_number}" -n "$window_name" -c "$dir"
@@ -132,9 +132,9 @@ new_session() {
 	local window_name="$3"
 	local dir="$4"
 	local pane_index="$5"
-	local pane_id="${session_name}:${window_number}.${pane_index}"
+	local pane_id="${session_name}:${window_number}.%${pane_index}"
 	if is_restoring_pane_contents && pane_contents_file_exists "$pane_id"; then
-		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "$pane_index")"
+		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "%$pane_index")"
 		TMUX="" tmux -S "$(tmux_socket)" new-session -d -s "$session_name" -n "$window_name" -c "$dir" "$pane_creation_command"
 	else
 		TMUX="" tmux -S "$(tmux_socket)" new-session -d -s "$session_name" -n "$window_name" -c "$dir"
@@ -152,9 +152,9 @@ new_pane() {
 	local window_name="$3"
 	local dir="$4"
 	local pane_index="$5"
-	local pane_id="${session_name}:${window_number}.${pane_index}"
+	local pane_id="${session_name}:${window_number}.%${pane_index}"
 	if is_restoring_pane_contents && pane_contents_file_exists "$pane_id"; then
-		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "$pane_index")"
+		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "%$pane_index")"
 		tmux split-window -t "${session_name}:${window_number}" -c "$dir" "$pane_creation_command"
 	else
 		tmux split-window -t "${session_name}:${window_number}" -c "$dir"
