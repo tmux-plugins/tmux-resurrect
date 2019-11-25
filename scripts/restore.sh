@@ -281,8 +281,9 @@ restore_all_panes() {
 		fi
 	done < $(last_resurrect_file)
 	# This is a temporary trick, by killing the first pane before saving for proper restore
-	if ! is_pane_registered_as_existing 0 0 0; then
-		tmux kill-pane -t "0:0.0"
+	BASE_INDEX=$( tmux show-option -gv base-index )
+	if ! is_pane_registered_as_existing 0 ${BASE_INDEX} 0; then
+		tmux kill-pane -t "0:${BASE_INDEX}.%0"
 	fi
 	tmux list-panes -a -F  "#{session_name} #{window_index} #{pane_id}" | while read session_name window_number pane_id; do
 		if ! is_pane_registered_as_restored "${pane_id#%}" ; then
