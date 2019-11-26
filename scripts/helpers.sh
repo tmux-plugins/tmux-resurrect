@@ -9,6 +9,8 @@ _RESURRECT_FILE_PATH=""
 
 d=$'\t'
 
+BASE_INDEX=$( tmux show-option -gv base-index )
+
 # helper functions
 get_tmux_option() {
 	local option="$1"

@@ -291,11 +291,11 @@ save_all() {
 		rm "$resurrect_file_path"
 	fi
 	if capture_pane_contents_option_on; then
-		if [[ "$( tmux list-panes -a -F "#{session_name}:#{window_index}.#{pane_id} " )" =~ "0:0.%0 " ]] ; then
+		if [[ "$( tmux list-panes -a -F "#{session_name}:#{window_index}.#{pane_id} " )" =~ "0:${BASE_INDEX}.%0 " ]] ; then
 			cat <<-EOF
 				 
 				 
-				WARNING : The initial pane (0:0.0) will not be properly restored
+				WARNING : The initial pane (0:${BASE_INDEX}.0) will not be properly restored
 				 
 				 
 				EOF

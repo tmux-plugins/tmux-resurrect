@@ -253,11 +253,11 @@ detect_if_restoring_from_scratch() {
 }
 
 detect_if_restoring_pane_contents() {
-	if [ "$( tmux list-panes -a -F "#{session_name}:#{window_index}.#{pane_id}" )" != 0:0.%0 ] ; then
+	if [ "$( tmux list-panes -a -F "#{session_name}:#{window_index}.#{pane_id}" )" != 0:${BASE_INDEX}.%0 ] ; then
 		cat <<-EOF
 			 
 			 
-			WARNING : You are not restoring from a fresh tmux session (0:0.0)
+			WARNING : You are not restoring from a fresh tmux session (0:${BASE_INDEX}.0)
 			          Expect unexpected results
 			 
 			 
@@ -283,7 +283,6 @@ restore_all_panes() {
 		fi
 	done < $(last_resurrect_file)
 	# This is a temporary trick, by killing the first pane before saving for proper restore
-	BASE_INDEX=$( tmux show-option -gv base-index )
 	if ! is_pane_registered_as_existing 0 ${BASE_INDEX} 0; then
 		tmux kill-pane -t "0:${BASE_INDEX}.%0"
 	fi
