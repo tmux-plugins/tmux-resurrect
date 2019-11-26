@@ -261,6 +261,16 @@ detect_if_restoring_from_scratch() {
 }
 
 detect_if_restoring_pane_contents() {
+	if [ "$( tmux list-panes -a -F "#{session_name}:#{window_index}.#{pane_id}" )" != 0:0.%0 ] ; then
+		cat <<-EOF
+			 
+			 
+			WARNING : You are not restoring from a fresh tmux session (0:0.0)
+			          Expect unexpected results
+			 
+			 
+			EOF
+	fi
 	if capture_pane_contents_option_on; then
 		cache_tmux_default_command
 		restore_pane_contents_true
