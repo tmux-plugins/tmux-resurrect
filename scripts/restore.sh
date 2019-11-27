@@ -100,7 +100,7 @@ tmux_socket() {
 # tmux server each time.
 cache_tmux_default_command() {
 	local default_shell="$(get_tmux_option "default-shell" "")"
-	export TMUX_DEFAULT_COMMAND="$(get_tmux_option "default-command" "$default_shell")"
+	export TMUX_DEFAULT_COMMAND="$(get_tmux_option "default-command" "-l $default_shell")"
 }
 
 tmux_default_command() {
