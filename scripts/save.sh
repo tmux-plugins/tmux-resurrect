@@ -295,7 +295,13 @@ save_all() {
 			cat <<-EOF
 				 
 				 
-				WARNING : The initial pane (0:${BASE_INDEX}.0) will not be properly restored
+				WARNING : The initial pane (0:${BASE_INDEX}.0) will not be properly restored by default
+				          You can restore it by defining the alias below and using it to restore your session
+				          Combination with continuum-restore setting allows full recovering with a single command
+				 
+				alias restore='eval $( while read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_full_command; do
+				      [ x$pane_index = x0 ] && echo "cd ${dir#:} ; tmux new-session -s ${session_name#:} -n ${window_name} \" tar -xzf $HOME/.tmux/resurrect/pane_contents.tar.gz -C $HOME/.tmux/resurrect/restore --to-stdout ./pane_contents/pane-${session_name#:}:${window_number}.%${pane_index} ; exec ${pane_command:-/bin/bash}\" ; cd - > /dev/null"
+				    done < $HOME/.tmux/resurrect/last )'
 				 
 				 
 				EOF
