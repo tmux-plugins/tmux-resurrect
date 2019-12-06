@@ -101,7 +101,7 @@ tmux_socket() {
 cache_tmux_default_command() {
 	local default_shell="$(get_tmux_option "default-shell" "")"
 	local opt=""
-	if [ "`basename $default_shell`"x == "bash"x ]; then
+	if [ "$(basename "$default_shell")"x == "bash"x ]; then
 		opt="-l "
 	fi
 	export TMUX_DEFAULT_COMMAND="$(get_tmux_option "default-command" "$opt$default_shell")"
