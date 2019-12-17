@@ -299,7 +299,7 @@ restore_all_pane_processes() {
 	if restore_pane_processes_enabled; then
 		local pane_full_command
 		awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $11 !~ "^:$" { print $2, $3, $7, $8, $11; }' $(last_resurrect_file) |
-			while IFS=$d read session_name window_number pane_index dir pane_full_command; do
+			while IFS=$d read -r session_name window_number pane_index dir pane_full_command; do
 				dir="$(remove_first_char "$dir")"
 				pane_full_command="$(remove_first_char "$pane_full_command")"
 				restore_pane_process "$pane_full_command" "$session_name" "$window_number" "$pane_index" "$dir"
