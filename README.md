@@ -69,6 +69,30 @@ Add plugin to the list of TPM plugins in `.tmux.conf`:
 Hit `prefix + I` to fetch the plugin and source it. You should now be able to
 use the plugin.
 
+### Makefile
+
+Download the ZIP archive and extract the contents into the source file directory.
+
+    $ wget https://github.com/tmux-plugins/tmux-resurrect/archive/master.zip
+    $ unzip -n master.zip
+    $ sudo mv tmux-resurrect-master /usr/local/src/tmux-resurrect
+    $ cd /usr/local/src/tmux-resurrect
+    $ sudo make install
+
+It will copy the needed files into the expected directory on your system, following https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard.
+
+Add this line to the bottom of `.tmux.conf`:
+
+    run-shell /usr/local/share/tmux-resurrect/resurrect.tmux
+
+Reload TMUX environment with: `$ tmux source-file ~/.tmux.conf`.
+You should now be able to use the plugin.
+
+To uninstall, execute
+
+    $ cd /usr/local/src/tmux-resurrect
+    $ sudo make uninstall
+
 ### Manual Installation
 
 Clone the repo:
