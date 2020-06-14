@@ -112,6 +112,32 @@ _get_proc_restore_element() {
 	echo "$1" | sed "s/.*${inline_strategy_token}//"
 }
 
+# given full command: 'ruby /Users/john/bin/my_program arg1 arg2'
+# and inline strategy: '~bin/my_program->my_program *'
+# returns: 'arg1 arg2'
+_get_command_arguments() {
+	local pane_full_command="$1"
+	local match="$2"
+	if _proc_starts_with_tildae "$match"; then
+		match="$(remove_first_char "$match")"
+	fi
+	echo "$pane_full_command" | sed "s,^.*${match}[^ ]* ,,"
+}
+
+_get_proc_restore_command() {
+	local pane_full_command="$1"
+	local proc="$2"
+	local match="$3"
+	local restore_element="$(_get_proc_restore_element "$proc")"
+	if [[ "$restore_element" =~ " ${inline_strategy_arguments_token}" ]]; then
+		# replaces "%" with command arguments
+		local command_arguments="$(_get_command_arguments "$pane_full_command" "$match")"
+		echo "$restore_element" | sed "s/${inline_strategy_arguments_token}/${command_arguments}/"
+	else
+		echo "$restore_element"
+	fi
+}
+
 _restore_list() {
 	local user_processes="$(get_tmux_option "$restore_processes_option" "$restore_processes")"
 	local default_processes="$(get_tmux_option "$default_proc_list_option" "$default_proc_list")"
@@ -137,7 +163,7 @@ _get_inline_strategy() {
 		if [[ "$proc" =~ "$inline_strategy_token" ]]; then
 			match="$(_get_proc_match_element "$proc")"
 			if _proc_matches_full_command "$pane_full_command" "$match"; then
-				echo "$(_get_proc_restore_element "$proc")"
+				echo "$(_get_proc_restore_command "$pane_full_command" "$proc" "$match")"
 			fi
 		fi
 	done

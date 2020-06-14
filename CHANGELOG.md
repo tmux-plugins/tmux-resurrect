@@ -28,6 +28,7 @@
 - `view` added to the list of automatically restored programs
 - Enable vim session strategy to work with custom session files,
   e.g. `vim -S Session1.vim`.
+- Enable restoring command arguments for inline strategies with `*` character.
 
 ### v2.4.0, 2015-02-23
 - add "tmux-test"
