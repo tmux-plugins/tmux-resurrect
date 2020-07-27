@@ -163,6 +163,7 @@ new_pane() {
 	else
 		tmux split-window -t "${session_name}:${window_number}" -c "$dir"
 	fi
+	tmux rename-window -t "${session_name}:${window_number}" "$window_name"
 	# minimize window so more panes can fit
 	tmux resize-pane  -t "${session_name}:${window_number}" -U "999"
 }
