@@ -29,6 +29,7 @@
 - Enable vim session strategy to work with custom session files,
   e.g. `vim -S Session1.vim`.
 - Enable restoring command arguments for inline strategies with `*` character.
+- Kill session "0" if it wasn't restored.
 
 ### v2.4.0, 2015-02-23
 - add "tmux-test"
