@@ -16,8 +16,11 @@ d=$'\t'
 # is also not restored. That makes the restoration process more idempotent.
 EXISTING_PANES_VAR=""
 
+RESTORED_PANE_NUMBERS=""
+
 RESTORING_FROM_SCRATCH="false"
 
+RESTORE_PANE_COUNT=0
 RESTORE_PANE_CONTENTS="false"
 
 is_line_type() {
@@ -58,6 +61,17 @@ is_pane_registered_as_existing() {
 	local pane_index="$3"
 	local pane_custom_id="${session_name}:${window_number}:${pane_index}"
 	[[ "$EXISTING_PANES_VAR" =~ "$pane_custom_id" ]]
+}
+
+register_restored_pane() {
+	local pane_index="$1"
+	local delimiter=$'\t'
+	RESTORED_PANE_NUMBERS="${RESTORED_PANE_NUMBERS}${delimiter}${pane_index}"
+}
+
+is_pane_registered_as_restored() {
+	local pane_index="$1"
+	[[ "$RESTORED_PANE_NUMBERS" =~ "$pane_index" ]]
 }
 
 restore_from_scratch_true() {
@@ -129,9 +143,10 @@ new_window() {
 	local window_name="$3"
 	local dir="$4"
 	local pane_index="$5"
-	local pane_id="${session_name}:${window_number}.${pane_index}"
+	RESTORE_PANE_COUNT=$[$RESTORE_PANE_COUNT+1]
+	local pane_id="${session_name}:${window_number}.%${pane_index}"
 	if is_restoring_pane_contents && pane_contents_file_exists "$pane_id"; then
-		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "$pane_index")"
+		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "%$pane_index")"
 		tmux new-window -d -t "${session_name}:${window_number}" -n "$window_name" -c "$dir" "$pane_creation_command"
 	else
 		tmux new-window -d -t "${session_name}:${window_number}" -n "$window_name" -c "$dir"
@@ -144,9 +159,10 @@ new_session() {
 	local window_name="$3"
 	local dir="$4"
 	local pane_index="$5"
-	local pane_id="${session_name}:${window_number}.${pane_index}"
+	RESTORE_PANE_COUNT=$[$RESTORE_PANE_COUNT+1]
+	local pane_id="${session_name}:${window_number}.%${pane_index}"
 	if is_restoring_pane_contents && pane_contents_file_exists "$pane_id"; then
-		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "$pane_index")"
+		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "%$pane_index")"
 		TMUX="" tmux -S "$(tmux_socket)" new-session -d -s "$session_name" -n "$window_name" -c "$dir" "$pane_creation_command"
 	else
 		TMUX="" tmux -S "$(tmux_socket)" new-session -d -s "$session_name" -n "$window_name" -c "$dir"
@@ -164,9 +180,13 @@ new_pane() {
 	local window_name="$3"
 	local dir="$4"
 	local pane_index="$5"
-	local pane_id="${session_name}:${window_number}.${pane_index}"
+	RESTORE_PANE_COUNT=$[$RESTORE_PANE_COUNT+1]
+	if [ $RESTORE_PANE_COUNT -ne $pane_index ] ; then
+		new_pane "$session_name" "$window_number" "$window_name" "$dir" "$pane_index"
+	fi
+	local pane_id="${session_name}:${window_number}.%${pane_index}"
 	if is_restoring_pane_contents && pane_contents_file_exists "$pane_id"; then
-		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "$pane_index")"
+		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "%$pane_index")"
 		tmux split-window -t "${session_name}:${window_number}" -c "$dir" "$pane_creation_command"
 	else
 		tmux split-window -t "${session_name}:${window_number}" -c "$dir"
@@ -187,17 +207,8 @@ restore_pane() {
 		fi
 		if pane_exists "$session_name" "$window_number" "$pane_index"; then
 			tmux rename-window -t "$window_number" "$window_name"
-			if is_restoring_from_scratch; then
-				# overwrite the pane
-				# happens only for the first pane if it's the only registered pane for the whole tmux server
-				local pane_id="$(tmux display-message -p -F "#{pane_id}" -t "$session_name:$window_number")"
-				new_pane "$session_name" "$window_number" "$window_name" "$dir" "$pane_index"
-				tmux kill-pane -t "$pane_id"
-			else
-				# Pane exists, no need to create it!
-				# Pane existence is registered. Later, its process also won't be restored.
-				register_existing_pane "$session_name" "$window_number" "$pane_index"
-			fi
+			# Pane existence is registered. Later, its process also won't be restored.
+			register_existing_pane "$session_name" "$window_number" "$pane_index"
 		elif window_exists "$session_name" "$window_number"; then
 			tmux rename-window -t "$window_number" "$window_name"
 			new_pane "$session_name" "$window_number" "$window_name" "$dir" "$pane_index"
@@ -206,6 +217,7 @@ restore_pane() {
 		else
 			new_session "$session_name" "$window_number" "$window_name" "$dir" "$pane_index"
 		fi
+		register_restored_pane "$pane_index"
 	done < <(echo "$pane")
 }
 
@@ -257,6 +269,16 @@ detect_if_restoring_from_scratch() {
 }
 
 detect_if_restoring_pane_contents() {
+	if [ "$( tmux list-panes -a -F "#{session_name}:#{window_index}.#{pane_id}" )" != 0:${BASE_INDEX}.%0 ] ; then
+		cat <<-EOF
+			 
+			 
+			WARNING : You are not restoring from a fresh tmux session (0:${BASE_INDEX}.0)
+			          Expect unexpected results
+			 
+			 
+			EOF
+	fi
 	if capture_pane_contents_option_on; then
 		cache_tmux_default_command
 		restore_pane_contents_true
@@ -276,6 +298,15 @@ restore_all_panes() {
 			restore_pane "$line"
 		fi
 	done < $(last_resurrect_file)
+	# This is a temporary trick, by killing the first pane before saving for proper restore
+	if ! is_pane_registered_as_existing 0 ${BASE_INDEX} 0; then
+		tmux kill-pane -t "0:${BASE_INDEX}.%0"
+	fi
+	tmux list-panes -a -F  "#{session_name} #{window_index} #{pane_id}" | while read session_name window_number pane_id; do
+		if ! is_pane_registered_as_restored "${pane_id#%}" ; then
+			tmux kill-pane -t "${session_name}:${window_number}.${pane_id}"
+		fi
+	done
 	if is_restoring_pane_contents; then
 		rm "$(pane_contents_dir "restore")"/*
 	fi

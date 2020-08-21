@@ -39,7 +39,7 @@ pane_format() {
 	format+="${delimiter}"
 	format+=":#{window_flags}"
 	format+="${delimiter}"
-	format+="#{pane_index}"
+	format+="#{pane_id}"
 	format+="${delimiter}"
 	format+=":#{pane_current_path}"
 	format+="${delimiter}"
@@ -80,7 +80,7 @@ state_format() {
 }
 
 dump_panes_raw() {
-	tmux list-panes -a -F "$(pane_format)"
+	tmux list-panes -a -F "$(pane_format)" | sed -e 's/%//' | sort -n -k 7
 }
 
 dump_windows_raw(){
@@ -257,7 +257,7 @@ dump_pane_contents() {
 	local pane_contents_area="$(get_tmux_option "$pane_contents_area_option" "$default_pane_contents_area")"
 	dump_panes_raw |
 		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid history_size; do
-			capture_pane_contents "${session_name}:${window_number}.${pane_index}" "$history_size" "$pane_contents_area"
+			capture_pane_contents "${session_name}:${window_number}.%${pane_index}" "$history_size" "$pane_contents_area"
 		done
 }
 
@@ -292,6 +292,21 @@ save_all() {
 		rm "$resurrect_file_path"
 	fi
 	if capture_pane_contents_option_on; then
+		if [[ "$( tmux list-panes -a -F "#{session_name}:#{window_index}.#{pane_id} " )" =~ "0:${BASE_INDEX}.%0 " ]] ; then
+			cat <<-EOF
+				 
+				 
+				WARNING : The initial pane (0:${BASE_INDEX}.0) will not be properly restored by default
+				          You can restore it by defining the alias below and using it to restore your session
+				          Combination with continuum-restore setting allows full recovering with a single command
+				 
+				alias restore='eval \$( while read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_full_command; do
+				      [ x\$pane_index = x0 ] && echo "cd \${dir#:} ; tmux new-session -s \${session_name#:} -n \${window_name} \"tar -xzf \$HOME/.tmux/resurrect/pane_contents.tar.gz --to-stdout ./pane_contents/pane-\${session_name#:}:\${window_number}.%\${pane_index} ; exec \${pane_command:-/bin/bash}\" ; cd - > /dev/null"
+				    done < \$HOME/.tmux/resurrect/last )'
+				 
+				 
+				EOF
+		fi
 		mkdir -p "$(pane_contents_dir "save")"
 		dump_pane_contents
 		pane_contents_create_archive
