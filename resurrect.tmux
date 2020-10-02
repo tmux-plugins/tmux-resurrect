@@ -21,6 +21,14 @@ set_restore_bindings() {
 	done
 }
 
+set_list_resurrect_sessions_bindings() {
+  local key_binding=$(get_tmux_option "$list_resurrect_sessions_option" "$default_list_resurrect_sessions_key")
+  local key
+  for key in $key_binding; do
+    tmux bind-key "$key" run-shell "$CURRENT_DIR/scripts/list_resurrect_sessions.sh"
+  done
+}
+
 set_default_strategies() {
 	tmux set-option -gq "${restore_process_strategy_option}irb" "default_strategy"
 	tmux set-option -gq "${restore_process_strategy_option}mosh-client" "default_strategy"
@@ -29,11 +37,13 @@ set_default_strategies() {
 set_script_path_options() {
 	tmux set-option -gq "$save_path_option" "$CURRENT_DIR/scripts/save.sh"
 	tmux set-option -gq "$restore_path_option" "$CURRENT_DIR/scripts/restore.sh"
+  tmux set-option -gq "$list_resurrect_sessions_option" "$CURRENT_DIR/scripts/list_resurrect_sessions.sh"
 }
 
 main() {
 	set_save_bindings
 	set_restore_bindings
+  set_list_resurrect_sessions_bindings
 	set_default_strategies
 	set_script_path_options
 }

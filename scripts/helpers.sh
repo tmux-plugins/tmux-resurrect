@@ -6,6 +6,7 @@ RESURRECT_FILE_PREFIX="tmux_resurrect"
 RESURRECT_FILE_EXTENSION="txt"
 _RESURRECT_DIR=""
 _RESURRECT_FILE_PATH=""
+CURRENT_SESSION=$( tmux display-message -p "#S" )
 
 d=$'\t'
 
@@ -113,7 +114,7 @@ _RESURRECT_DIR="$(resurrect_dir)"
 resurrect_file_path() {
 	if [ -z "$_RESURRECT_FILE_PATH" ]; then
 		local timestamp="$(date +"%Y%m%dT%H%M%S")"
-		echo "$(resurrect_dir)/${RESURRECT_FILE_PREFIX}_${timestamp}.${RESURRECT_FILE_EXTENSION}"
+		echo "$(resurrect_dir)/${CURRENT_SESSION}_${RESURRECT_FILE_PREFIX}_${timestamp}.${RESURRECT_FILE_EXTENSION}"
 	else
 		echo "$_RESURRECT_FILE_PATH"
 	fi
@@ -121,7 +122,7 @@ resurrect_file_path() {
 _RESURRECT_FILE_PATH="$(resurrect_file_path)"
 
 last_resurrect_file() {
-	echo "$(resurrect_dir)/last"
+	echo "$(resurrect_dir)/${CURRENT_SESSION}_last"
 }
 
 pane_contents_dir() {

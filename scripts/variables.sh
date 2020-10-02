@@ -7,6 +7,9 @@ default_restore_key="C-r"
 restore_option="@resurrect-restore"
 restore_path_option="@resurrect-restore-script-path"
 
+default_list_resurrect_sessions_key="C-l"
+list_resurrect_sessions_option="@resurrect-list-sessions"
+
 # default processes that are restored
 default_proc_list_option="@resurrect-default-processes"
 default_proc_list='vi vim view nvim emacs man less more tail top htop irssi weechat mutt'
