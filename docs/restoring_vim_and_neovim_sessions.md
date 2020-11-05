@@ -13,3 +13,6 @@
 `tmux-resurrect` will now restore vim and neovim sessions if `Session.vim` file
 is present.
 
+## Using Obsession
+
+## Using vim-session instead of Obsession
