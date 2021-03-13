@@ -49,6 +49,7 @@ Optional:
 
 - [restoring vim and neovim sessions](docs/restoring_vim_and_neovim_sessions.md)
 - [restoring pane contents](docs/restoring_pane_contents.md)
+- [restoring a previously saved environment](docs/restoring_previously_saved_environment.md)
 
 Requirements / dependencies: `tmux 1.9` or higher, `bash`.
 
