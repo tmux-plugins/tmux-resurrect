@@ -32,9 +32,17 @@ contains space-separated list of additional programs to restore.
 
         set -g @resurrect-processes 'false'
 
-- Restore **all** programs (be careful with this!):
+- Restore **all** programs (dangerous!):
 
         set -g @resurrect-processes ':all:'
+
+  Be *very careful* with this: tmux-resurrect can not know which programs take
+  which context, and a `sudo mkfs.vfat /dev/sdb` that was just formatting an
+  external USB stick could wipe your backup hard disk if that's what's attached
+  after rebooting.
+
+  This option is primarily useful for experimentation (e.g., to find out which
+  program is recognized in a pane).
 
 ### Clarifications <a name="clarfications"></a>
 
