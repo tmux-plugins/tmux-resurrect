@@ -130,6 +130,7 @@ new_window() {
 	local dir="$4"
 	local pane_index="$5"
 	local pane_id="${session_name}:${window_number}.${pane_index}"
+	dir="${dir/#\~/$HOME}"
 	if is_restoring_pane_contents && pane_contents_file_exists "$pane_id"; then
 		local pane_creation_command="$(pane_creation_command "$session_name" "$window_number" "$pane_index")"
 		tmux new-window -d -t "${session_name}:${window_number}" -n "$window_name" -c "$dir" "$pane_creation_command"
