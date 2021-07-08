@@ -13,7 +13,8 @@ d=$'\t'
 get_tmux_option() {
 	local option="$1"
 	local default_value="$2"
-	local option_value=$(tmux show-option -gqv "$option")
+    local showoptionswitch="${3:--gqv}"
+	local option_value=$(tmux show-option $showoptionswitch "$option")
 	if [ -z "$option_value" ]; then
 		echo "$default_value"
 	else
@@ -101,7 +102,7 @@ pane_content_files_restore_from_archive() {
 
 resurrect_dir() {
 	if [ -z "$_RESURRECT_DIR" ]; then
-		local path="$(get_tmux_option "$resurrect_dir_option" "$default_resurrect_dir")"
+		local path="$(get_tmux_option "$resurrect_dir_option" "$default_resurrect_dir" "-qv")"
 		# expands tilde, $HOME and $HOSTNAME if used in @resurrect-dir
 		echo "$path" | sed "s,\$HOME,$HOME,g; s,\$HOSTNAME,$(hostname),g; s,\~,$HOME,g"
 	else

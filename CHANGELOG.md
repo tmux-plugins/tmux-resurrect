@@ -1,6 +1,8 @@
 # Changelog
 
 ### master
+- Added support for simultaneously working on, and maintaining multiple independent resurrect sessions
+- Option @resurrect-dir has been changed from global to session local (use without -g)
 - save and restore tmux pane contents (@laomaiweng)
 - update tmux-test to solve issue with recursing git submodules in that project
 - set options quietly in `resurrect.tmux` script

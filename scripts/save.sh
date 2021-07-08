@@ -80,11 +80,11 @@ state_format() {
 }
 
 dump_panes_raw() {
-	tmux list-panes -a -F "$(pane_format)"
+	tmux list-panes -a -F "$(pane_format)" -f "#{?session_group_attached,#{session_group_attached},#{session_attached}}" 
 }
 
 dump_windows_raw(){
-	tmux list-windows -a -F "$(window_format)"
+	tmux list-windows -a -F "$(window_format)" -f "#{?session_group_attached,#{session_group_attached},#{session_attached}}" 
 }
 
 toggle_window_zoom() {
@@ -197,7 +197,7 @@ get_alternate_window_index() {
 dump_grouped_sessions() {
 	local current_session_group=""
 	local original_session
-	tmux list-sessions -F "$(grouped_sessions_format)" |
+	tmux list-sessions -F "$(grouped_sessions_format)" -f "#{?session_group_attached,#{session_group_attached},#{session_attached}}" |
 		grep "^1" |
 		cut -c 3- |
 		sort |
