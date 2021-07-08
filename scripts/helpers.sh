@@ -13,8 +13,8 @@ d=$'\t'
 get_tmux_option() {
 	local option="$1"
 	local default_value="$2"
-    local showoptionswitch="${3:--gqv}"
-	local option_value=$(tmux show-option $showoptionswitch "$option")
+	local showoptionswitch="${3:--gqv}"
+	local option_value=$(eval "tmux show-options $showoptionswitch $option")
 	if [ -z "$option_value" ]; then
 		echo "$default_value"
 	else
@@ -102,7 +102,22 @@ pane_content_files_restore_from_archive() {
 
 resurrect_dir() {
 	if [ -z "$_RESURRECT_DIR" ]; then
-		local path="$(get_tmux_option "$resurrect_dir_option" "$default_resurrect_dir" "-qv")"
+		# @resurrect-dir is no longer a global option, and it is local to session. A user can add multiple sessions to the same group 
+		# after opening a resurrect session. Grouped sessions do not share session options. So a user can execute resurrect save 
+		# while focus is no a session that does not have @resurrect-dir option set. The following code makes sure to find the value of 
+		# group's @resurrect-dir by iterating over sessions within a group if the session is grouped, or simply return @resurrect-dir for current session if ungrouped.
+		local IFS=$'\n'
+		local sessionnamearray=$(eval 'tmux list-sessions -f "#{?session_grouped,#{session_group_attached},#{session_attached}}" -F "#{session_name}"')
+		for i in ${sessionnamearray[@]}; do
+			local temppath="$(get_tmux_option "$resurrect_dir_option" "" "-qv -t $i")"
+			if [ ! -z $temppath ]; then
+				local path=$temppath
+				break
+			fi
+		done
+		if [ -z $path ]; then
+			local path=$default_resurrect_dir
+		fi
 		# expands tilde, $HOME and $HOSTNAME if used in @resurrect-dir
 		echo "$path" | sed "s,\$HOME,$HOME,g; s,\$HOSTNAME,$(hostname),g; s,\~,$HOME,g"
 	else
