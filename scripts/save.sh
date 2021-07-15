@@ -50,6 +50,8 @@ pane_format() {
 	format+="#{pane_pid}"
 	format+="${delimiter}"
 	format+="#{history_size}"
+	format+="${delimiter}"
+	format+="#{pane_title}"
 	echo "$format"
 }
 
@@ -227,14 +229,14 @@ fetch_and_dump_grouped_sessions(){
 dump_panes() {
 	local full_command
 	dump_panes_raw |
-		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid history_size; do
+		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid history_size pane_title; do
 			# not saving panes from grouped sessions
 			if is_session_grouped "$session_name"; then
 				continue
 			fi
 			full_command="$(pane_full_command $pane_pid)"
 			dir=$(echo $dir | sed 's/ /\\ /') # escape all spaces in directory path
-			echo "${line_type}${d}${session_name}${d}${window_number}${d}${window_name}${d}${window_active}${d}${window_flags}${d}${pane_index}${d}${dir}${d}${pane_active}${d}${pane_command}${d}:${full_command}"
+			echo "${line_type}${d}${session_name}${d}${window_number}${d}${window_name}${d}${window_active}${d}${window_flags}${d}${pane_index}${d}${pane_title}${d}${dir}${d}${pane_active}${d}${pane_command}${d}:${full_command}"
 		done
 }
 
@@ -314,7 +316,7 @@ main() {
 			start_spinner "Saving..." "Tmux environment saved!"
 		fi
 		save_all
-		if show_output; then
+    if show_output; then
 			stop_spinner
 			display_message "Tmux environment saved!"
 		fi
