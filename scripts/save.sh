@@ -67,7 +67,7 @@ window_format() {
 	format+="${delimiter}"
 	format+="#{window_layout}"
 	format+="${delimiter}"
-	format+="#{?automatic-rename,yes,no}"
+	format+="#{?automatic-rename,on,off}"
 	echo "$format"
 }
 
