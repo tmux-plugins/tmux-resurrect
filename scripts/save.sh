@@ -66,6 +66,8 @@ window_format() {
 	format+=":#{window_flags}"
 	format+="${delimiter}"
 	format+="#{window_layout}"
+	format+="${delimiter}"
+	format+="#{?automatic-rename,yes,no}"
 	echo "$format"
 }
 
@@ -240,12 +242,12 @@ dump_panes() {
 
 dump_windows() {
 	dump_windows_raw |
-		while IFS=$d read line_type session_name window_index window_active window_flags window_layout; do
+		while IFS=$d read line_type session_name window_index window_active window_flags window_layout automatic_rename; do
 			# not saving windows from grouped sessions
 			if is_session_grouped "$session_name"; then
 				continue
 			fi
-			echo "${line_type}${d}${session_name}${d}${window_index}${d}${window_active}${d}${window_flags}${d}${window_layout}"
+			echo "${line_type}${d}${session_name}${d}${window_index}${d}${window_active}${d}${window_flags}${d}${window_layout}${d}${automatic_rename}"
 		done
 }
 
