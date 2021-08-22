@@ -33,8 +33,6 @@ pane_format() {
 	format+="${delimiter}"
 	format+="#{window_index}"
 	format+="${delimiter}"
-	format+=":#{window_name}"
-	format+="${delimiter}"
 	format+="#{window_active}"
 	format+="${delimiter}"
 	format+=":#{window_flags}"
@@ -53,6 +51,18 @@ pane_format() {
 	echo "$format"
 }
 
+get_auto_rename() {
+    local res=$(tmux show -w automatic-rename)
+    if [[ -z $res ]] || [[ $res == "automatic-rename off" ]]
+    then
+        echo ":#{window_name}"
+    else
+        echo "#{window_name}"
+    fi
+}
+
+get_auto_rename
+
 window_format() {
 	local format
 	format+="window"
@@ -61,7 +71,9 @@ window_format() {
 	format+="${delimiter}"
 	format+="#{window_index}"
 	format+="${delimiter}"
-	format+="#{window_active}"
+	format+=":#{window_name}"
+	format+="${delimiter}"
+    format+="#{window_active}"
 	format+="${delimiter}"
 	format+=":#{window_flags}"
 	format+="${delimiter}"
@@ -320,4 +332,4 @@ main() {
 		fi
 	fi
 }
-main
+# main
