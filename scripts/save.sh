@@ -245,7 +245,10 @@ dump_windows() {
 			if is_session_grouped "$session_name"; then
 				continue
 			fi
-			echo "${line_type}${d}${session_name}${d}${window_index}${d}${window_active}${d}${window_flags}${d}${window_layout}"
+			automatic_rename="$(tmux show-window-options -vt "${session_name}:${window_index}" automatic-rename)"
+			# If the option was unset, place the ":" placeholder instead.
+			[ -z "${automatic_rename}" ] && automatic_rename=":"
+			echo "${line_type}${d}${session_name}${d}${window_index}${d}${window_active}${d}${window_flags}${d}${window_layout}${d}${automatic_rename}"
 		done
 }
 

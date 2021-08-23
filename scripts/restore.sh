@@ -292,10 +292,15 @@ handle_session_0() {
 	fi
 }
 
-restore_pane_layout_for_each_window() {
+restore_pane_layout_and_autonaming_for_each_window() {
 	\grep '^window' $(last_resurrect_file) |
-		while IFS=$d read line_type session_name window_number window_active window_flags window_layout; do
+		while IFS=$d read line_type session_name window_number window_active window_flags window_layout automatic_rename; do
 			tmux select-layout -t "${session_name}:${window_number}" "$window_layout"
+			if [ "${automatic_rename}" = ":" ]; then
+				tmux set-option -u -t "${session_name}:${window_number}" automatic-rename
+			else
+				tmux set-option -t "${session_name}:${window_number}" automatic-rename "$automatic_rename"
+			fi
 		done
 }
 
@@ -376,7 +381,7 @@ main() {
 		execute_hook "pre-restore-all"
 		restore_all_panes
 		handle_session_0
-		restore_pane_layout_for_each_window >/dev/null 2>&1
+		restore_pane_layout_and_autonaming_for_each_window >/dev/null 2>&1
 		execute_hook "pre-restore-history"
 		if save_shell_history_option_on; then
 			restore_shell_history
