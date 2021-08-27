@@ -59,7 +59,7 @@ window_format() {
 	format+="${delimiter}"
 	format+="#{window_index}"
 	format+="${delimiter}"
-	format+="#{window_name}"
+	format+=":#{window_name}"
 	format+="${delimiter}"
 	format+="#{window_active}"
 	format+="${delimiter}"
