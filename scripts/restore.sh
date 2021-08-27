@@ -286,6 +286,7 @@ handle_session_0() {
 }
 
 restore_window_properties() {
+	local window_name
 	\grep '^window' $(last_resurrect_file) |
 		while IFS=$d read line_type session_name window_number window_name window_active window_flags window_layout automatic_rename; do
 			window_name="$(remove_first_char "$window_name")"
