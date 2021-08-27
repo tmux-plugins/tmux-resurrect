@@ -259,14 +259,14 @@ dump_state() {
 dump_pane_contents() {
 	local pane_contents_area="$(get_tmux_option "$pane_contents_area_option" "$default_pane_contents_area")"
 	dump_panes_raw |
-		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid history_size; do
+		while IFS=$d read line_type session_name window_number window_active window_flags pane_index dir pane_active pane_command pane_pid history_size; do
 			capture_pane_contents "${session_name}:${window_number}.${pane_index}" "$history_size" "$pane_contents_area"
 		done
 }
 
 dump_shell_history() {
 	dump_panes |
-		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command full_command; do
+		while IFS=$d read line_type session_name window_number window_active window_flags pane_index dir pane_active pane_command full_command; do
 			save_shell_history "$session_name:$window_number.$pane_index" "$pane_command" "$full_command"
 		done
 }
