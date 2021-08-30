@@ -270,9 +270,6 @@ restore_all_panes() {
 			restore_pane "$line"
 		fi
 	done < $(last_resurrect_file)
-	if is_restoring_pane_contents; then
-		rm "$(pane_contents_dir "restore")"/*
-	fi
 }
 
 handle_session_0() {
