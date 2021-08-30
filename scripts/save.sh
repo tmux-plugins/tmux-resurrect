@@ -33,8 +33,6 @@ pane_format() {
 	format+="${delimiter}"
 	format+="#{window_index}"
 	format+="${delimiter}"
-	format+=":#{window_name}"
-	format+="${delimiter}"
 	format+="#{window_active}"
 	format+="${delimiter}"
 	format+=":#{window_flags}"
@@ -60,6 +58,8 @@ window_format() {
 	format+="#{session_name}"
 	format+="${delimiter}"
 	format+="#{window_index}"
+	format+="${delimiter}"
+	format+=":#{window_name}"
 	format+="${delimiter}"
 	format+="#{window_active}"
 	format+="${delimiter}"
@@ -227,25 +227,28 @@ fetch_and_dump_grouped_sessions(){
 dump_panes() {
 	local full_command
 	dump_panes_raw |
-		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid history_size; do
+		while IFS=$d read line_type session_name window_number window_active window_flags pane_index dir pane_active pane_command pane_pid history_size; do
 			# not saving panes from grouped sessions
 			if is_session_grouped "$session_name"; then
 				continue
 			fi
 			full_command="$(pane_full_command $pane_pid)"
 			dir=$(echo $dir | sed 's/ /\\ /') # escape all spaces in directory path
-			echo "${line_type}${d}${session_name}${d}${window_number}${d}${window_name}${d}${window_active}${d}${window_flags}${d}${pane_index}${d}${dir}${d}${pane_active}${d}${pane_command}${d}:${full_command}"
+			echo "${line_type}${d}${session_name}${d}${window_number}${d}${window_active}${d}${window_flags}${d}${pane_index}${d}${dir}${d}${pane_active}${d}${pane_command}${d}:${full_command}"
 		done
 }
 
 dump_windows() {
 	dump_windows_raw |
-		while IFS=$d read line_type session_name window_index window_active window_flags window_layout; do
+		while IFS=$d read line_type session_name window_index window_name window_active window_flags window_layout; do
 			# not saving windows from grouped sessions
 			if is_session_grouped "$session_name"; then
 				continue
 			fi
-			echo "${line_type}${d}${session_name}${d}${window_index}${d}${window_active}${d}${window_flags}${d}${window_layout}"
+			automatic_rename="$(tmux show-window-options -vt "${session_name}:${window_index}" automatic-rename)"
+			# If the option was unset, place the ":" placeholder instead.
+			[ -z "${automatic_rename}" ] && automatic_rename=":"
+			echo "${line_type}${d}${session_name}${d}${window_index}${d}${window_name}${d}${window_active}${d}${window_flags}${d}${window_layout}${d}${automatic_rename}"
 		done
 }
 
@@ -256,14 +259,14 @@ dump_state() {
 dump_pane_contents() {
 	local pane_contents_area="$(get_tmux_option "$pane_contents_area_option" "$default_pane_contents_area")"
 	dump_panes_raw |
-		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command pane_pid history_size; do
+		while IFS=$d read line_type session_name window_number window_active window_flags pane_index dir pane_active pane_command pane_pid history_size; do
 			capture_pane_contents "${session_name}:${window_number}.${pane_index}" "$history_size" "$pane_contents_area"
 		done
 }
 
 dump_shell_history() {
 	dump_panes |
-		while IFS=$d read line_type session_name window_number window_name window_active window_flags pane_index dir pane_active pane_command full_command; do
+		while IFS=$d read line_type session_name window_number window_active window_flags pane_index dir pane_active pane_command full_command; do
 			save_shell_history "$session_name:$window_number.$pane_index" "$pane_command" "$full_command"
 		done
 }
