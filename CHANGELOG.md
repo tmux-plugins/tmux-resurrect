@@ -1,6 +1,8 @@
 # Changelog
 
 ### master
+
+### v3.0.0, 2021-08-30
 - save and restore tmux pane contents (@laomaiweng)
 - update tmux-test to solve issue with recursing git submodules in that project
 - set options quietly in `resurrect.tmux` script
