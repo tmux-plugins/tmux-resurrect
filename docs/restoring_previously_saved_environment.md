@@ -11,3 +11,6 @@ Here are the steps to restore to a previous point in time:
 - do a restore with `tmux-resurrect` key: `prefix + Ctrl-r`
 
 You should now be restored to the time when `<file_name>` save happened.
+
+Note bash history is snapshotted with each save, so you will always get the latest
+bash history (see [issue #303](https://github.com/tmux-plugins/tmux-resurrect/issues/303)).
