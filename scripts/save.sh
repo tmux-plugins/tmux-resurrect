@@ -176,9 +176,8 @@ save_shell_history() {
 		local read_command=" $history_r '$(resurrect_history_file "$pane_id" "$pane_command")'"
 		# C-e C-u is a Bash shortcut sequence to clear whole line. It is necessary to
 		# delete any pending input so it does not interfere with our history command.
-		tmux send-keys -t "$pane_id" "$end_of_line" "$backward_kill_line" "$write_command" "$accept_line"
-		# Immediately restore after saving
-		tmux send-keys -t "$pane_id" "$end_of_line" "$backward_kill_line" "$read_command" "$accept_line"
+		# and immediately restore after saving
+		tmux send-keys -t "$pane_id" "$end_of_line" "$backward_kill_line" M-z "$write_command;$read_command" "$accept_line" M-Z
 	fi
 }
 
