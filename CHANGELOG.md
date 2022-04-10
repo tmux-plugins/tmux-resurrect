@@ -1,8 +1,11 @@
 # Changelog
 
 ### master
+
+### v4.0.0, 2022-04-10
 - Proper handling of `automatic-rename` window option.
-- save and restore tmux pane title (breaking change: you have to re-save to be able to properly restore!)
+- save and restore tmux pane title (breaking change: you have to re-save to be
+  able to properly restore!)
 
 ### v3.0.0, 2021-08-30
 - save and restore tmux pane contents (@laomaiweng)
