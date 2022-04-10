@@ -144,46 +144,6 @@ capture_pane_contents() {
 	fi
 }
 
-save_shell_history() {
-	if [ "$pane_command" = "bash" ]; then
-		local history_w='history -w'
-		local history_r='history -r'
-		local accept_line='C-m'
-		local end_of_line='C-e'
-		local backward_kill_line='C-u'
-	elif [ "$pane_command" = "zsh" ]; then
-		# fc -W does not work with -L
-		# fc -l format is different from what's written by fc -W
-		# fc -R either reads the format produced by fc -W or considers
-		# the entire line to be a command. That's why we need -n.
-		# fc -l only list the last 16 items by default, I think 64 is more reasonable.
-		local history_w='fc -lLn -64 >'
-		local history_r='fc -R'
-
-		local zsh_bindkey="$(zsh -i -c bindkey)"
-		local accept_line="$(expr "$(echo "$zsh_bindkey" | grep -m1 '\saccept-line$')" : '^"\(.*\)".*')"
-		local end_of_line="$(expr "$(echo "$zsh_bindkey" | grep -m1 '\send-of-line$')" : '^"\(.*\)".*')"
-		local backward_kill_line="$(expr "$(echo "$zsh_bindkey" | grep -m1 '\sbackward-kill-line$')" : '^"\(.*\)".*')"
-	else
-		return
-	fi
-
-	local pane_id="$1"
-	local pane_command="$2"
-	local full_command="$3"
-	if [ "$full_command" = ":" ]; then
-		# leading space prevents the command from being saved to history
-		# (assuming default HISTCONTROL settings)
-		local write_command=" $history_w '$(resurrect_history_file "$pane_id" "$pane_command")'"
-		local read_command=" $history_r '$(resurrect_history_file "$pane_id" "$pane_command")'"
-		# C-e C-u is a Bash shortcut sequence to clear whole line. It is necessary to
-		# delete any pending input so it does not interfere with our history command.
-		tmux send-keys -t "$pane_id" "$end_of_line" "$backward_kill_line" "$write_command" "$accept_line"
-		# Immediately restore after saving
-		tmux send-keys -t "$pane_id" "$end_of_line" "$backward_kill_line" "$read_command" "$accept_line"
-	fi
-}
-
 get_active_window_index() {
 	local session_name="$1"
 	tmux list-windows -t "$session_name" -F "#{window_flags} #{window_index}" |
@@ -266,13 +226,6 @@ dump_pane_contents() {
 		done
 }
 
-dump_shell_history() {
-	dump_panes |
-		while IFS=$d read line_type session_name window_number window_active window_flags pane_index dir pane_active pane_command full_command; do
-			save_shell_history "$session_name:$window_number.$pane_index" "$pane_command" "$full_command"
-		done
-}
-
 remove_old_backups() {
 	# remove resurrect files older than 30 days (default), but keep at least 5 copies of backup.
 	local delete_after="$(get_tmux_option "$delete_backup_after_option" "$default_delete_backup_after")"
@@ -301,9 +254,6 @@ save_all() {
 		dump_pane_contents
 		pane_contents_create_archive
 		rm "$(pane_contents_dir "save")"/*
-	fi
-	if save_shell_history_option_on; then
-		dump_shell_history
 	fi
 	remove_old_backups
 	execute_hook "post-save-all"

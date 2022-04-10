@@ -1,6 +1,7 @@
 # Changelog
 
 ### master
+- Remove deprecated "restoring shell history" feature.
 
 ### v4.0.0, 2022-04-10
 - Proper handling of `automatic-rename` window option.
