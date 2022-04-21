@@ -170,12 +170,12 @@ new_pane() {
 		tmux split-window -t "${session_name}:${window_number}" -c "$dir"
 	fi
 	# minimize window so more panes can fit
-	tmux resize-pane  -t "${session_name}:${window_number}" -U "999"
+	tmux resize-pane -t "${session_name}:${window_number}" -U "999"
 }
 
 restore_pane() {
 	local pane="$1"
-	while IFS=$d read line_type session_name window_number window_active window_flags pane_index dir pane_active pane_command pane_full_command; do
+	while IFS=$d read line_type session_name window_number window_active window_flags pane_index pane_title dir pane_active pane_command pane_full_command; do
 		dir="$(remove_first_char "$dir")"
 		pane_full_command="$(remove_first_char "$pane_full_command")"
 		if [ "$session_name" == "0" ]; then
@@ -200,6 +200,8 @@ restore_pane() {
 		else
 			new_session "$session_name" "$window_number" "$dir" "$pane_index"
 		fi
+		# set pane title
+		tmux select-pane -t "$session_name:$window_number.$pane_index" -T "$pane_title"
 	done < <(echo "$pane")
 }
 
@@ -301,29 +303,10 @@ restore_window_properties() {
 		done
 }
 
-restore_shell_history() {
-	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ { print $2, $3, $6, $9; }' $(last_resurrect_file) |
-		while IFS=$d read session_name window_number pane_index pane_command; do
-			if ! is_pane_registered_as_existing "$session_name" "$window_number" "$pane_index"; then
-				local pane_id="$session_name:$window_number.$pane_index"
-				local history_file="$(resurrect_history_file "$pane_id" "$pane_command")"
-
-				if [ "$pane_command" = "bash" ]; then
-					local read_command="history -r '$history_file'"
-					tmux send-keys -t "$pane_id" "$read_command" C-m
-				elif [ "$pane_command" = "zsh" ]; then
-					local accept_line="$(expr "$(zsh -i -c bindkey | grep -m1 '\saccept-line$')" : '^"\(.*\)".*')"
-					local read_command="fc -R '$history_file'; clear"
-					tmux send-keys -t "$pane_id" "$read_command" "$accept_line"
-				fi
-			fi
-		done
-}
-
 restore_all_pane_processes() {
 	if restore_pane_processes_enabled; then
 		local pane_full_command
-		awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $10 !~ "^:$" { print $2, $3, $6, $7, $10; }' $(last_resurrect_file) |
+		awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $11 !~ "^:$" { print $2, $3, $6, $8, $11; }' $(last_resurrect_file) |
 			while IFS=$d read -r session_name window_number pane_index dir pane_full_command; do
 				dir="$(remove_first_char "$dir")"
 				pane_full_command="$(remove_first_char "$pane_full_command")"
@@ -333,7 +316,7 @@ restore_all_pane_processes() {
 }
 
 restore_active_pane_for_each_window() {
-	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $8 == 1 { print $2, $3, $6; }' $(last_resurrect_file) |
+	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $9 == 1 { print $2, $3, $6; }' $(last_resurrect_file) |
 		while IFS=$d read session_name window_number active_pane; do
 			tmux switch-client -t "${session_name}:${window_number}"
 			tmux select-pane -t "$active_pane"
@@ -341,7 +324,7 @@ restore_active_pane_for_each_window() {
 }
 
 restore_zoomed_windows() {
-	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $5 ~ /Z/ && $8 == 1 { print $2, $3; }' $(last_resurrect_file) |
+	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $5 ~ /Z/ && $9 == 1 { print $2, $3; }' $(last_resurrect_file) |
 		while IFS=$d read session_name window_number; do
 			tmux resize-pane -t "${session_name}:${window_number}" -Z
 		done
@@ -386,10 +369,6 @@ main() {
 		restore_all_panes
 		handle_session_0
 		restore_window_properties >/dev/null 2>&1
-		execute_hook "pre-restore-history"
-		if save_shell_history_option_on; then
-			restore_shell_history
-		fi
 		execute_hook "pre-restore-pane-processes"
 		restore_all_pane_processes
 		# below functions restore exact cursor positions

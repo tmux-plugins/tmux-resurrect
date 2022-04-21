@@ -104,10 +104,6 @@ You should now be able to use the plugin.
   is nice if you're a vim/neovim user.
 - [Restoring pane contents](docs/restoring_pane_contents.md) feature.
 
-**Experimental features (also optional)**
-
-- [restoring shell history](docs/restoring_shell_history.md)
-
 ### Other goodies
 
 - [tmux-copycat](https://github.com/tmux-plugins/tmux-copycat) - a plugin for
