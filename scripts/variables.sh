@@ -3,6 +3,9 @@ default_save_key="C-s"
 save_option="@resurrect-save"
 save_path_option="@resurrect-save-script-path"
 
+default_save_current_key="C-t"
+save_current_option="@resurrect-save-current"
+
 default_restore_key="C-r"
 restore_option="@resurrect-restore"
 restore_path_option="@resurrect-restore-script-path"

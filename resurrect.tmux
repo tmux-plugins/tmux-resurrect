@@ -13,6 +13,14 @@ set_save_bindings() {
 	done
 }
 
+set_save_current_bindings() {
+	local key_bindings=$(get_tmux_option "$save_current_option" "$default_save_current_key")
+	local key
+	for key in $key_bindings; do
+		tmux bind-key "$key" run-shell "$CURRENT_DIR/scripts/save.sh -t #S"
+	done
+}
+
 set_restore_bindings() {
 	local key_bindings=$(get_tmux_option "$restore_option" "$default_restore_key")
 	local key
@@ -33,6 +41,7 @@ set_script_path_options() {
 
 main() {
 	set_save_bindings
+	set_save_current_bindings
 	set_restore_bindings
 	set_default_strategies
 	set_script_path_options

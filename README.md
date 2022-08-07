@@ -26,7 +26,8 @@ Automatic restoring and continuous saving of tmux env is also possible with
 
 ### Key bindings
 
-- `prefix + Ctrl-s` - save
+- `prefix + Ctrl-s` - save all sessions
+- `prefix + Ctrl-t` - save current session
 - `prefix + Ctrl-r` - restore
 
 ### About
