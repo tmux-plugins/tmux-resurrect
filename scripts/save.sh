@@ -91,24 +91,16 @@ state_format() {
 	echo "$format"
 }
 
-session_selector_windows() {
-	[ -z "$TARGET_SESSION" ] &&
-		echo "-a" ||
-		echo "-t $TARGET_SESSION"
-}
-
-session_selector_panes() {
-	[ -z "$TARGET_SESSION" ] &&
-		echo "-a" ||
-		echo "-s -t $TARGET_SESSION"
-}
-
 dump_panes_raw() {
-	tmux list-panes $(session_selector_panes) -F "$(pane_format)"
+	[ -z "$TARGET_SESSION" ] &&
+		tmux list-panes -a -F "$(pane_format)" ||
+		tmux list-panes -s -t "$TARGET_SESSION" -F "$(pane_format)"
 }
 
 dump_windows_raw(){
-	tmux list-windows $(session_selector_windows) -F "$(window_format)"
+	[ -z "$TARGET_SESSION" ] &&
+		tmux list-windows -a -F "$(window_format)" ||
+		tmux list-windows -t "$TARGET_SESSION" -F "$(window_format)"
 }
 
 toggle_window_zoom() {
