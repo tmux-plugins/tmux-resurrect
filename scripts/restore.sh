@@ -202,6 +202,7 @@ restore_pane() {
 		fi
 		# set pane title
 		tmux select-pane -t "$session_name:$window_number.$pane_index" -T "$pane_title"
+		tmux send-keys -t "$session_name:$window_number.$pane_index" 'c-l'
 	done < <(echo "$pane")
 }
 
