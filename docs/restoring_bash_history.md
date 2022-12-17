@@ -9,6 +9,10 @@ The downside of this implementation is that pane titles must all be unique acros
 
 Any improvements/suggestions for getting a unique, persistent ID for each pane are welcome!
 
+Instruction for installing this solution:
+step 1. nano ~/whatfilename
+step 2. paste this:
+
 ```bash
 pane_id_prefix="resurrect_"
 
