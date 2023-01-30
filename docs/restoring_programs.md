@@ -28,6 +28,10 @@ contains space-separated list of additional programs to restore.
 
         set -g @resurrect-processes 'some_program "grunt->grunt development"'
 
+- Use `*` to expand the arguments from the saved command when restoring:
+
+        set -g @resurrect-processes 'some_program "~rails server->rails server *"'
+
 - Don't restore any programs:
 
         set -g @resurrect-processes 'false'
@@ -95,6 +99,20 @@ command name".
 
 Full (long) process name is now ignored and you'll see just `rails server` in
 the command line when the program is restored.
+
+> What is asterisk `*` and why is it used?
+
+(Please read the above clarifications about tilde `~` and arrow `->`).
+
+Continuing with the `rails server` example, you might have added flags for e.g.
+verbose logging, but with the above configuration, the flags would be lost.
+
+To preserve the command arguments when restoring, use the asterisk `*`: (**note**: there **must** be a space before `*`)
+
+    set -g @resurrect-processes '"~rails server->rails server *"'
+
+This option says: "when this process is restored use `rails server` as the
+command name, but preserve its arguments".
 
 > Now I understand the tilde and the arrow, but things still don't work for me
 
