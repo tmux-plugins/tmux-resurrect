@@ -121,7 +121,7 @@ _get_command_arguments() {
 	if _proc_starts_with_tildae "$match"; then
 		match="$(remove_first_char "$match")"
 	fi
-	echo "$pane_full_command" | sed "s,^.*${match}[^ ]* ,,"
+	echo "$pane_full_command" | sed "s,^.*${match}[^ ]* *,,"
 }
 
 _get_proc_restore_command() {
