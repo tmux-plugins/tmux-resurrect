@@ -121,7 +121,7 @@ _get_command_arguments() {
 	if _proc_starts_with_tildae "$match"; then
 		match="$(remove_first_char "$match")"
 	fi
-	echo "$pane_full_command" | sed "s,^.*${match}[^ ]* ,,"
+	echo "$pane_full_command" | sed "s,^.*${match}[^ ]* *,,"
 }
 
 _get_proc_restore_command() {
@@ -132,7 +132,7 @@ _get_proc_restore_command() {
 	if [[ "$restore_element" =~ " ${inline_strategy_arguments_token}" ]]; then
 		# replaces "%" with command arguments
 		local command_arguments="$(_get_command_arguments "$pane_full_command" "$match")"
-		echo "$restore_element" | sed "s/${inline_strategy_arguments_token}/${command_arguments}/"
+		echo "$restore_element" | sed "s,${inline_strategy_arguments_token},${command_arguments},"
 	else
 		echo "$restore_element"
 	fi
