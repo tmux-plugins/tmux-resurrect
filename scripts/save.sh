@@ -10,8 +10,18 @@ source "$CURRENT_DIR/spinner_helpers.sh"
 d=$'\t'
 delimiter=$'\t'
 
-# if "quiet" script produces no output
-SCRIPT_OUTPUT="$1"
+while getopts "t:q" opt; do
+	case "$opt" in
+		t)
+			TARGET_SESSION="$OPTARG"
+			tmux has-session -t "$TARGET_SESSION" ||
+				exit 1
+			;;
+		q)
+			SCRIPT_OUTPUT="quiet"
+			;;
+	esac
+done
 
 grouped_sessions_format() {
 	local format
@@ -82,11 +92,15 @@ state_format() {
 }
 
 dump_panes_raw() {
-	tmux list-panes -a -F "$(pane_format)"
+	[ -z "$TARGET_SESSION" ] &&
+		tmux list-panes -a -F "$(pane_format)" ||
+		tmux list-panes -s -t "$TARGET_SESSION" -F "$(pane_format)"
 }
 
 dump_windows_raw(){
-	tmux list-windows -a -F "$(window_format)"
+	[ -z "$TARGET_SESSION" ] &&
+		tmux list-windows -a -F "$(window_format)" ||
+		tmux list-windows -t "$TARGET_SESSION" -F "$(window_format)"
 }
 
 toggle_window_zoom() {
@@ -215,6 +229,7 @@ dump_windows() {
 }
 
 dump_state() {
+	[[ -z "$TARGET_SESSION" ]] || return
 	tmux display-message -p "$(state_format)"
 }
 
