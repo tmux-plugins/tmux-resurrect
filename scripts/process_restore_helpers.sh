@@ -89,6 +89,8 @@ _process_on_the_restore_list() {
 _proc_matches_full_command() {
 	local pane_full_command="$1"
 	local match="$2"
+	local match_strategy=$(get_tmux_option "$process_match_strategy_option" "$default_process_match_strategy")
+
 	if _proc_starts_with_tildae "$match"; then
 		match="$(remove_first_char "$match")"
 		# regex matching the command makes sure `$match` string is somewhere in the command string
@@ -96,9 +98,17 @@ _proc_matches_full_command() {
 			return 0
 		fi
 	else
-		# regex matching the command makes sure process is a "word"
-		if [[ "$pane_full_command" =~ (^${match} ) ]] || [[ "$pane_full_command" =~ (^${match}$) ]]; then
-			return 0
+		if [[ $match_strategy = "basename" ]]; then
+			# This is roughly equivalent to performing a basename on the first part of the command (program name)
+			# then matching against the result.  It will break on backslash escaped spaces in paths.
+			if [[ "$pane_full_command" =~ (^([^ ]+/)?${match} ) ]] || [[ "$pane_full_command" =~ (^([^ ]+/)?${match}$) ]]; then
+				return 0
+			fi
+		else # default to $match_strategy 'full'
+			# regex matching the command makes sure process is a "word"
+			if [[ "$pane_full_command" =~ (^${match} ) ]] || [[ "$pane_full_command" =~ (^${match}$) ]]; then
+				return 0
+			fi
 		fi
 	fi
 	return 1
