@@ -14,7 +14,8 @@ full_command() {
 	ps -ao "ppid,args" |
 		sed "s/^ *//" |
 		grep "^${PANE_PID}" |
-		cut -d' ' -f2-
+		cut -d' ' -f2- |
+		tail -1
 }
 
 main() {
