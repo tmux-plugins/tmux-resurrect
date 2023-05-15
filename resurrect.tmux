@@ -10,6 +10,7 @@ set_save_bindings() {
 	local key
 	for key in $key_bindings; do
 		tmux bind-key "$key" run-shell "$CURRENT_DIR/scripts/save.sh"
+		tmux bind-key -N "Save session" "$key"
 	done
 }
 
@@ -18,6 +19,7 @@ set_restore_bindings() {
 	local key
 	for key in $key_bindings; do
 		tmux bind-key "$key" run-shell "$CURRENT_DIR/scripts/restore.sh"
+		tmux bind-key -N "Restore session" "$key"
 	done
 }
 
