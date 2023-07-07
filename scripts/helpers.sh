@@ -98,7 +98,7 @@ pane_content_files_restore_from_archive() {
 
 resurrect_dir() {
 	if [ -z "$_RESURRECT_DIR" ]; then
-		local path="$(get_tmux_option "$resurrect_dir_option" "$default_resurrect_dir")"
+		local path="$(get_tmux_option "$resurrect_dir_option" "$default_resurrect_dir")/$(basename $(tmux display-message -p -F "#{socket_path}"))"
 		# expands tilde, $HOME and $HOSTNAME if used in @resurrect-dir
 		echo "$path" | sed "s,\$HOME,$HOME,g; s,\$HOSTNAME,$(hostname),g; s,\~,$HOME,g"
 	else
