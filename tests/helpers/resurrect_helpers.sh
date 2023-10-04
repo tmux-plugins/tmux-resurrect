@@ -6,6 +6,6 @@ set_screen_dimensions_helper() {
 
 last_save_file_differs_helper() {
 	local original_file="$1"
-	diff "$original_file" "${HOME}/.tmux/resurrect/last"
+	diff "$original_file" "${HOME}/.local/share/tmux//resurrect/last"
 	[ $? -ne 0 ]
 }
