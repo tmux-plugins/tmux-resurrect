@@ -35,5 +35,13 @@ else
 fi
 
 # Stash the new history each time a command runs.
-export PROMPT_COMMAND="$PROMPT_COMMAND;history -a"
+#export PROMPT_COMMAND="$PROMPT_COMMAND;history -a"
+if [[ -n "$PROMPT_COMMAND" ]]
+then
+  PROMPT_COMMAND=`echo $PROMPT_COMMAND|sed -e 's/;\s*$//g'`
+  export PROMPT_COMMAND="$PROMPT_COMMAND;history -a;"
+else
+  export PROMPT_COMMAND="history -a;"
+fi
+
 ```
