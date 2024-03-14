@@ -7,33 +7,37 @@ source "$CURRENT_DIR/scripts/helpers.sh"
 
 set_save_bindings() {
 	local should_confirm_save=$(get_tmux_option "$confirm_save_option" "$default_confirm_save")
+	local run_save_script="run-shell \"$CURRENT_DIR/scripts/save.sh\""
 	local command
 	if [ "$should_confirm_save" == "on" ]; then
-		command="confirm-before -y -p \"$confirm_save_prompt\" \"run-shell \\\"$CURRENT_DIR/scripts/save.sh\\\"\""
+		command="confirm-before -y -p \"$confirm_save_prompt\" \"$run_save_script\""
 	else
-		command="run-shell \"$CURRENT_DIR/scripts/save.sh\""
+		command="$run_save_script"
 	fi
 
 	local key_bindings=$(get_tmux_option "$save_option" "$default_save_key")
 	local key
 	for key in $key_bindings; do
-		tmux bind-key "$key" $command
+		tmux unbind "$key"
+		tmux bind-key "$key" "$command"
 	done
 }
 
 set_restore_bindings() {
 	local should_confirm_restore=$(get_tmux_option "$confirm_restore_option" "$default_confirm_restore")
+	local run_restore_script="run-shell \"$CURRENT_DIR/scripts/restore.sh\""
 	local command
 	if [ "$should_confirm_restore" == "on" ]; then
-		command="confirm-before -y -p \"$confirm_restore_prompt\" \"run-shell \\\"$CURRENT_DIR/scripts/restore.sh\\\"\""
+		command="confirm-before -y -p \"$confirm_restore_prompt\" \"$run_restore_script\""
 	else
-		command="run-shell \"$CURRENT_DIR/scripts/restore.sh\""
+		command="$run_restore_script"
 	fi
 
 	local key_bindings=$(get_tmux_option "$restore_option" "$default_restore_key")
 	local key
 	for key in $key_bindings; do
-		tmux bind-key "$key" $command
+		tmux unbind "$key"
+		tmux bind-key "$key" "$command"
 	done
 }
 
