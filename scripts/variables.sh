@@ -2,10 +2,16 @@
 default_save_key="C-s"
 save_option="@resurrect-save"
 save_path_option="@resurrect-save-script-path"
+default_confirm_save="off"
+confirm_save_option="@resurrect-confirm-save"
+confirm_save_prompt="Save tmux environment? (Y/n)"
 
 default_restore_key="C-r"
 restore_option="@resurrect-restore"
 restore_path_option="@resurrect-restore-script-path"
+default_confirm_restore="off"
+confirm_restore_option="@resurrect-confirm-restore"
+confirm_restore_prompt="Restore tmux environment? (Y/n)"
 
 # default processes that are restored
 default_proc_list_option="@resurrect-default-processes"
