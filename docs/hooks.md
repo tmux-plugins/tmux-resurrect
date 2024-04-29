@@ -24,6 +24,11 @@ Currently the following hooks are supported:
 
   Called before running processes are restored.
 
+- `@resurrect-hook-post-restore-all`
+
+  Called at end of restore process right before the spinner is turned off.
+
+
 ### Examples
 
 Here is an example how to save and restore window geometry for most terminals in X11.
