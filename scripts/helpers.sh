@@ -90,6 +90,10 @@ pane_content_files_restore_from_archive() {
 	fi
 }
 
+pane_content_files_cleanup() {
+	rm "$(pane_contents_dir)"/*
+}
+
 # path helpers
 
 resurrect_dir() {
