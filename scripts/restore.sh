@@ -201,7 +201,7 @@ restore_pane() {
 			new_session "$session_name" "$window_number" "$dir" "$pane_index"
 		fi
 		# set pane title
-		tmux select-pane -t "$session_name:$window_number.$pane_index" -T "$pane_title"
+		tmux select-pane -t "$session_name:$window_number.$pane_index" -T "${pane_title//:/}"
 	done < <(echo "$pane")
 }
 
