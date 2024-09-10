@@ -64,6 +64,11 @@ capture_pane_contents_option_on() {
 	[ "$option" == "on" ]
 }
 
+override_worktree_path_option_on() {
+	local option="$(get_tmux_option "$override_worktree_path" "off")"
+	[ "$option" == "on" ] && command -v git > /dev/null 2>&1
+}
+
 files_differ() {
 	! cmp -s "$1" "$2"
 }
