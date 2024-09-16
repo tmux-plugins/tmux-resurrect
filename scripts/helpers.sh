@@ -128,6 +128,8 @@ pane_contents_dir() {
 pane_contents_file() {
 	local save_or_restore="$1"
 	local pane_id="$2"
+	# avoid path issues if pane_id has "/" characters
+	pane_id=${pane_id//\//_}
 	echo "$(pane_contents_dir "$save_or_restore")/pane-${pane_id}"
 }
 
