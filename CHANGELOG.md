@@ -51,7 +51,7 @@
 ### v2.3.0, 2015-02-12
 - Improve fetching proper window_layout for zoomed windows. In order to fetch
   proper value, window has to get unzoomed. This is now done faster so that
-  "unzoom,fetch value,zoom" cycle is almost unnoticable to the user.
+  "unzoom,fetch value,zoom" cycle is almost unnoticeable to the user.
 
 ### v2.2.0, 2015-02-12
 - bugfix: zoomed windows related regression
@@ -61,7 +61,7 @@
 
 ### v2.1.0, 2015-02-12
 - if restore is started when there's only **1 pane in the whole tmux server**,
-  assume the users wants the "full restore" and overrwrite that pane.
+  assume the users wants the "full restore" and overwrite that pane.
 
 ### v2.0.0, 2015-02-10
 - add link to the wiki page for "first pane/window issue" to the README as well
