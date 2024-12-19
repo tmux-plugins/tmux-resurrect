@@ -89,6 +89,7 @@ pane_content_files_restore_from_archive() {
 	local archive_file="$(pane_contents_archive_file)"
 	if [ -f "$archive_file" ]; then
 		mkdir -p "$(pane_contents_dir "restore")"
+		rm "$(pane_contents_dir "restore")"/* # Clean up any existing files
 		gzip -d < "$archive_file" |
 			tar xf - -C "$(resurrect_dir)/restore/"
 	fi

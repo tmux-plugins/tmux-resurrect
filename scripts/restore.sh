@@ -355,14 +355,6 @@ restore_active_and_alternate_sessions() {
 	done < $(last_resurrect_file)
 }
 
-# A cleanup that happens after 'restore_all_panes' seems to fix fish shell
-# users' restore problems.
-cleanup_restored_pane_contents() {
-	if is_restoring_pane_contents; then
-		rm "$(pane_contents_dir "restore")"/*
-	fi
-}
-
 main() {
 	if supported_tmux_version_ok && check_saved_session_exists; then
 		start_spinner "Restoring..." "Tmux restore complete!"
@@ -378,7 +370,6 @@ main() {
 		restore_grouped_sessions  # also restores active and alt windows for grouped sessions
 		restore_active_and_alternate_windows
 		restore_active_and_alternate_sessions
-		cleanup_restored_pane_contents
 		execute_hook "post-restore-all"
 		stop_spinner
 		display_message "Tmux restore complete!"
