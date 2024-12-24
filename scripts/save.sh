@@ -195,6 +195,13 @@ dump_panes() {
 				continue
 			fi
 			full_command="$(pane_full_command $pane_pid)"
+			if override_worktree_path_option_on; then
+				git="git -C "${dir/:/}""
+				git_dir="$($git rev-parse --absolute-git-dir 2>/dev/null)"
+				if [[ -n $git_dir && $($git rev-parse --is-inside-work-tree) == "true" && $(git -C "$git_dir" rev-parse --is-bare-repository) == "true" ]]; then
+					dir=":$($git rev-parse --absolute-git-dir | sed 's#/worktrees/.*$##')"
+				fi
+			fi
 			dir=$(echo $dir | sed 's/ /\\ /') # escape all spaces in directory path
 			echo "${line_type}${d}${session_name}${d}${window_number}${d}${window_active}${d}${window_flags}${d}${pane_index}${d}${pane_title}${d}${dir}${d}${pane_active}${d}${pane_command}${d}:${full_command}"
 		done

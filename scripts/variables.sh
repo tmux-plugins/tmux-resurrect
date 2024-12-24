@@ -46,3 +46,5 @@ hook_prefix="@resurrect-hook-"
 
 delete_backup_after_option="@resurrect-delete-backup-after"
 default_delete_backup_after="30" # days
+
+override_worktree_path="@resurrect-override-worktree-path"
