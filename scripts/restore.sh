@@ -315,6 +315,24 @@ restore_all_pane_processes() {
 	fi
 }
 
+clear_paste_buffers() {
+	tmux list-buffers -F '#{buffer_name}' |
+		while read bufname; do
+			tmux delete-buffer -b "${bufname}"
+		done
+}
+
+restore_paste_buffers() {
+	if paste_buffers_option_on; then
+		clear_paste_buffers
+		paste_buffers_restore_from_archive | while read buffer_file; do
+			buffer_name=$(basename ${buffer_file##*/} | cut -d _ -f 2)
+			tmux load-buffer -b "${buffer_name}" "${buffer_file}"
+		done
+		rm $(paste_buffers_dir "restore")/*
+	fi
+}
+
 restore_active_pane_for_each_window() {
 	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $9 == 1 { print $2, $3, $6; }' $(last_resurrect_file) |
 		while IFS=$d read session_name window_number active_pane; do
@@ -372,6 +390,7 @@ main() {
 		restore_window_properties >/dev/null 2>&1
 		execute_hook "pre-restore-pane-processes"
 		restore_all_pane_processes
+		restore_paste_buffers
 		# below functions restore exact cursor positions
 		restore_active_pane_for_each_window
 		restore_zoomed_windows

@@ -94,6 +94,34 @@ pane_content_files_restore_from_archive() {
 	fi
 }
 
+# paste buffers file helpers
+
+paste_buffers_option_on() {
+	local option="$(get_tmux_option "$paste_buffers_option" "off")"
+	[ "$option" == "on" ]
+}
+
+paste_buffers_create_archive() {
+	tar cf - -C "$(resurrect_dir)/save/" ./paste_buffers/ |
+		gzip > "$(paste_buffers_archive_file)"
+}
+
+paste_buffers_restore_from_archive() {
+	local archive_file="$(paste_buffers_archive_file)"
+	if [ -f "$archive_file" ]; then
+		restore_dir=$(paste_buffers_dir "restore")
+		mkdir -p "${restore_dir}"
+		gzip -d < "$archive_file" |
+			tar xf - -C "$(resurrect_dir)/restore/"
+		gzip -d < "$archive_file" | tar t | cut -d / -f 3 |
+			sort -r | # restore buffers in order (first saved restored last)
+			while read file_in_arch; do
+				[ ! -f "${restore_dir}/${file_in_arch}" ] && continue # skip top level dir
+				echo "${restore_dir}/${file_in_arch}"
+		done
+	fi
+}
+
 # path helpers
 
 resurrect_dir() {
@@ -138,6 +166,20 @@ pane_contents_file_exists() {
 
 pane_contents_archive_file() {
 	echo "$(resurrect_dir)/pane_contents.tar.gz"
+}
+
+paste_buffers_dir() {
+	echo "$(resurrect_dir)/$1/paste_buffers/"
+}
+
+paste_buffer_file() {
+	local save_or_restore="$1"
+	local file_name="$2"
+	echo "$(paste_buffers_dir "${save_or_restore}")/${file_name}"
+}
+
+paste_buffers_archive_file() {
+	echo "$(resurrect_dir)/paste_buffers.tar.gz"
 }
 
 execute_hook() {

@@ -226,6 +226,17 @@ dump_pane_contents() {
 		done
 }
 
+dump_paste_buffers() {
+	tmux list-buffers -F '#{buffer_name}' |
+		while read bufname; do
+			# add index prefix to save buffer order
+			filename=$(printf "buf%04d_%s" "${i}" "${bufname}")
+			i=$((i+1))
+			dst=$(paste_buffer_file "save" "${filename}")
+			tmux save-buffer -b "${bufname}" "${dst}"
+		done
+}
+
 remove_old_backups() {
 	# remove resurrect files older than 30 days (default), but keep at least 5 copies of backup.
 	local delete_after="$(get_tmux_option "$delete_backup_after_option" "$default_delete_backup_after")"
@@ -254,6 +265,12 @@ save_all() {
 		dump_pane_contents
 		pane_contents_create_archive
 		rm "$(pane_contents_dir "save")"/*
+	fi
+	if paste_buffers_option_on; then
+		mkdir -p "$(paste_buffers_dir "save")"
+		dump_paste_buffers
+		paste_buffers_create_archive
+		rm "$(paste_buffers_dir "save")"/*
 	fi
 	remove_old_backups
 	execute_hook "post-save-all"

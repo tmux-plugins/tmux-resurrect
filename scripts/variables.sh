@@ -38,6 +38,9 @@ pane_contents_option="@resurrect-capture-pane-contents"
 pane_contents_area_option="@resurrect-pane-contents-area"
 default_pane_contents_area="full"
 
+# Paste buffer restore options
+paste_buffers_option="@resurrect-paste-buffers"
+
 # set to 'on' to ensure panes are never ever overwritten
 overwrite_option="@resurrect-never-overwrite"
 
