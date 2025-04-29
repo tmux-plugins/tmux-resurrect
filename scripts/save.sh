@@ -244,16 +244,16 @@ save_all() {
 	dump_windows >> "$resurrect_file_path"
 	dump_state   >> "$resurrect_file_path"
 	execute_hook "post-save-layout" "$resurrect_file_path"
-	if files_differ "$resurrect_file_path" "$last_resurrect_file"; then
-		ln -fs "$(basename "$resurrect_file_path")" "$last_resurrect_file"
-	else
-		rm "$resurrect_file_path"
-	fi
 	if capture_pane_contents_option_on; then
 		mkdir -p "$(pane_contents_dir "save")"
 		dump_pane_contents
 		pane_contents_create_archive
 		rm "$(pane_contents_dir "save")"/*
+	fi
+	if files_differ "$resurrect_file_path" "$last_resurrect_file"; then
+		ln -fs "$(basename "$resurrect_file_path")" "$last_resurrect_file"
+	else
+		rm "$resurrect_file_path"
 	fi
 	remove_old_backups
 	execute_hook "post-save-all"
