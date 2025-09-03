@@ -7,8 +7,8 @@ source "$CURRENT_DIR/helpers.sh"
 source "$CURRENT_DIR/spinner_helpers.sh"
 
 # delimiters
-d=$'\t'
-delimiter=$'\t'
+d=$'\t;\t'
+delimiter=$'\t;\t'
 
 # if "quiet" script produces no output
 SCRIPT_OUTPUT="$1"

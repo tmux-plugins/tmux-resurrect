@@ -11,7 +11,7 @@ RESURRECT_FILE_EXTENSION="txt"
 _RESURRECT_DIR=""
 _RESURRECT_FILE_PATH=""
 
-d=$'\t'
+d=$'\t;\t'
 
 # helper functions
 get_tmux_option() {
