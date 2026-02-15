@@ -16,6 +16,8 @@ No configuration is required. You should feel like you never quit tmux.
 
 It even (optionally)
 [restores vim and neovim sessions](docs/restoring_vim_and_neovim_sessions.md)!
+It also restores [Claude Code](https://claude.ai/claude-code) and
+[Codex CLI](https://github.com/openai/codex) sessions automatically.
 
 Automatic restoring and continuous saving of tmux env is also possible with
 [tmux-continuum](https://github.com/tmux-plugins/tmux-continuum) plugin.
@@ -92,7 +94,7 @@ You should now be able to use the plugin.
 - [Changing the default key bindings](docs/custom_key_bindings.md).
 - [Setting up hooks on save & restore](docs/hooks.md).
 - Only a conservative list of programs is restored by default:<br/>
-  `vi vim nvim emacs man less more tail top htop irssi weechat mutt`.<br/>
+  `vi vim nvim emacs man less more tail top htop irssi weechat mutt claude codex`.<br/>
   [Restoring programs doc](docs/restoring_programs.md) explains how to restore
   additional programs.
 - [Change a directory](docs/save_dir.md) where `tmux-resurrect` saves tmux
