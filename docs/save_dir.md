@@ -5,11 +5,13 @@ Change this with:
 
     set -g @resurrect-dir '/some/path'
 
-Using environment variables or shell interpolation in this option is not
-allowed as the string is used literally. So the following won't do what is
-expected:
+A leading tilde (`~`) is expanded as your HOME path.
 
-    set -g @resurrect-dir '/path/$MY_VAR/$(some_executable)'
+Tmux variables can be used when using the `-F` flag (formats); for example, to
+make a subdirectory named after the hostname:
 
-Only the following variables and special chars are allowed:
-`$HOME`, `$HOSTNAME`, and `~`.
+    set -gF @resurrect-dir '~/.tmux/resurrect/#{host}'
+
+or after the short hostname:
+
+    set -gF @resurrect-dir '~/.tmux/resurrect/#{host_short}'
