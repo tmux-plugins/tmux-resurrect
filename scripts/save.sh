@@ -12,6 +12,7 @@ delimiter=$'\t'
 
 # if "quiet" script produces no output
 SCRIPT_OUTPUT="$1"
+SAVE_RESULT_DETAIL=""
 
 grouped_sessions_format() {
 	local format
@@ -238,41 +239,62 @@ remove_old_backups() {
 save_all() {
 	local resurrect_file_path="$(resurrect_file_path)"
 	local last_resurrect_file="$(last_resurrect_file)"
+	popup_log "writing tmux snapshot to $resurrect_file_path"
 	mkdir -p "$(resurrect_dir)"
+	popup_log "dumping grouped sessions..."
 	fetch_and_dump_grouped_sessions > "$resurrect_file_path"
+	popup_log "dumping panes..."
 	dump_panes   >> "$resurrect_file_path"
+	popup_log "dumping windows..."
 	dump_windows >> "$resurrect_file_path"
+	popup_log "dumping state..."
 	dump_state   >> "$resurrect_file_path"
 	execute_hook "post-save-layout" "$resurrect_file_path"
 	if files_differ "$resurrect_file_path" "$last_resurrect_file"; then
 		ln -fs "$(basename "$resurrect_file_path")" "$last_resurrect_file"
+		SAVE_RESULT_DETAIL="save written to $resurrect_file_path"
 	else
 		rm "$resurrect_file_path"
+		SAVE_RESULT_DETAIL="no changes detected; existing save was kept"
 	fi
 	if capture_pane_contents_option_on; then
+		popup_log "capturing pane contents"
 		mkdir -p "$(pane_contents_dir "save")"
 		dump_pane_contents
 		pane_contents_create_archive
 		rm "$(pane_contents_dir "save")"/*
 	fi
+	popup_log "pruning expired backup files"
 	remove_old_backups
 	execute_hook "post-save-all"
 }
 
-show_output() {
-	[ "$SCRIPT_OUTPUT" != "quiet" ]
+is_quiet() {
+	[ "$SCRIPT_OUTPUT" = "quiet" ]
+}
+
+show_any_output() {
+	! is_quiet
 }
 
 main() {
-	if supported_tmux_version_ok; then
-		if show_output; then
-			start_spinner "Saving..." "Tmux environment saved!"
-		fi
-		save_all
-		if show_output; then
-			stop_spinner
-			display_message "Tmux environment saved!"
-		fi
+	if ! supported_tmux_version_ok; then
+		wait_for_popup_close
+		return 1
 	fi
+
+	if show_any_output; then
+		popup_header "save" "saving..."
+		start_spinner "saving..." "Tmux environment saved!"
+	fi
+	save_all
+	if is_popup_output && [ -n "$SAVE_RESULT_DETAIL" ]; then
+		popup_log "$SAVE_RESULT_DETAIL"
+	fi
+	if show_any_output; then
+		stop_spinner
+		display_message "Tmux environment saved!"
+	fi
+	wait_for_popup_close
 }
 main

@@ -46,3 +46,14 @@ hook_prefix="@resurrect-hook-"
 
 delete_backup_after_option="@resurrect-delete-backup-after"
 default_delete_backup_after="30" # days
+
+spinner_chars_option="@resurrect-spinner-chars"
+
+popup_mode_option="@resurrect-popup"
+default_popup_mode="auto"
+popup_height_option="@resurrect-popup-height"
+default_popup_height="80%"
+popup_width_option="@resurrect-popup-width"
+default_popup_width="80%"
+popup_close_delay_option="@resurrect-popup-close-delay"
+default_popup_close_delay="1"

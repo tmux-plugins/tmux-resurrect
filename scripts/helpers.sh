@@ -25,10 +25,104 @@ get_tmux_option() {
 	fi
 }
 
+get_digits_from_string() {
+	local string="$1"
+	local only_digits="$(echo "$string" | tr -dC '[:digit:]')"
+	echo "$only_digits"
+}
+
+tmux_version_int() {
+	local tmux_version_string="$(tmux -V)"
+	echo "$(get_digits_from_string "$tmux_version_string")"
+}
+
+tmux_version_at_least() {
+	local minimum_version="$1"
+	local current_version_int="$(tmux_version_int)"
+	local minimum_version_int="$(get_digits_from_string "$minimum_version")"
+	[ "$current_version_int" -ge "$minimum_version_int" ]
+}
+
+tmux_popup_supported() {
+	tmux_version_at_least "3.2"
+}
+
+should_use_popup() {
+	local popup_mode="$(get_tmux_option "$popup_mode_option" "$default_popup_mode")"
+
+	case "$popup_mode" in
+		on|auto)
+			tmux_popup_supported
+			;;
+		off)
+			return 1
+			;;
+		*)
+			return 1
+			;;
+	esac
+}
+
+is_popup_output() {
+	[ "${SCRIPT_OUTPUT:-}" = "popup" ]
+}
+
+popup_log() {
+	local message="$1"
+
+	if is_popup_output; then
+    printf '%s\n' "$message" | ts '[%F %.T]'
+	fi
+}
+
+popup_close_delay() {
+	get_tmux_option "$popup_close_delay_option" "$default_popup_close_delay"
+}
+
+wait_for_popup_close() {
+	if is_popup_output; then
+		local delay="$(popup_close_delay)"
+		if [ -n "$delay" ] && [ "$delay" != "0" ]; then
+			sleep "$delay"
+		fi
+	fi
+}
+
+shell_quote() {
+	printf '%q' "$1"
+}
+
+popup_icon() {
+	local operation="$1"
+
+	case "$operation" in
+		save)
+			printf "\\Uf10e9"
+			;;
+		restore)
+			printf "\\Uf10ed"
+			;;
+	esac
+}
+
+popup_header() {
+	local operation="$1"
+	local label="$2"
+
+	if is_popup_output; then
+		printf '%s %s\n' "$(popup_icon "$operation")" "$label" | ts '[%F %.T]'
+	fi
+}
+
 # Ensures a message is displayed for 5 seconds in tmux prompt.
 # Does not override the 'display-time' tmux option.
 display_message() {
 	local message="$1"
+
+	if is_popup_output; then
+		popup_log "$message"
+		return
+	fi
 
 	# display_duration defaults to 5 seconds, if not passed as an argument
 	if [ "$#" -eq 2 ]; then
@@ -52,7 +146,7 @@ display_message() {
 
 
 supported_tmux_version_ok() {
-	$CURRENT_DIR/check_tmux_version.sh "$SUPPORTED_VERSION"
+	RESURRECT_OUTPUT_MODE="${SCRIPT_OUTPUT:-}" "$CURRENT_DIR/check_tmux_version.sh" "$SUPPORTED_VERSION"
 }
 
 remove_first_char() {

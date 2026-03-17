@@ -19,6 +19,11 @@ get_tmux_option() {
 display_message() {
 	local message="$1"
 
+	if [ "${RESURRECT_OUTPUT_MODE:-}" = "popup" ]; then
+		printf '[%s] %s\n' "$(date '+%H:%M:%S')" "$message"
+		return
+	fi
+
 	# display_duration defaults to 5 seconds, if not passed as an argument
 	if [ "$#" -eq 2 ]; then
 		local display_duration="$2"

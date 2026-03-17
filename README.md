@@ -29,6 +29,10 @@ Automatic restoring and continuous saving of tmux env is also possible with
 - `prefix + Ctrl-s` - save
 - `prefix + Ctrl-r` - restore
 
+On tmux `3.2+`, these bindings open a popup by default so save/restore progress
+can stream directly in the popup with verbose logs. On older tmux versions, the
+plugin falls back to the status-line messages automatically.
+
 ### About
 
 This plugin goes to great lengths to save and restore all the details from your
@@ -90,6 +94,11 @@ You should now be able to use the plugin.
 **Configuration**
 
 - [Changing the default key bindings](docs/custom_key_bindings.md).
+- Popup UI options:
+  `@resurrect-popup 'auto'|'on'|'off'`,
+  `@resurrect-popup-width`,
+  `@resurrect-popup-height`,
+  `@resurrect-popup-close-delay`.
 - [Setting up hooks on save & restore](docs/hooks.md).
 - Only a conservative list of programs is restored by default:<br/>
   `vi vim nvim emacs man less more tail top htop irssi weechat mutt`.<br/>
