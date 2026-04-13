@@ -105,11 +105,24 @@ _save_command_strategy_file() {
 	fi
 }
 
+# Associative array populated once by _load_ps_table() for the ps strategy
+declare -A _ps_table
+
+_load_ps_table() {
+	while IFS= read -r line; do
+		local ppid="${line%% *}"
+		local args="${line#* }"
+		_ps_table["$ppid"]="$args"
+	done < <(ps -ao "ppid,args" | sed 's/^ *//')
+}
+
 pane_full_command() {
 	local pane_pid="$1"
-	local strategy_file="$(_save_command_strategy_file)"
-	# execute strategy script to get pane full command
-	$strategy_file "$pane_pid"
+	if [ "${_save_command_strategy:-ps}" = "ps" ]; then
+		echo "${_ps_table[$pane_pid]}"
+	else
+		$(_save_command_strategy_file) "$pane_pid"
+	fi
 }
 
 number_nonempty_lines_on_screen() {
@@ -188,16 +201,15 @@ fetch_and_dump_grouped_sessions(){
 # translates pane pid to process command running inside a pane
 dump_panes() {
 	local full_command
-	dump_panes_raw |
-		while IFS=$d read line_type session_name window_number window_active window_flags pane_index pane_title dir pane_active pane_command pane_pid history_size; do
-			# not saving panes from grouped sessions
-			if is_session_grouped "$session_name"; then
-				continue
-			fi
-			full_command="$(pane_full_command $pane_pid)"
-			dir=$(echo $dir | sed 's/ /\\ /') # escape all spaces in directory path
-			echo "${line_type}${d}${session_name}${d}${window_number}${d}${window_active}${d}${window_flags}${d}${pane_index}${d}${pane_title}${d}${dir}${d}${pane_active}${d}${pane_command}${d}:${full_command}"
-		done
+	while IFS=$d read line_type session_name window_number window_active window_flags pane_index pane_title dir pane_active pane_command pane_pid history_size; do
+		# not saving panes from grouped sessions
+		if is_session_grouped "$session_name"; then
+			continue
+		fi
+		full_command="$(pane_full_command $pane_pid)"
+		dir=$(echo $dir | sed 's/ /\\ /') # escape all spaces in directory path
+		echo "${line_type}${d}${session_name}${d}${window_number}${d}${window_active}${d}${window_flags}${d}${pane_index}${d}${pane_title}${d}${dir}${d}${pane_active}${d}${pane_command}${d}:${full_command}"
+	done < <(dump_panes_raw)
 }
 
 dump_windows() {
@@ -239,6 +251,8 @@ save_all() {
 	local resurrect_file_path="$(resurrect_file_path)"
 	local last_resurrect_file="$(last_resurrect_file)"
 	mkdir -p "$(resurrect_dir)"
+	_save_command_strategy="$(get_tmux_option "$save_command_strategy_option" "$default_save_command_strategy")"
+	[ "${_save_command_strategy}" = "ps" ] && _load_ps_table
 	fetch_and_dump_grouped_sessions > "$resurrect_file_path"
 	dump_panes   >> "$resurrect_file_path"
 	dump_windows >> "$resurrect_file_path"
