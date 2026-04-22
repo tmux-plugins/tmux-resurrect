@@ -1,7 +1,11 @@
 #!/usr/bin/env expect
 
+set script_dir [file dirname [file normalize [info script]]]
+set resurrect_dir [exec sh -c ". '$script_dir/default_resurrect_dir.sh'; echo \"\$default_resurrect_dir\""]
+exec mkdir -p "$resurrect_dir/tmp"
+
 # start tmux
-spawn tmux -S/tmp/foo
+spawn tmux -S "$resurrect_dir/tmp/foo"
 
 # delay with sleep to compensate for tmux starting time
 sleep 2
