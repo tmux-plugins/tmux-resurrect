@@ -1,8 +1,4 @@
-if [ -d "$HOME/.tmux/resurrect" ]; then
-        default_resurrect_dir="$HOME/.tmux/resurrect"
-else
-        default_resurrect_dir="${XDG_DATA_HOME:-$HOME/.local/share}"/tmux/resurrect
-fi
+source "$(dirname "${BASH_SOURCE[0]}")/default_resurrect_dir.sh"
 resurrect_dir_option="@resurrect-dir"
 
 SUPPORTED_VERSION="1.9"
