@@ -1,3 +1,12 @@
+# Force a UTF-8 locale when none is set in the environment. tmux 3.x with a
+# C/POSIX locale renders tab characters (0x09) as underscores (0x5f) in `-F`
+# format substitution, which silently breaks every IFS=$'\t' read in this
+# script and produces near-empty resurrect files. macOS launchd jobs and
+# minimal cron environments hit this because they ship with empty locale vars.
+if [ -z "${LC_ALL:-}${LANG:-}" ]; then
+	export LC_ALL="C.UTF-8"
+fi
+
 if [ -d "$HOME/.tmux/resurrect" ]; then
         default_resurrect_dir="$HOME/.tmux/resurrect"
 else
