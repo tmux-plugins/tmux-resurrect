@@ -48,6 +48,7 @@ This plugin goes to great lengths to save and restore all the details from your
 Optional:
 
 - [restoring vim and neovim sessions](docs/restoring_vim_and_neovim_sessions.md)
+- [restoring Claude Code sessions](docs/restoring_claude_code_sessions.md)
 - [restoring pane contents](docs/restoring_pane_contents.md)
 - [restoring a previously saved environment](docs/restoring_previously_saved_environment.md)
 
@@ -102,6 +103,8 @@ You should now be able to use the plugin.
 
 - [Restoring vim and neovim sessions](docs/restoring_vim_and_neovim_sessions.md)
   is nice if you're a vim/neovim user.
+- [Restoring Claude Code sessions](docs/restoring_claude_code_sessions.md)
+  resumes the right `claude` conversation in each pane on restore.
 - [Restoring pane contents](docs/restoring_pane_contents.md) feature.
 
 ### Other goodies
