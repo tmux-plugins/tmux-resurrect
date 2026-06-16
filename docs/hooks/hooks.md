@@ -31,3 +31,5 @@ Add this to `.tmux.conf`:
 
     set -g @resurrect-hook-post-save-all 'eval $(xdotool getwindowgeometry --shell $WINDOWID); echo 0,$X,$Y,$WIDTH,$HEIGHT > $HOME/.tmux/resurrect/geometry'
     set -g @resurrect-hook-pre-restore-all 'wmctrl -i -r $WINDOWID -e $(cat $HOME/.tmux/resurrect/geometry)'
+
+There are also other examples inside `examples/`
