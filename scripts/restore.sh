@@ -24,7 +24,7 @@ is_line_type() {
 	local line_type="$1"
 	local line="$2"
 	echo "$line" |
-		\grep -q "^$line_type"
+		\grep -q "^${line_type}"$'	'
 }
 
 check_saved_session_exists() {
@@ -287,7 +287,7 @@ handle_session_0() {
 restore_window_properties() {
 	local window_name
 	\grep '^window' $(last_resurrect_file) |
-		while IFS=$d read line_type session_name window_number window_name window_active window_flags window_layout automatic_rename; do
+		while IFS=$d read line_type session_name window_number window_name window_active window_flags window_layout automatic_rename border_status border_format; do
 			tmux select-layout -t "${session_name}:${window_number}" "$window_layout"
 
 			# Below steps are properly handling window names and automatic-rename
@@ -299,6 +299,13 @@ restore_window_properties() {
 				tmux set-option -u -t "${session_name}:${window_number}" automatic-rename
 			else
 				tmux set-option -t "${session_name}:${window_number}" automatic-rename "$automatic_rename"
+			fi
+			# Restore window-level pane-border-status and pane-border-format
+			if [ -n "$border_status" ] && [ "$border_status" != ":" ]; then
+				tmux set-option -w -t "${session_name}:${window_number}" pane-border-status "$border_status"
+			fi
+			if [ -n "$border_format" ] && [ "$border_format" != ":" ]; then
+				tmux set-option -w -t "${session_name}:${window_number}" pane-border-format "$border_format"
 			fi
 		done
 }
@@ -363,6 +370,58 @@ cleanup_restored_pane_contents() {
 	fi
 }
 
+# Re-apply pane titles after all pane processes have been restored.
+# Shells (bash, zsh, etc.) typically set the pane title via escape sequences
+# in PROMPT_COMMAND/PS1, which overwrites the title set during pane creation
+# in restore_pane(). Running this step after process restoration ensures
+# custom pane titles (e.g. "hermes-exec-pane", "hermes-dialog-pane")
+# survive the shell restart.
+#
+# To avoid restoring stale dynamic titles (e.g. "user@host: /old/path") on
+# panes that rely on the shell to set their title, we only restore titles
+# for panes that have a custom pane-border override (pane_border lines).
+# This links title restoration to the presence of a deliberate visual
+# customization.
+restore_pane_titles() {
+	local border_panes=""
+	border_panes="$(awk 'BEGIN { FS="	" } /^pane_border/ { print $2":"$3"."$4 }' "$(last_resurrect_file)")"
+	# NOTE: /^pane	/ avoids matching "pane_border" lines
+	awk 'BEGIN { FS="	"; OFS="	" } /^pane	/ { print $2, $3, $6, $7; }' "$(last_resurrect_file)" |
+		while IFS=$d read -r session_name window_number pane_index pane_title; do
+			local key="${session_name}:${window_number}.${pane_index}"
+			# only restore title for panes with custom border overrides
+			if echo "$border_panes" | grep -qxF "$key"; then
+				if pane_exists "$session_name" "$window_number" "$pane_index"; then
+					# select-pane -T changes the active pane, which would
+					# undo restore_active_pane_for_each_window. Save and
+					# restore the active pane around the title set.
+					local previous_active="$(tmux display -t "${session_name}:${window_number}" -p '#{pane_id}' 2>/dev/null)"
+					tmux select-pane -t "${session_name}:${window_number}.${pane_index}" -T "$pane_title"
+					if [ -n "$previous_active" ]; then
+						tmux select-pane -t "$previous_active" 2>/dev/null
+					fi
+				fi
+			fi
+		done
+}
+
+# Read saved pane_border lines and re-apply per-pane border options
+# (pane-border-status and pane-border-format) via tmux set -p.
+restore_pane_borders() {
+	awk 'BEGIN { FS="	"; OFS="	" } /^pane_border/ { print $2, $3, $4, $5, $6; }' "$(last_resurrect_file)" |
+		while IFS=$d read -r session_name window_number pane_index status format; do
+			local target="${session_name}:${window_number}.${pane_index}"
+			if pane_exists "$session_name" "$window_number" "$pane_index"; then
+				if [ -n "$status" ]; then
+					tmux set -p -t "$target" pane-border-status "$status"
+				fi
+				if [ -n "$format" ]; then
+					tmux set -p -t "$target" pane-border-format "$format"
+				fi
+			fi
+		done
+}
+
 main() {
 	if supported_tmux_version_ok && check_saved_session_exists; then
 		start_spinner "Restoring..." "Tmux restore complete!"
@@ -375,6 +434,12 @@ main() {
 		# below functions restore exact cursor positions
 		restore_active_pane_for_each_window
 		restore_zoomed_windows
+		# restore pane titles after process restoration — shells (bash/zsh)
+		# set the title via escape sequences, which would overwrite the title
+		# set during pane creation otherwise
+		restore_pane_titles
+		# restore pane borders (status and format label)
+		restore_pane_borders
 		restore_grouped_sessions  # also restores active and alt windows for grouped sessions
 		restore_active_and_alternate_windows
 		restore_active_and_alternate_sessions

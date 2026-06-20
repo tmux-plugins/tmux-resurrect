@@ -210,7 +210,13 @@ dump_windows() {
 			automatic_rename="$(tmux show-window-options -vt "${session_name}:${window_index}" automatic-rename)"
 			# If the option was unset, use ":" as a placeholder.
 			[ -z "${automatic_rename}" ] && automatic_rename=":"
-			echo "${line_type}${d}${session_name}${d}${window_index}${d}${window_name}${d}${window_active}${d}${window_flags}${d}${window_layout}${d}${automatic_rename}"
+			# Capture window-level pane-border-status and pane-border-format
+			local win_target="${session_name}:${window_index}"
+			local border_status="$(tmux show-options -w -t "$win_target" pane-border-status 2>/dev/null | sed 's/^pane-border-status //')"
+			local border_format="$(tmux show-options -w -t "$win_target" pane-border-format 2>/dev/null | sed 's/^pane-border-format //' | sed 's/^"//;s/"$//')"
+			[ -z "$border_status" ] && border_status=":"
+			[ -z "$border_format" ] && border_format=":"
+			echo "${line_type}${d}${session_name}${d}${window_index}${d}${window_name}${d}${window_active}${d}${window_flags}${d}${window_layout}${d}${automatic_rename}${d}${border_status}${d}${border_format}"
 		done
 }
 
@@ -223,6 +229,64 @@ dump_pane_contents() {
 	dump_panes_raw |
 		while IFS=$d read line_type session_name window_number window_active window_flags pane_index pane_title dir pane_active pane_command pane_pid history_size; do
 			capture_pane_contents "${session_name}:${window_number}.${pane_index}" "$history_size" "$pane_contents_area"
+		done
+}
+
+# Dump per-pane pane-border-status and pane-border-format overrides.
+# These are window options set per-pane via `set -p`, and tmux format
+# variables #{pane_border_status} / #{pane_border_format} are not available
+# in list-panes -F output (tmux 3.4), so we query them via show-options -p.
+# Only panes with values different from their window-level setting are
+# emitted (actual overrides, not inherited values).
+dump_pane_borders() {
+	dump_panes_raw |
+		while IFS=$d read line_type session_name window_number window_active window_flags pane_index pane_title dir pane_active pane_command pane_pid history_size; do
+			if is_session_grouped "$session_name"; then
+				continue
+			fi
+			local target="${session_name}:${window_number}.${pane_index}"
+			local win_target="${session_name}:${window_number}"
+
+			# Get pane-scope effective values
+			local pane_status=""
+			local raw_pane_status="$(tmux show-options -p -t "$target" pane-border-status 2>/dev/null)"
+			[ -n "$raw_pane_status" ] && pane_status="${raw_pane_status#pane-border-status }"
+
+			local pane_format=""
+			local raw_pane_format="$(tmux show-options -p -t "$target" pane-border-format 2>/dev/null)"
+			if [ -n "$raw_pane_format" ]; then
+				pane_format="${raw_pane_format#pane-border-format }"
+				pane_format="${pane_format#\"}"
+				pane_format="${pane_format%\"}"
+			fi
+
+			# Get window-scope values for comparison
+			local win_status=""
+			local raw_win_status="$(tmux show-options -w -t "$win_target" pane-border-status 2>/dev/null)"
+			[ -n "$raw_win_status" ] && win_status="${raw_win_status#pane-border-status }"
+
+			local win_format=""
+			local raw_win_format="$(tmux show-options -w -t "$win_target" pane-border-format 2>/dev/null)"
+			if [ -n "$raw_win_format" ]; then
+				win_format="${raw_win_format#pane-border-format }"
+				win_format="${win_format#\"}"
+				win_format="${win_format%\"}"
+			fi
+
+			# Only save if pane value differs from window value (actual override)
+			local needs_status=0
+			local needs_format=0
+			[ -n "$pane_status" ] && [ "$pane_status" != "$win_status" ] && needs_status=1
+			[ -n "$pane_format" ] && [ "$pane_format" != "$win_format" ] && needs_format=1
+
+			if [ $needs_status -eq 1 ] || [ $needs_format -eq 1 ]; then
+				# Only include values that are actual overrides
+				local out_status=""
+				[ $needs_status -eq 1 ] && out_status="$pane_status"
+				local out_format=""
+				[ $needs_format -eq 1 ] && out_format="$pane_format"
+				echo "pane_border${d}${session_name}${d}${window_number}${d}${pane_index}${d}${out_status}${d}${out_format}"
+			fi
 		done
 }
 
@@ -242,6 +306,7 @@ save_all() {
 	fetch_and_dump_grouped_sessions > "$resurrect_file_path"
 	dump_panes   >> "$resurrect_file_path"
 	dump_windows >> "$resurrect_file_path"
+	dump_pane_borders >> "$resurrect_file_path"
 	dump_state   >> "$resurrect_file_path"
 	execute_hook "post-save-layout" "$resurrect_file_path"
 	if files_differ "$resurrect_file_path" "$last_resurrect_file"; then
