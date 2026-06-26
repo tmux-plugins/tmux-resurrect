@@ -1,10 +1,14 @@
 # Save & Restore Hooks
 
-Hooks allow to set custom commands that will be executed during session save
-and restore. Most hooks are called with zero arguments, unless explicitly
+Hooks allow to set custom commands that will be executed during session `save`
+and `restore`. Most hooks are called with zero arguments, unless explicitly
 stated otherwise.
 
 Currently the following hooks are supported:
+
+- `@resurrect-hook-pre-save-all`
+
+  Called before any tmux state is saved.
 
 - `@resurrect-hook-post-save-layout`
 
@@ -14,7 +18,7 @@ Currently the following hooks are supported:
 
 - `@resurrect-hook-post-save-all`
 
-  Called at end of save process right before the spinner is turned off.
+  Called at end of save process, right before the spinner is turned off.
 
 - `@resurrect-hook-pre-restore-all`
 
@@ -23,6 +27,11 @@ Currently the following hooks are supported:
 - `@resurrect-hook-pre-restore-pane-processes`
 
   Called before running processes are restored.
+
+- `@resurrect-hook-post-restore-all`
+
+  Called at the end of resttore process, right before the spinner is turned off.
+
 
 ### Examples
 
