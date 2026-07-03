@@ -39,8 +39,8 @@ pane_exists() {
 	local session_name="$1"
 	local window_number="$2"
 	local pane_index="$3"
-	tmux list-panes -t "${session_name}:${window_number}" -F "#{pane_index}" 2>/dev/null |
-		\grep -q "^$pane_index$"
+	tmux list-panes -s -t "$session_name" -F "#{window_index}.#{pane_index}" 2>/dev/null |
+		\grep -q "^${window_number}\.${pane_index}$"
 }
 
 register_existing_pane() {
