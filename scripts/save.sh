@@ -243,6 +243,15 @@ save_all() {
 	dump_panes   >> "$resurrect_file_path"
 	dump_windows >> "$resurrect_file_path"
 	dump_state   >> "$resurrect_file_path"
+	# Guard: never promote an empty / content-less dump to "last".
+	# If the tmux dump commands produced no panes (e.g. the server is being torn
+	# down, has no sessions, or was reached on the wrong socket) stdout is empty
+	# and the block below would otherwise symlink a 0-byte file over a previously
+	# good "last", silently destroying the saved session. Bail out instead.
+	if [ ! -s "$resurrect_file_path" ] || ! \grep -q "^pane${d}" "$resurrect_file_path"; then
+		rm -f "$resurrect_file_path"
+		return 1
+	fi
 	execute_hook "post-save-layout" "$resurrect_file_path"
 	if files_differ "$resurrect_file_path" "$last_resurrect_file"; then
 		ln -fs "$(basename "$resurrect_file_path")" "$last_resurrect_file"
