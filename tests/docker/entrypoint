@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+set -eu
+
+readonly source_dir="/opt/tmux-resurrect-source"
+readonly work_dir="/work/tmux-resurrect"
+
+normalize_source_tree() {
+	mkdir -p "$work_dir"
+	cp -a "$source_dir/." "$work_dir/"
+	rm -rf "$work_dir/.git" "$work_dir/lib/tmux-test/.git"
+}
+
+create_local_repository() {
+	git init --quiet
+	git config user.email "tmux-resurrect-tests@localhost"
+	git config user.name "tmux-resurrect tests"
+	git add --all
+	git commit --quiet --message "Container test source"
+}
+
+run_test_file() {
+	local test_file="$1"
+	mkdir -p "$HOME/.tmux/resurrect"
+	tests/run_tests_in_isolation "$test_file"
+}
+
+run_tests() {
+	local status test_file
+	status=0
+	if [ "$#" -eq 0 ]; then
+		set -- tests/test*.sh
+	fi
+	for test_file in "$@"; do
+		run_test_file "$test_file" || status=1
+	done
+	return "$status"
+}
+
+main() {
+	normalize_source_tree
+	cd "$work_dir"
+	create_local_repository
+	run_tests "$@"
+}
+
+main "$@"

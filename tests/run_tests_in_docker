@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+
+set -eu
+
+current_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly current_dir
+repository_dir="$(cd "$current_dir/.." && pwd)"
+readonly repository_dir
+readonly image="tmux-resurrect-tests:local"
+run_id="tmux-resurrect-$(date -u '+%Y%m%dT%H%M%SZ')-$$"
+readonly run_id
+readonly label_key="tmux-resurrect.test-run-id"
+
+container_id=""
+
+build_image() {
+	docker build \
+		--file "$current_dir/docker/Dockerfile" \
+		--tag "$image" \
+		"$repository_dir"
+}
+
+create_container() {
+	container_id="$(docker create \
+		--init \
+		--name "$run_id" \
+		--hostname tmux-resurrect-test \
+		--tty \
+		--network none \
+		--read-only \
+		--cap-drop ALL \
+		--security-opt no-new-privileges \
+		--pids-limit 256 \
+		--label "$label_key=$run_id" \
+		--tmpfs \
+			/tmp:rw,exec,nosuid,nodev,mode=1777 \
+		--tmpfs \
+			/work:rw,exec,nosuid,nodev,mode=1777 \
+		--tmpfs \
+			/home/tester:rw,exec,nosuid,nodev,mode=1777 \
+		"$image" "$@")"
+	[ -n "$container_id" ]
+}
+
+container_belongs_to_run() {
+	local actual_run_id
+	actual_run_id="$(docker inspect \
+		--format "{{ index .Config.Labels \"$label_key\" }}" \
+		"$container_id" 2>/dev/null || true)"
+	[ "$actual_run_id" = "$run_id" ]
+}
+
+remove_container() {
+	[ -n "$container_id" ] || return 0
+	if ! container_belongs_to_run; then
+		printf 'Refusing to remove container with unverified ownership: %s\n' \
+			"$container_id" >&2
+		return 1
+	fi
+	docker rm --force "$container_id" >/dev/null
+	container_id=""
+}
+
+forward_signal() {
+	local signal="$1"
+	[ -n "$container_id" ] || return 0
+	container_belongs_to_run || return 1
+	docker kill --signal "$signal" "$container_id" >/dev/null 2>&1 || true
+}
+
+run_container() {
+	docker start --attach "$container_id"
+}
+
+main() {
+	local status
+	trap 'forward_signal INT' INT
+	trap 'forward_signal TERM' TERM
+	trap remove_container EXIT
+	build_image
+	create_container "$@"
+	status=0
+	run_container || status=$?
+	return "$status"
+}
+
+if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+	main "$@"
+fi
