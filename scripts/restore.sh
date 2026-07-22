@@ -176,6 +176,7 @@ new_pane() {
 restore_pane() {
 	local pane="$1"
 	while IFS=$d read line_type session_name window_number window_active window_flags pane_index pane_title dir pane_active pane_command pane_full_command; do
+		pane_title="$(remove_first_char "$pane_title")"
 		dir="$(remove_first_char "$dir")"
 		pane_full_command="$(remove_first_char "$pane_full_command")"
 		if [ "$session_name" == "0" ]; then
