@@ -33,6 +33,11 @@ check_saved_session_exists() {
 		display_message "Tmux resurrect file not found!"
 		return 1
 	fi
+	# Refuse to restore a paneless file; restoring nothing kills session 0 and exits.
+	if ! \grep -q '^pane' "$resurrect_file"; then
+		display_message "Tmux resurrect file is empty, not restoring!"
+		return 1
+	fi
 }
 
 pane_exists() {
