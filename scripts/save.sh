@@ -244,6 +244,12 @@ save_all() {
 	dump_windows >> "$resurrect_file_path"
 	dump_state   >> "$resurrect_file_path"
 	execute_hook "post-save-layout" "$resurrect_file_path"
+	# Don't clobber "last" with a paneless dump (can happen
+	# mid-boot/shutdown), since restore of an empty file kills session
+	if ! \grep -q '^pane' "$resurrect_file_path"; then
+		rm -f "$resurrect_file_path"
+		return
+	fi
 	if files_differ "$resurrect_file_path" "$last_resurrect_file"; then
 		ln -fs "$(basename "$resurrect_file_path")" "$last_resurrect_file"
 	else
