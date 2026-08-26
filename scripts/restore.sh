@@ -357,9 +357,22 @@ restore_active_and_alternate_sessions() {
 
 # A cleanup that happens after 'restore_all_panes' seems to fix fish shell
 # users' restore problems.
+remove_restored_pane_contents() {
+	local pane_dir="$(pane_contents_dir "restore")"
+	# Mirrors remove_saved_pane_contents in save.sh. The glob is expanded in a
+	# subshell with nullglob enabled, so an empty directory is a successful no-op
+	# without changing the caller's shell options, and cleanup stays restricted to
+	# pane-* files in this one directory.
+	(
+		shopt -s nullglob
+		local pane_files=("${pane_dir%/}"/pane-*)
+		[[ ${#pane_files[@]} -eq 0 ]] || rm -f -- "${pane_files[@]}"
+	)
+}
+
 cleanup_restored_pane_contents() {
 	if is_restoring_pane_contents; then
-		rm "$(pane_contents_dir "restore")"/*
+		remove_restored_pane_contents
 	fi
 }
 
