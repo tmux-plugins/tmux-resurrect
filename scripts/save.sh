@@ -226,6 +226,19 @@ dump_pane_contents() {
 		done
 }
 
+remove_saved_pane_contents() {
+	local pane_dir="$(pane_contents_dir "save")"
+	# The glob is intentionally expanded in a subshell with nullglob enabled.
+	# This makes an empty directory a successful no-op without changing the
+	# caller's shell options, while restricting cleanup to pane-* files in this
+	# one directory.
+	(
+		shopt -s nullglob
+		local pane_files=("${pane_dir%/}"/pane-*)
+		[[ ${#pane_files[@]} -eq 0 ]] || rm -f -- "${pane_files[@]}"
+	)
+}
+
 remove_old_backups() {
 	# remove resurrect files older than 30 days (default), but keep at least 5 copies of backup.
 	local delete_after="$(get_tmux_option "$delete_backup_after_option" "$default_delete_backup_after")"
@@ -253,7 +266,7 @@ save_all() {
 		mkdir -p "$(pane_contents_dir "save")"
 		dump_pane_contents
 		pane_contents_create_archive
-		rm "$(pane_contents_dir "save")"/*
+		remove_saved_pane_contents
 	fi
 	remove_old_backups
 	execute_hook "post-save-all"
