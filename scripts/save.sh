@@ -39,7 +39,10 @@ pane_format() {
 	format+="${delimiter}"
 	format+="#{pane_index}"
 	format+="${delimiter}"
-	format+="#{pane_title}"
+	# An empty pane title collapses into the neighbouring tab when a saved line is
+	# read back with IFS=$'\t', shifting the directory and every later field one
+	# column left. Fall back to the title tmux itself defaults to.
+	format+="#{?pane_title,#{pane_title},#{host_short}}"
 	format+="${delimiter}"
 	format+=":#{pane_current_path}"
 	format+="${delimiter}"
