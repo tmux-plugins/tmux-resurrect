@@ -10,9 +10,16 @@ exit_safely_if_empty_ppid() {
 	fi
 }
 
+# `pgrep -lf` prints the raw argument list, so a command containing a newline
+# (e.g. a multi-line shell snippet) spans several lines and breaks the
+# tab-delimited save file. Ask pgrep only for the child PIDs, then let `ps`
+# render the command line the same way the default "ps" strategy does.
 full_command() {
-	\pgrep -lf -P "$PANE_PID" |
-		cut -d' ' -f2-
+	local child_pids
+	child_pids="$(\pgrep -P "$PANE_PID" | tr '\n' ',' | sed 's/,$//')"
+	if [ -n "$child_pids" ]; then
+		ps -o args= -p "$child_pids"
+	fi
 }
 
 main() {
