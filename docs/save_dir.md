@@ -1,6 +1,8 @@
 # Resurrect save dir
 
-By default Tmux environment is saved to a file in `~/.tmux/resurrect` dir.
+By default Tmux environment is saved to a file in
+`${XDG_DATA_HOME:-$HOME/.local/share}/tmux/resurrect`, or `~/.tmux/resurrect`
+if it exists for backwards compatibility.
 Change this with:
 
     set -g @resurrect-dir '/some/path'
