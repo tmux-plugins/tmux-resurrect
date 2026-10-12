@@ -26,8 +26,23 @@ Automatic restoring and continuous saving of tmux env is also possible with
 
 ### Key bindings
 
-- `prefix + Ctrl-s` - save
-- `prefix + Ctrl-r` - restore
+- `prefix + Ctrl-s` - save the current session (prompts for a name if the
+  session still has a default numeric name)
+- `prefix + Ctrl-r` - restore the last save
+
+**Custom key bindings example:**
+
+If you prefer simpler key bindings (e.g., `prefix + s` instead of `prefix + Ctrl-s`),
+add this to your `.tmux.conf`:
+
+    # Save the current session with prefix + s
+    bind-key s run-shell "~/.tmux/plugins/tmux-resurrect/scripts/save_session.sh '#{session_id}'"
+
+    # Save all sessions at once (single file, like upstream tmux-resurrect)
+    bind-key S run-shell '~/.tmux/plugins/tmux-resurrect/scripts/save.sh'
+
+    # Restore session with prefix + R
+    bind-key R run-shell '~/.tmux/plugins/tmux-resurrect/scripts/restore.sh'
 
 ### About
 
@@ -82,6 +97,39 @@ Add this line to the bottom of `.tmux.conf`:
 
 Reload TMUX environment with: `$ tmux source-file ~/.tmux.conf`.
 You should now be able to use the plugin.
+
+### Session Manager (`attach` command)
+
+Each session saved with `prefix + Ctrl-s` gets its own file in the
+`sessions/` subdirectory of the resurrect dir, e.g.
+`~/.tmux/resurrect/sessions/work.txt`. Saving a session again overwrites its
+file. Pane contents (if enabled) are stored per session as well.
+
+Automatic saves from [tmux-continuum](https://github.com/tmux-plugins/tmux-continuum)
+still save all sessions into the usual timestamped files, so restoring on tmux
+start keeps working as before.
+
+On load, the plugin links an interactive session manager to `$HOME/bin/attach`.
+Run `attach` in your terminal to:
+
+- List all saved sessions
+- Restore a session by selecting its number and attach to it (or just attach
+  if it's already running)
+- Delete saved sessions (press `d`)
+- Rename saved sessions (press `r`)
+
+To install it under a different path, or not at all:
+
+    set -g @resurrect-session-manager-path '~/.local/bin/tmux-sessions'
+    set -g @resurrect-session-manager-path 'off'
+
+An existing file at that path is never overwritten.
+
+**Note:** For the `attach` command to work, `$HOME/bin` must be in your PATH.
+Most Linux distributions include this by default, but if not, add this to your
+`.bashrc` or `.zshrc`:
+
+    export PATH="$HOME/bin:$PATH"
 
 ### Docs
 

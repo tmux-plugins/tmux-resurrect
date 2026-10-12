@@ -10,8 +10,19 @@ source "$CURRENT_DIR/spinner_helpers.sh"
 d=$'\t'
 delimiter=$'\t'
 
+# "--session <target>" saves only that session to its own file
+SAVE_SESSION=""
+if [ "$1" == "--session" ]; then
+	SAVE_SESSION="$(tmux display-message -p -t "$2" '#{session_name}')"
+	shift 2
+fi
+
 # if "quiet" script produces no output
 SCRIPT_OUTPUT="$1"
+
+saving_single_session() {
+	[ -n "$SAVE_SESSION" ]
+}
 
 grouped_sessions_format() {
 	local format
@@ -82,11 +93,19 @@ state_format() {
 }
 
 dump_panes_raw() {
-	tmux list-panes -a -F "$(pane_format)"
+	if saving_single_session; then
+		tmux list-panes -s -t "=$SAVE_SESSION" -F "$(pane_format)"
+	else
+		tmux list-panes -a -F "$(pane_format)"
+	fi
 }
 
 dump_windows_raw(){
-	tmux list-windows -a -F "$(window_format)"
+	if saving_single_session; then
+		tmux list-windows -t "=$SAVE_SESSION" -F "$(window_format)"
+	else
+		tmux list-windows -a -F "$(window_format)"
+	fi
 }
 
 toggle_window_zoom() {
@@ -215,7 +234,11 @@ dump_windows() {
 }
 
 dump_state() {
-	tmux display-message -p "$(state_format)"
+	if saving_single_session; then
+		echo "state${d}${SAVE_SESSION}${d}${SAVE_SESSION}"
+	else
+		tmux display-message -p "$(state_format)"
+	fi
 }
 
 dump_pane_contents() {
@@ -259,19 +282,48 @@ save_all() {
 	execute_hook "post-save-all"
 }
 
+save_session() {
+	local session_file="$(session_file_path "$SAVE_SESSION")"
+	mkdir -p "$(sessions_dir)"
+	# grouped session info is only needed to skip grouped sessions' panes
+	fetch_and_dump_grouped_sessions > /dev/null
+	dump_panes   >  "$session_file"
+	dump_windows >> "$session_file"
+	dump_state   >> "$session_file"
+	execute_hook "post-save-layout" "$session_file"
+	ln -fs "$(basename "$(sessions_dir)")/$(basename "$session_file")" "$(last_resurrect_file)"
+	if capture_pane_contents_option_on; then
+		_PANE_CONTENTS_ARCHIVE_FILE="$(session_pane_contents_archive_file "$session_file")"
+		mkdir -p "$(pane_contents_dir "save")"
+		dump_pane_contents
+		pane_contents_create_archive
+		rm "$(pane_contents_dir "save")"/*
+	fi
+	execute_hook "post-save-all"
+}
+
 show_output() {
 	[ "$SCRIPT_OUTPUT" != "quiet" ]
 }
 
 main() {
 	if supported_tmux_version_ok; then
-		if show_output; then
-			start_spinner "Saving..." "Tmux environment saved!"
+		local done_message="Tmux environment saved!"
+		if saving_single_session; then
+			done_message="Tmux session \"$SAVE_SESSION\" saved!"
 		fi
-		save_all
+		if show_output; then
+			# the spinner shows the end message when stopped
+			start_spinner "Saving..." "$done_message"
+		fi
+		if saving_single_session; then
+			save_session
+		else
+			save_all
+		fi
 		if show_output; then
 			stop_spinner
-			display_message "Tmux environment saved!"
+			display_message "$done_message"
 		fi
 	fi
 }

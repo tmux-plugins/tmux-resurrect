@@ -46,3 +46,7 @@ hook_prefix="@resurrect-hook-"
 
 delete_backup_after_option="@resurrect-delete-backup-after"
 default_delete_backup_after="30" # days
+
+# per-session saves manager, linked here on plugin load ('off' disables)
+session_manager_path_option="@resurrect-session-manager-path"
+default_session_manager_path="$HOME/bin/attach"

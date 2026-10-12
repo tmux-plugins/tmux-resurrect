@@ -136,8 +136,36 @@ pane_contents_file_exists() {
 	[ -f "$(pane_contents_file "restore" "$pane_id")" ]
 }
 
+# per-session saves can point this to their own archive
 pane_contents_archive_file() {
-	echo "$(resurrect_dir)/pane_contents.tar.gz"
+	echo "${_PANE_CONTENTS_ARCHIVE_FILE:-$(resurrect_dir)/pane_contents.tar.gz}"
+}
+
+# per-session save helpers
+
+sessions_dir() {
+	echo "$(resurrect_dir)/sessions"
+}
+
+# '/' is valid in session names but not in file names
+session_file_path() {
+	local session_name="$1"
+	echo "$(sessions_dir)/${session_name//\//_}.${RESURRECT_FILE_EXTENSION}"
+}
+
+session_pane_contents_archive_file() {
+	local session_file="$1"
+	echo "${session_file%.${RESURRECT_FILE_EXTENSION}}.pane_contents.tar.gz"
+}
+
+# archive matching a resurrect file: per-session saves have their own
+pane_contents_archive_for() {
+	local resurrect_file="$(readlink -f "$1")"
+	if [ "$(dirname "$resurrect_file")" == "$(readlink -f "$(sessions_dir)")" ]; then
+		session_pane_contents_archive_file "$resurrect_file"
+	else
+		echo "$(resurrect_dir)/pane_contents.tar.gz"
+	fi
 }
 
 execute_hook() {
