@@ -93,7 +93,7 @@ window_exists() {
 
 session_exists() {
 	local session_name="$1"
-	tmux has-session -t "$session_name" 2>/dev/null
+	tmux has-session -t "${session_name}:" 2>/dev/null
 }
 
 first_window_num() {
