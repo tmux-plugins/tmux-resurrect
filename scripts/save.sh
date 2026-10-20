@@ -252,7 +252,23 @@ server_pid() {
 	tmux list-sessions -F '#{pid}' 2>/dev/null | head -1
 }
 
+# @resurrect-save-guard: a command run before every save; non-zero exit means
+# "do not save now" and its output is the reason. Off unless set. mac-config
+# points it at tmux-save-allowed, which says no while a restore is running or
+# before a boot server is restored: on 2026-10-19 the first autosave on the
+# empty boot server published 2 windows as `last` (mac-config#465).
+save_guard_says_no() {
+	local guard="$(get_tmux_option "@resurrect-save-guard" "")" why=""
+	[ -n "$guard" ] || return 1
+	guard="${guard/#\~/$HOME}"
+	[ -x "${guard%% *}" ] || return 1          # a missing guard saves, as before
+	why="$(eval "$guard")" && return 1
+	display_message "tmux-resurrect: save skipped -- ${why:-the save guard said no}"
+	return 0
+}
+
 save_all() {
+	save_guard_says_no && return 1
 	local resurrect_file_path="$(resurrect_file_path)"
 	local last_resurrect_file="$(last_resurrect_file)"
 	local pid_at_start="$(server_pid)"
@@ -303,10 +319,13 @@ main() {
 		if show_output; then
 			start_spinner "Saving..." "Tmux environment saved!"
 		fi
-		save_all
+		# A save that was skipped or aborted already said why; never follow
+		# that with "saved".
+		local saved=1
+		save_all || saved=0
 		if show_output; then
 			stop_spinner
-			display_message "Tmux environment saved!"
+			[ "$saved" = 1 ] && display_message "Tmux environment saved!"
 		fi
 	fi
 }
