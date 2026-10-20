@@ -39,7 +39,7 @@ pane_format() {
 	format+="${delimiter}"
 	format+="#{pane_index}"
 	format+="${delimiter}"
-	format+="#{pane_title}"
+	format+=":#{pane_title}"
 	format+="${delimiter}"
 	format+=":#{pane_current_path}"
 	format+="${delimiter}"
@@ -220,8 +220,16 @@ dump_state() {
 
 dump_pane_contents() {
 	local pane_contents_area="$(get_tmux_option "$pane_contents_area_option" "$default_pane_contents_area")"
+	# @resurrect-capture-depth: cap SAVED scrollback lines per pane (0/unset =
+	# full history, upstream behavior). At 150 panes x 100k-line history the
+	# full capture cost 99s per save; capping the saved depth makes frequent
+	# autosaves affordable while live scrollback stays uncapped (mac-config#50).
+	local depth_cap="$(get_tmux_option "@resurrect-capture-depth" "0")"
 	dump_panes_raw |
 		while IFS=$d read line_type session_name window_number window_active window_flags pane_index pane_title dir pane_active pane_command pane_pid history_size; do
+			if [ "$depth_cap" -gt 0 ] 2>/dev/null && [ "$history_size" -gt "$depth_cap" ]; then
+				history_size="$depth_cap"
+			fi
 			capture_pane_contents "${session_name}:${window_number}.${pane_index}" "$history_size" "$pane_contents_area"
 		done
 }
@@ -235,15 +243,55 @@ remove_old_backups() {
 		find "${files[@]}" -type f -mtime "+${delete_after}" -exec rm -v "{}" \; > /dev/null
 }
 
+# The pid of the server on the default socket. A save must describe ONE
+# server: if it is killed mid-save and another starts (the #305 cutover,
+# 2026-10-04), the rest of the dump reads the NEW, half-restored server.
+# That save recorded 59 windows, all named `cat`, and was published as
+# `last` (mac-config#310).
+server_pid() {
+	tmux list-sessions -F '#{pid}' 2>/dev/null | head -1
+}
+
+# @resurrect-save-guard: a command run before every save; non-zero exit means
+# "do not save now" and its output is the reason. Off unless set. mac-config
+# points it at tmux-save-allowed, which says no while a restore is running or
+# before a boot server is restored: on 2026-10-19 the first autosave on the
+# empty boot server published 2 windows as `last` (mac-config#465).
+save_guard_says_no() {
+	local guard="$(get_tmux_option "@resurrect-save-guard" "")" why=""
+	[ -n "$guard" ] || return 1
+	guard="${guard/#\~/$HOME}"
+	[ -x "${guard%% *}" ] || return 1          # a missing guard saves, as before
+	why="$(eval "$guard")" && return 1
+	display_message "tmux-resurrect: save skipped -- ${why:-the save guard said no}"
+	return 0
+}
+
 save_all() {
+	save_guard_says_no && return 1
 	local resurrect_file_path="$(resurrect_file_path)"
 	local last_resurrect_file="$(last_resurrect_file)"
+	local pid_at_start="$(server_pid)"
 	mkdir -p "$(resurrect_dir)"
 	fetch_and_dump_grouped_sessions > "$resurrect_file_path"
 	dump_panes   >> "$resurrect_file_path"
 	dump_windows >> "$resurrect_file_path"
 	dump_state   >> "$resurrect_file_path"
 	execute_hook "post-save-layout" "$resurrect_file_path"
+	# Never publish a truncated save: if the server dies mid-dump (2026-08-28:
+	# crash 20s into a save) the dump functions silently emit nothing, and
+	# without this guard `last` gets pointed at a file with pane lines but no
+	# window lines — restoring 157 nameless windows (mac-config#51).
+	if [ "$(grep -c '^window' "$resurrect_file_path")" -eq 0 ] || [ "$(grep -c '^pane' "$resurrect_file_path")" -eq 0 ]; then
+		rm -f "$resurrect_file_path"
+		display_message "tmux-resurrect: save aborted — dump was incomplete (server unresponsive?)"
+		return 1
+	fi
+	if [ -z "$pid_at_start" ] || [ "$(server_pid)" != "$pid_at_start" ]; then
+		rm -f "$resurrect_file_path"
+		display_message "tmux-resurrect: save aborted — the tmux server changed during the save"
+		return 1
+	fi
 	if files_differ "$resurrect_file_path" "$last_resurrect_file"; then
 		ln -fs "$(basename "$resurrect_file_path")" "$last_resurrect_file"
 	else
@@ -252,8 +300,11 @@ save_all() {
 	if capture_pane_contents_option_on; then
 		mkdir -p "$(pane_contents_dir "save")"
 		dump_pane_contents
-		pane_contents_create_archive
-		rm "$(pane_contents_dir "save")"/*
+		# Same check before the archive: a new server's panes are not this save's.
+		if [ "$(server_pid)" = "$pid_at_start" ]; then
+			pane_contents_create_archive
+		fi
+		rm -f "$(pane_contents_dir "save")"/*
 	fi
 	remove_old_backups
 	execute_hook "post-save-all"
@@ -268,10 +319,13 @@ main() {
 		if show_output; then
 			start_spinner "Saving..." "Tmux environment saved!"
 		fi
-		save_all
+		# A save that was skipped or aborted already said why; never follow
+		# that with "saved".
+		local saved=1
+		save_all || saved=0
 		if show_output; then
 			stop_spinner
-			display_message "Tmux environment saved!"
+			[ "$saved" = 1 ] && display_message "Tmux environment saved!"
 		fi
 	fi
 }

@@ -200,8 +200,8 @@ restore_pane() {
 		else
 			new_session "$session_name" "$window_number" "$dir" "$pane_index"
 		fi
-		# set pane title
-		tmux select-pane -t "$session_name:$window_number.$pane_index" -T "$pane_title"
+		# set pane title (strip the ":" guard prefix, same convention as window_name/dir)
+		tmux select-pane -t "$session_name:$window_number.$pane_index" -T "$(remove_first_char "$pane_title")"
 	done < <(echo "$pane")
 }
 
@@ -271,7 +271,7 @@ restore_all_panes() {
 		if is_line_type "pane" "$line"; then
 			restore_pane "$line"
 		fi
-	done < $(last_resurrect_file)
+	done < "$RESTORE_FILE"
 }
 
 handle_session_0() {
@@ -286,7 +286,7 @@ handle_session_0() {
 
 restore_window_properties() {
 	local window_name
-	\grep '^window' $(last_resurrect_file) |
+	\grep '^window' "$RESTORE_FILE" |
 		while IFS=$d read line_type session_name window_number window_name window_active window_flags window_layout automatic_rename; do
 			tmux select-layout -t "${session_name}:${window_number}" "$window_layout"
 
@@ -306,7 +306,7 @@ restore_window_properties() {
 restore_all_pane_processes() {
 	if restore_pane_processes_enabled; then
 		local pane_full_command
-		awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $11 !~ "^:$" { print $2, $3, $6, $8, $11; }' $(last_resurrect_file) |
+		awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $11 !~ "^:$" { print $2, $3, $6, $8, $11; }' "$RESTORE_FILE" |
 			while IFS=$d read -r session_name window_number pane_index dir pane_full_command; do
 				dir="$(remove_first_char "$dir")"
 				pane_full_command="$(remove_first_char "$pane_full_command")"
@@ -316,7 +316,7 @@ restore_all_pane_processes() {
 }
 
 restore_active_pane_for_each_window() {
-	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $9 == 1 { print $2, $3, $6; }' $(last_resurrect_file) |
+	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $9 == 1 { print $2, $3, $6; }' "$RESTORE_FILE" |
 		while IFS=$d read session_name window_number active_pane; do
 			tmux switch-client -t "${session_name}:${window_number}"
 			tmux select-pane -t "$active_pane"
@@ -324,7 +324,7 @@ restore_active_pane_for_each_window() {
 }
 
 restore_zoomed_windows() {
-	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $5 ~ /Z/ && $9 == 1 { print $2, $3; }' $(last_resurrect_file) |
+	awk 'BEGIN { FS="\t"; OFS="\t" } /^pane/ && $5 ~ /Z/ && $9 == 1 { print $2, $3; }' "$RESTORE_FILE" |
 		while IFS=$d read session_name window_number; do
 			tmux resize-pane -t "${session_name}:${window_number}" -Z
 		done
@@ -336,11 +336,11 @@ restore_grouped_sessions() {
 			restore_grouped_session "$line"
 			restore_active_and_alternate_windows_for_grouped_sessions "$line"
 		fi
-	done < $(last_resurrect_file)
+	done < "$RESTORE_FILE"
 }
 
 restore_active_and_alternate_windows() {
-	awk 'BEGIN { FS="\t"; OFS="\t" } /^window/ && $6 ~ /[*-]/ { print $2, $5, $3; }' $(last_resurrect_file) |
+	awk 'BEGIN { FS="\t"; OFS="\t" } /^window/ && $6 ~ /[*-]/ { print $2, $5, $3; }' "$RESTORE_FILE" |
 		sort -u |
 		while IFS=$d read session_name active_window window_number; do
 			tmux switch-client -t "${session_name}:${window_number}"
@@ -352,7 +352,7 @@ restore_active_and_alternate_sessions() {
 		if is_line_type "state" "$line"; then
 			restore_state "$line"
 		fi
-	done < $(last_resurrect_file)
+	done < "$RESTORE_FILE"
 }
 
 # A cleanup that happens after 'restore_all_panes' seems to fix fish shell
@@ -363,10 +363,27 @@ cleanup_restored_pane_contents() {
 	fi
 }
 
+# Pin the save once, AFTER pre-restore-all (resurrect-preflight may repoint
+# `last` there). Every later stage reads this file, never `last`: on
+# 2026-10-04 a save orphaned by a server kill repointed `last` mid-restore,
+# and restore_window_properties read the new file and named every window
+# `cat` (mac-config#310).
+pin_restore_file() {
+	local last target
+	last="$(last_resurrect_file)"
+	target="$(readlink "$last")"
+	case "$target" in
+		"") RESTORE_FILE="$last" ;;
+		/*) RESTORE_FILE="$target" ;;
+		*)  RESTORE_FILE="$(dirname "$last")/$target" ;;
+	esac
+}
+
 main() {
 	if supported_tmux_version_ok && check_saved_session_exists; then
 		start_spinner "Restoring..." "Tmux restore complete!"
 		execute_hook "pre-restore-all"
+		pin_restore_file
 		restore_all_panes
 		handle_session_0
 		restore_window_properties >/dev/null 2>&1
