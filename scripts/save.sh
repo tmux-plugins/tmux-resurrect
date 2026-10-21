@@ -246,7 +246,9 @@ save_all() {
 	execute_hook "post-save-layout" "$resurrect_file_path"
 	if files_differ "$resurrect_file_path" "$last_resurrect_file"; then
 		ln -fs "$(basename "$resurrect_file_path")" "$last_resurrect_file"
-	else
+	elif [ "$(readlink "$last_resurrect_file")" != "$(basename "$resurrect_file_path")" ]; then
+		# A second save within the same second rewrites the file "last"
+		# already points to; removing it would leave "last" dangling.
 		rm "$resurrect_file_path"
 	fi
 	if capture_pane_contents_option_on; then
