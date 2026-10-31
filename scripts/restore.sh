@@ -363,7 +363,22 @@ cleanup_restored_pane_contents() {
 	fi
 }
 
+# Only one restore per tmux server at a time. Two restores running at once race
+# (pane missing -> window exists -> split-window) and leave extra panes squashed
+# to one line, e.g. when tmux-continuum's auto-restore fires twice at login.
+# Keyed on the socket path, not the server pid: a restore started by a server
+# that has since exited still restores into the new server on the same socket.
+# Without flock, or if the lock file can't be created, restore runs unlocked.
+acquire_restore_lock() {
+	if [ -z "$TMUX" ] || ! command -v flock >/dev/null 2>&1; then
+		return 0
+	fi
+	{ exec 9>"${TMUX%%,*}.resurrect-restore.lock"; } 2>/dev/null || return 0
+	flock -n 9
+}
+
 main() {
+	acquire_restore_lock || return 0 # another restore is running
 	if supported_tmux_version_ok && check_saved_session_exists; then
 		start_spinner "Restoring..." "Tmux restore complete!"
 		execute_hook "pre-restore-all"
