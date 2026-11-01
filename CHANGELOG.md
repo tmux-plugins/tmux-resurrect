@@ -2,6 +2,8 @@
 
 ### master
 - Remove deprecated "restoring shell history" feature.
+- Run only one restore at a time per tmux server. Concurrent restores (e.g. a
+  double auto-restore at login) raced and left extra panes squashed to one line.
 
 ### v4.0.0, 2022-04-10
 - Proper handling of `automatic-rename` window option.
