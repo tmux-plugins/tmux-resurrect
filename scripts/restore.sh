@@ -378,7 +378,6 @@ acquire_restore_lock() {
 }
 
 main() {
-	acquire_restore_lock || return 0 # another restore is running
 	if supported_tmux_version_ok && check_saved_session_exists; then
 		start_spinner "Restoring..." "Tmux restore complete!"
 		execute_hook "pre-restore-all"
@@ -399,4 +398,7 @@ main() {
 		display_message "Tmux restore complete!"
 	fi
 }
-main
+acquire_restore_lock || exit 0 # another restore is running
+# The restore runs in a subshell without the lock's fd, so processes it starts (a
+# hook's background job, a tmux server) don't inherit the lock and keep it held.
+(exec 9>&-; main)
