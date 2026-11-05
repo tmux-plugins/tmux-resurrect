@@ -64,10 +64,6 @@ capture_pane_contents_option_on() {
 	[ "$option" == "on" ]
 }
 
-files_differ() {
-	! cmp -s "$1" "$2"
-}
-
 get_grouped_sessions() {
 	local grouped_sessions_dump="$1"
 	export GROUPED_SESSIONS="${d}$(echo "$grouped_sessions_dump" | cut -f2 -d"$d" | tr "\\n" "$d")"
@@ -81,8 +77,11 @@ is_session_grouped() {
 # pane content file helpers
 
 pane_contents_create_archive() {
+	local archive="$(versioned_archive_file)"
 	tar cf - -C "$(resurrect_dir)/save/" ./pane_contents/ |
-		gzip > "$(pane_contents_archive_file)"
+		gzip > "$archive"
+	# "pane_contents.tar.gz" always points at the newest archive (restore default, continuum)
+	ln -fs "$(basename "$archive")" "$(pane_contents_archive_file)"
 }
 
 pane_content_files_restore_from_archive() {
@@ -117,8 +116,19 @@ resurrect_file_path() {
 }
 _RESURRECT_FILE_PATH="$(resurrect_file_path)"
 
+# Set by "restore.sh <timestamp>" to restore a snapshot other than the newest.
 last_resurrect_file() {
-	echo "$(resurrect_dir)/last"
+	echo "${RESURRECT_LAST_OVERRIDE:-$(resurrect_dir)/last}"
+}
+
+# Timestamp shared by this save's layout file and pane-contents archive.
+snapshot_timestamp() {
+	local name="$(basename "$(resurrect_file_path)" ".${RESURRECT_FILE_EXTENSION}")"
+	echo "${name#${RESURRECT_FILE_PREFIX}_}"
+}
+
+versioned_archive_file() {
+	echo "$(resurrect_dir)/${PANE_CONTENTS_FILE_PREFIX}_$(snapshot_timestamp).tar.gz"
 }
 
 pane_contents_dir() {
@@ -137,7 +147,7 @@ pane_contents_file_exists() {
 }
 
 pane_contents_archive_file() {
-	echo "$(resurrect_dir)/pane_contents.tar.gz"
+	echo "${RESURRECT_ARCHIVE_OVERRIDE:-$(resurrect_dir)/${PANE_CONTENTS_FILE_PREFIX}.tar.gz}"
 }
 
 execute_hook() {

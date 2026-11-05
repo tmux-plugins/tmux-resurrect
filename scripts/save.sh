@@ -226,13 +226,47 @@ dump_pane_contents() {
 		done
 }
 
+# Removes a layout file together with its pane-contents archive.
+remove_snapshot() {
+	local layout_file="$1"
+	local timestamp="$(basename "$layout_file" ".${RESURRECT_FILE_EXTENSION}")"
+	timestamp="${timestamp#${RESURRECT_FILE_PREFIX}_}"
+	rm -f "$layout_file" "$(resurrect_dir)/${PANE_CONTENTS_FILE_PREFIX}_${timestamp}.tar.gz"
+}
+
 remove_old_backups() {
-	# remove resurrect files older than 30 days (default), but keep at least 5 copies of backup.
+	# remove snapshots older than 30 days (default), but keep at least 5 copies of backup.
 	local delete_after="$(get_tmux_option "$delete_backup_after_option" "$default_delete_backup_after")"
+	local max_snapshots="$(get_tmux_option "$max_snapshots_option" "$default_max_snapshots")"
 	local -a files
 	files=($(ls -t $(resurrect_dir)/${RESURRECT_FILE_PREFIX}_*.${RESURRECT_FILE_EXTENSION} | tail -n +6))
-	[[ ${#files[@]} -eq 0 ]] ||
-		find "${files[@]}" -type f -mtime "+${delete_after}" -exec rm -v "{}" \; > /dev/null
+	local file
+	for file in "${files[@]}"; do
+		[ -n "$(find "$file" -type f -mtime "+${delete_after}")" ] && remove_snapshot "$file"
+	done
+	# keep only the newest N snapshots
+	if [ "$max_snapshots" -gt 0 ]; then
+		files=($(ls -t $(resurrect_dir)/${RESURRECT_FILE_PREFIX}_*.${RESURRECT_FILE_EXTENSION} | tail -n +$((max_snapshots + 1))))
+		for file in "${files[@]}"; do
+			remove_snapshot "$file"
+		done
+	fi
+}
+
+# Only one save may run at a time: concurrent saves share the staging dir
+# that save_all wipes at the end, leaving an archive with a single pane.
+lock_dir() {
+	echo "${TMPDIR:-/tmp}/tmux-resurrect-save-lock"
+}
+
+acquire_save_lock() {
+	local lockdir="$(lock_dir)"
+	mkdir "$lockdir" 2>/dev/null && return 0
+	local holder="$(cat "$lockdir/pid" 2>/dev/null)"
+	[ -n "$holder" ] && kill -0 "$holder" 2>/dev/null && return 1
+	# holder died (reboot, kill) or has not written its pid yet: reclaim only if older than a minute
+	[ -n "$(find "$lockdir" -maxdepth 0 -mmin +1 2>/dev/null)" ] || return 1
+	rm -rf "$lockdir" && mkdir "$lockdir" 2>/dev/null
 }
 
 save_all() {
@@ -244,11 +278,8 @@ save_all() {
 	dump_windows >> "$resurrect_file_path"
 	dump_state   >> "$resurrect_file_path"
 	execute_hook "post-save-layout" "$resurrect_file_path"
-	if files_differ "$resurrect_file_path" "$last_resurrect_file"; then
-		ln -fs "$(basename "$resurrect_file_path")" "$last_resurrect_file"
-	else
-		rm "$resurrect_file_path"
-	fi
+	# every save is kept: pane contents change even when the layout does not
+	ln -fs "$(basename "$resurrect_file_path")" "$last_resurrect_file"
 	if capture_pane_contents_option_on; then
 		mkdir -p "$(pane_contents_dir "save")"
 		dump_pane_contents
@@ -265,6 +296,12 @@ show_output() {
 
 main() {
 	if supported_tmux_version_ok; then
+		if ! acquire_save_lock; then
+			show_output && display_message "Tmux save already in progress"
+			exit 0
+		fi
+		echo $$ > "$(lock_dir)/pid"
+		trap 'rm -rf "$(lock_dir)"' EXIT
 		if show_output; then
 			start_spinner "Saving..." "Tmux environment saved!"
 		fi

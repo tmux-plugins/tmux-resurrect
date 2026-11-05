@@ -46,3 +46,13 @@ hook_prefix="@resurrect-hook-"
 
 delete_backup_after_option="@resurrect-delete-backup-after"
 default_delete_backup_after="30" # days
+
+# Snapshots: each save keeps a "tmux_resurrect_<T>.txt" + "pane_contents_<T>.tar.gz" pair.
+# Only the newest N pairs are kept (0 = unlimited).
+max_snapshots_option="@resurrect-max-snapshots"
+default_max_snapshots="10"
+PANE_CONTENTS_FILE_PREFIX="pane_contents"
+
+# key binding for the snapshot picker (tmux >= 3.0)
+default_restore_menu_key="M-r"
+restore_menu_option="@resurrect-restore-menu"
