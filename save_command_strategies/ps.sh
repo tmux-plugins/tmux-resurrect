@@ -13,7 +13,7 @@ exit_safely_if_empty_ppid() {
 full_command() {
 	ps -ao "ppid,args" |
 		sed "s/^ *//" |
-		grep "^${PANE_PID}" |
+		grep "^${PANE_PID}[[:space:]]" |
 		cut -d' ' -f2-
 }
 
